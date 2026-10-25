@@ -237,7 +237,6 @@ public partial class MainViewModel
         {
             // the home page runs with this profile: it now runs with exactly what was saved
             foreach (var o in _allOptions) o.Refresh();
-            ClearOverrides();
         }
         RaiseProfileChoice();
     }
@@ -252,7 +251,6 @@ public partial class MainViewModel
         _dirty = false; _justSaved = false;
         RebuildProfileLists();
         foreach (var o in _allOptions) o.Refresh();
-        ClearOverrides();
         RaiseProfileChoice();
         if (SavedProfiles.Count > 0) SavedProfiles[0].IsSelected = true;
         else RaiseEditor();

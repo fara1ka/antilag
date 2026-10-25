@@ -15,6 +15,7 @@
         <StackPanel>
             <TextBlock Text="Önizleme" Style="{StaticResource Heading}" FontSize="24"/>
             <TextBlock Text="{Binding Header}" Style="{StaticResource Hint}" Margin="0,6,0,0"/>
+            <TextBlock Text="Bir şeyin yapılmasını istemiyorsan ana ekrandaki listeden ya da Ayrıntılar'dan kapat." Style="{StaticResource Hint}" Margin="0,2,0,0"/>
         </StackPanel>
 
         <Border Grid.Row="1" Margin="0,16,0,0" Background="{StaticResource WarnSoftBrush}" CornerRadius="10" Padding="16,12"
@@ -39,27 +40,11 @@
                                     <DataTemplate>
                                         <StackPanel>
                                             <Rectangle x:Name="Sep" Style="{StaticResource Hairline}"/>
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                    <ColumnDefinition Width="*"/>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                </Grid.ColumnDefinitions>
-                                                <!-- ad ve açıklama da onay kutusunun içinde: satırın tamamı (üst ve alt boşluk dahil) tıklanır, yalnızca küçük kutu değil -->
-                                                <CheckBox Grid.ColumnSpan="2" IsChecked="{Binding IsEnabled, Mode=TwoWay}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,14,0" Padding="0,10"
-                                                          AutomationProperties.Name="{Binding Title}">
-                                                    <StackPanel>
-                                                        <TextBlock Text="{Binding Title}" FontWeight="Medium" TextWrapping="Wrap"/>
-                                                        <TextBlock Text="{Binding Detail}" Style="{StaticResource Hint}" Margin="0,2,0,0"/>
-                                                    </StackPanel>
-                                                </CheckBox>
-                                                <StackPanel Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right">
-                                                    <TextBlock Text="{Binding NeverAddedText}" Style="{StaticResource Hint}" HorizontalAlignment="Right" Margin="0,3,9,0"
-                                                               Visibility="{Binding NeverAdded, Converter={StaticResource B2V}}"/>
-                                                    <Button Content="{Binding NeverText}" Style="{StaticResource LinkButton}" HorizontalAlignment="Right"
-                                                            Command="{Binding NeverCommand}" Visibility="{Binding CanNever, Converter={StaticResource B2V}}"/>
-                                                </StackPanel>
-                                            </Grid>
+                                            <!-- yalnızca yazı: önizlemede tıklanacak ya da işaretlenecek bir şey yok -->
+                                            <StackPanel Margin="0,10,14,10">
+                                                <TextBlock Text="{Binding Title}" FontWeight="Medium" TextWrapping="Wrap"/>
+                                                <TextBlock Text="{Binding Detail}" Style="{StaticResource Hint}" Margin="0,2,0,0"/>
+                                            </StackPanel>
                                         </StackPanel>
                                         <DataTemplate.Triggers>
                                             <DataTrigger Binding="{Binding RelativeSource={RelativeSource PreviousData}}" Value="{x:Null}">
@@ -75,11 +60,6 @@
             </ItemsControl>
         </ScrollViewer>
 
-        <DockPanel Grid.Row="3" Margin="0,16,0,0" LastChildFill="False">
-            <!-- the button is declared first: a DockPanel measures in order, so a long sentence can never squeeze it out at the smallest window -->
-            <Button DockPanel.Dock="Right" Content="Tamam" Padding="30,10" IsDefault="True" IsCancel="True" Click="Ok_Click" Style="{StaticResource PrimaryButton}"/>
-            <TextBlock DockPanel.Dock="Left" VerticalAlignment="Center" Style="{StaticResource Hint}" MaxWidth="480" Margin="0,0,16,0"
-                       Text="İşaretini kaldırdığın şey yalnızca bu seferlik yapılmaz. 'Her zaman açık kalsın' kalıcıdır; Ayarlar'dan çıkarılır."/>
-        </DockPanel>
+        <Button Grid.Row="3" Margin="0,16,0,0" HorizontalAlignment="Right" Content="Kapat" Padding="30,10" IsDefault="True" IsCancel="True" Click="Close_Click" Style="{StaticResource PrimaryButton}"/>
     </Grid>
 </Window>

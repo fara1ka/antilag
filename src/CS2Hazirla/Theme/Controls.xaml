@@ -656,7 +656,7 @@
         </Setter>
     </Style>
 
-    <!-- onay kutusu (önizleme, seçici, hizmet listesi): kutu + yazı, kutunun tamamı en az 36 px yükseklikte tıklanır -->
+    <!-- onay kutusu (seçici, hizmet listesi): kutu + yazı, kutunun tamamı en az 36 px yükseklikte tıklanır -->
     <Style TargetType="CheckBox">
         <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
         <Setter Property="Cursor" Value="Hand"/>

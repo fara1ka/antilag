@@ -123,6 +123,15 @@ if ($Yayinla -ne '') {
     Step 'İmza doğrulaması' {
         dotnet run --project tools\Yayinla -c Release -- dogrula $manifest $setup
     }
+    Step 'Oyun kapalı mı' {
+        # 60 MB'lık yükleme internet hattını doldurur ve oyunda gecikme yapar: CS2 açıksa kapanana kadar bekler
+        $told = $false
+        while (Get-Process -Name cs2 -ErrorAction SilentlyContinue) {
+            if (-not $told) { Write-Host '  CS2 açık: yükleme, oyun kapanana kadar bekliyor.'; $told = $true }
+            Start-Sleep -Seconds 30
+        }
+        $global:LASTEXITCODE = 0
+    }
     Step 'GitHub sürümü (taslak)' {
         # önce taslak: iki dosya da eklenip denetlenmeden kimsenin "en son sürümü" olmaz. Notlar bir dosyadan okunur (PowerShell 5.1 tırnak işaretlerini bozar).
         $hash = (Get-FileHash $setup -Algorithm SHA256).Hash.ToLowerInvariant()

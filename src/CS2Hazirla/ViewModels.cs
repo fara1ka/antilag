@@ -174,29 +174,15 @@ public class PickerRequest
     public List<PickItemVM> Items { get; init; } = new();
 }
 
-public class PlannedActionVM : ObservableObject
+/// <summary>One row of the preview: what Başlat will do. Text only; the preview has nothing to click or tick.</summary>
+public class PlannedActionVM
 {
     private readonly PlannedAction _a;
-    private readonly Action<PlannedActionVM> _never;
-    public PlannedActionVM(PlannedAction a, Action<PlannedActionVM> never)
-    {
-        _a = a; _never = never;
-        NeverCommand = new RelayCommand(() => _never(this));
-    }
+    public PlannedActionVM(PlannedAction a) => _a = a;
 
-    public PlannedAction Action => _a;
     public string Group => _a.Group;
     public string Title => _a.Title;
     public string Detail => _a.Detail;
-    /// <summary>After the user chose "her zaman açık kalsın" the link turns into a confirmation, so the click visibly did something.</summary>
-    private bool _neverAdded;
-    public bool NeverAdded => _neverAdded;
-    public void MarkNeverAdded() { _neverAdded = true; Raise(nameof(NeverAdded)); Raise(nameof(CanNever)); }
-    public bool CanNever => _a.NeverKey != null && !_neverAdded;
-    public string NeverText => _a.NeverType == NeverKind.Service ? "Bu hizmeti hiç durdurma" : "Her zaman açık kalsın";
-    public string NeverAddedText => _a.NeverType == NeverKind.Service ? "Bu hizmet durdurulmayacak" : "Her zaman açık kalacak";
-    public RelayCommand NeverCommand { get; }
-    public bool IsEnabled { get => _a.Enabled; set { _a.Enabled = value; Raise(); } }
 }
 
 /// <summary>One row of the home list: the program's name and a switch. The switch is "this program is closed by the next Başlat".</summary>
@@ -242,8 +228,6 @@ public partial class MainViewModel : ObservableObject
     private readonly FileLog _log = new();
     private readonly Orchestrator _orc;
     private readonly List<OptionVM> _allOptions = new();
-    /// <summary>Choices made in the preview (action id → enabled): "this run only". Defaults apply to everything else.</summary>
-    private readonly Dictionary<string, bool> _overrides = new();
 
     public AppSettings Settings { get; }
     public bool IsElevated { get; } = WindowsSystem.IsElevated();
@@ -325,10 +309,8 @@ public partial class MainViewModel : ObservableObject
         foreach (var n in Settings.NeverClose) KeepOpenList.Add(n, DisplayFor(n));
         foreach (var n in Settings.ExtraProcesses) AlwaysCloseList.Add(n, DisplayFor(n));
         foreach (var r in Settings.Services) ServiceRules.Add(MakeRule(r));
-        // any change of a list or rule invalidates choices made earlier in a preview (they were "this run only")
-        KeepOpenList.Items.CollectionChanged += (_, _) => { ClearOverrides(); _scanStale = true; };        // "Her zaman açık kalsın" decides what the scan may list
-        AlwaysCloseList.Items.CollectionChanged += (_, _) => { ClearOverrides(); _scanStale = true; };
-        ServiceRules.CollectionChanged += (_, _) => ClearOverrides();
+        KeepOpenList.Items.CollectionChanged += (_, _) => _scanStale = true;        // "Her zaman açık kalsın" decides what the scan may list
+        AlwaysCloseList.Items.CollectionChanged += (_, _) => _scanStale = true;
 
         PrepareCommand = new RelayCommand(() => _ = RunAsync(), () => IsIdle);
         PreviewCommand = new RelayCommand(() => _ = PreviewAsync(), () => IsIdle);
@@ -436,7 +418,6 @@ public partial class MainViewModel : ObservableObject
             return;
         }
         foreach (var o in _allOptions) o.Refresh();
-        ClearOverrides();
         _restore = RestoreOutcome.None;                 // a new choice: the result of the last restore is no longer the news
         _error = null;
         RaiseProfileChoice();
@@ -450,27 +431,17 @@ public partial class MainViewModel : ObservableObject
         RaiseStatus();      // "Customized" and the headline follow the switches
     }
 
-    /// <summary>Choices made in a preview mean "this run only"; they must not silently outlive the settings they were made against.</summary>
-    private void ClearOverrides()
-    {
-        if (_overrides.Count == 0) return;
-        _overrides.Clear();
-        RaiseStatus();
-    }
-
     private string DisplayFor(string key) =>
         Settings.DisplayNames.TryGetValue(key, out var d) && !string.IsNullOrWhiteSpace(d) ? d : FriendlyNames.ForProcess(key, null);
 
     private ServiceRuleVM MakeRule(ServiceRule r)
     {
-        var rule = new ServiceRuleVM
+        return new ServiceRuleVM
         {
             Name = r.Name, Group = r.Group, IsEnabled = r.Enabled,
             Title = Catalog.ServiceTitle(r.Name, Settings.DisplayNames.TryGetValue("svc:" + r.Name, out var d) ? d : null),
             Plain = Catalog.ServicePlain(r.Name) is { Length: > 0 } p ? p : "Senin eklediğin hizmet.",
         };
-        rule.PropertyChanged += (_, _) => ClearOverrides();
-        return rule;
     }
 
     // ---------------------------------------------------------------- settings page
@@ -796,23 +767,9 @@ public partial class MainViewModel : ObservableObject
         if (IsIdle && !HomeApps.IsLocked(app, Settings))
         {
             _profiles.SetAppChoice(app.Key, close, HomeApps.ModeCloses(app, Settings));
-            foreach (var n in app.Names) _overrides.Remove("proc:" + n);          // an older tick in Önizleme must not outvote this click
-            RaiseStatus();                                                         // the headline says "(değiştirilmiş)", the rows follow
+            RaiseStatus();                                                        // the headline says "(değiştirilmiş)", the rows follow
         }
         else RefreshHomeRows();
-    }
-
-    /// <summary>What was unticked or ticked in Önizleme for a program of the list becomes that row's switch: the list stays the one place that says what happens to it.</summary>
-    private void MoveOverridesToRows()
-    {
-        foreach (var r in _scan)
-        {
-            var ids = r.Names.Select(n => "proc:" + n).Where(_overrides.ContainsKey).ToList();
-            if (ids.Count == 0) continue;
-            _profiles.SetAppChoice(r.Key, _overrides[ids[0]], HomeApps.ModeCloses(r, Settings));
-            foreach (var id in ids) _overrides.Remove(id);
-        }
-        RefreshHomeRows();
     }
 
     /// <summary>Puts the switches of the home list into a plan (Başlat and Önizleme both use it).</summary>
@@ -995,48 +952,10 @@ public partial class MainViewModel : ObservableObject
                                         "Başlat'a basınca önce eski hale döner, sonra baştan yapılır.");
 
             await ApplyHomeChoicesAsync(plan);
-            var defaults = plan.Actions.ToDictionary(a => a.Id, a => a.Enabled);
-            ApplyOverrides(plan);
-            var vm = new PreviewViewModel(plan, NeverAgain);
-            ShowPreview?.Invoke(vm);
-
-            // remember only deviations from the plan default, so later setting changes are not silently overridden
-            foreach (var a in plan.Actions)
-            {
-                if (defaults.TryGetValue(a.Id, out var def) && def == a.Enabled) _overrides.Remove(a.Id);
-                else _overrides[a.Id] = a.Enabled;
-            }
-            Log($"Önizleme kapandı: {plan.Actions.Count(a => a.Enabled)} işlem yapılacak, {plan.Actions.Count(a => !a.Enabled)} işlem yapılmayacak.");
-            MoveOverridesToRows();
+            ShowPreview?.Invoke(new PreviewViewModel(plan));       // information only: nothing in it changes the plan
+            Log("Önizleme kapandı.");
         }
         finally { SetPreviewing(false); RaiseStatus(); RescanIfStale(); }
-    }
-
-    private void ApplyOverrides(Plan plan)
-    {
-        foreach (var a in plan.Actions)
-            if (_overrides.TryGetValue(a.Id, out var on)) a.Enabled = on;
-    }
-
-    private void NeverAgain(PlannedActionVM vm)
-    {
-        var a = vm.Action;
-        if (a.NeverKey == null) return;
-        if (a.NeverType == NeverKind.Service)
-        {
-            var rule = ServiceRules.FirstOrDefault(r => string.Equals(r.Name, a.NeverKey, StringComparison.OrdinalIgnoreCase));
-            if (rule != null) rule.IsEnabled = false;
-        }
-        else
-        {
-            var payload = a.Payload as ProcessPayload;
-            AddKnown(KeepOpenList, a.NeverKey, payload?.Display);
-        }
-        SaveSettings();
-        a.Enabled = false;
-        vm.IsEnabled = false;
-        vm.MarkNeverAdded();
-        Log("Eklendi: bu program/hizmet artık her zaman açık kalacak.");
     }
 
     // ---------------------------------------------------------------- run
@@ -1090,7 +1009,6 @@ public partial class MainViewModel : ObservableObject
             _log.Info("Neler yapılacağı belirleniyor…");
             var plan = await Task.Run(() => new Planner(_sys, _log).Build(Settings, cs2));
             await ApplyHomeChoicesAsync(plan);
-            ApplyOverrides(plan);
             foreach (var w in plan.Warnings) _log.Warn(w);
 
             var closing = plan.Active.Count(a => a.Kind == ActionKind.CloseProcess);
@@ -1129,7 +1047,6 @@ public partial class MainViewModel : ObservableObject
         }
         finally
         {
-            ClearOverrides();     // preview unticks were "this run only"
             Phase = Phase.Idle;
             RaiseStatus();
         }
@@ -1277,27 +1194,23 @@ public class PreviewGroupVM
     public List<PlannedActionVM> Items { get; init; } = new();
 }
 
-public class PreviewViewModel : ObservableObject
+/// <summary>What Başlat would do right now, as text. Read-only: the user changes things on the home list or in Ayrıntılar, not here.</summary>
+public class PreviewViewModel
 {
     public Plan Plan { get; }
-    public ObservableCollection<PlannedActionVM> Items { get; } = new();
     public List<PreviewGroupVM> Groups { get; }
     public IReadOnlyList<string> Warnings => Plan.Warnings;
     public bool HasWarnings => Plan.Warnings.Count > 0;
+    public string Header { get; }
 
-    /// <summary>Counts what is CHECKED right now (unticking an item lowers the number).</summary>
-    public string Header =>
-        $"{Items.Count(i => i.IsEnabled)} şey yapılacak. Şu an hiçbir şey değiştirilmedi. Yapılmasını istemediğin şeyin kutusunu kaldır.";
-
-    public PreviewViewModel(Plan plan, Action<PlannedActionVM> never)
+    public PreviewViewModel(Plan plan)
     {
         Plan = plan;
-        foreach (var a in plan.Actions)
-        {
-            var item = new PlannedActionVM(a, never);
-            item.PropertyChanged += (_, _) => Raise(nameof(Header));
-            Items.Add(item);
-        }
-        Groups = Items.GroupBy(i => i.Group).Select(g => new PreviewGroupVM { Title = g.Key, Items = g.ToList() }).ToList();
+        // only what will really happen: a program switched off on the home list is not a part of the run
+        var items = plan.Actions.Where(a => a.Enabled).Select(a => new PlannedActionVM(a)).ToList();
+        Groups = items.GroupBy(i => i.Group).Select(g => new PreviewGroupVM { Title = g.Key, Items = g.ToList() }).ToList();
+        Header = items.Count == 0
+            ? "Başlat'a basınca hiçbir şey yapılmayacak. Şu an hiçbir şey değiştirilmedi."
+            : $"Başlat'a basınca {items.Count} şey yapılacak. Şu an hiçbir şey değiştirilmedi.";
     }
 }

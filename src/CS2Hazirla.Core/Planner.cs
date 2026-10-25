@@ -8,8 +8,6 @@ public enum ActionKind
     CloseProcess, StopService, PowerPlan, Registry, MouseAccel, Accessibility, NicPower, FlushDns,
 }
 
-public enum NeverKind { Process, Service }
-
 public record RegChange(RegHive Hive, string SubKey, string Name, RegistryValueKind Kind, object Value);
 
 /// <param name="Restart">"Geri yükle" can start this program again (see <see cref="ReopenPolicy"/>).</param>
@@ -26,9 +24,6 @@ public class PlannedAction
     public string Group { get; init; } = "";
     public string Title { get; init; } = "";
     public string Detail { get; init; } = "";
-    /// <summary>Normalized process/service name for the "never close this again" button.</summary>
-    public string? NeverKey { get; init; }
-    public NeverKind NeverType { get; init; }
     public bool Enabled { get; set; } = true;
     public object? Payload { get; init; }
 }
@@ -135,8 +130,6 @@ public class Planner
                 Group = group ?? Catalog.GroupApps,
                 Title = $"{display}  ({FriendlyNames.Memory(bytes)}, {list.Count} parça)",
                 Detail = category + (reopen ? "" : " · Geri yüklenince açılmaz, elle açman gerekir") + (path != null ? $" · {path}" : ""),
-                NeverKey = name,
-                NeverType = NeverKind.Process,
                 Payload = new ProcessPayload(name, category, path, list.Select(p => p.Pid).ToList(), reopen, bytes, display, optionId),
             });
         }
@@ -241,8 +234,6 @@ public class Planner
                 Title = Catalog.ServiceTitle(rule.Name, info.DisplayName),
                 Detail = (Catalog.ServicePlain(rule.Name) is { Length: > 0 } plain ? plain + " " : "") +
                          $"Yalnızca durdurulur, silinmez; bilgisayarı yeniden başlatınca ya da geri yüklenince geri gelir.{deps}",
-                NeverKey = rule.Name.ToLowerInvariant(),
-                NeverType = NeverKind.Service,
                 Payload = new ServicePayload(rule.Name),
             });
         }

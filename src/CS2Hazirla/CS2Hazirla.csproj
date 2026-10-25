@@ -18,7 +18,7 @@
     <RepositoryUrl>https://github.com/fara1ka/antilag</RepositoryUrl>
     <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
     <ApplicationIcon>Assets\app.ico</ApplicationIcon>
-    <Version>3.4.0</Version>
+    <Version>3.4.1</Version>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <SatelliteResourceLanguages>tr;en</SatelliteResourceLanguages>
   </PropertyGroup>

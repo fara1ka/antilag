@@ -11,5 +11,5 @@ public partial class PreviewWindow : Window
         SourceInitialized += (_, _) => DarkTitleBar.Apply(this);
     }
 
-    private void Ok_Click(object sender, RoutedEventArgs e) => Close();
+    private void Close_Click(object sender, RoutedEventArgs e) => Close();
 }

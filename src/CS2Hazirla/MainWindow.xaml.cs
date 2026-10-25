@@ -290,7 +290,7 @@ public partial class MainWindow : Window
             File.WriteAllText(path + ".plan.txt",
                 string.Join("\n", plan.Actions.Select(a => $"[{a.Kind}] enabled={a.Enabled} {a.Title}  |  {a.Detail}")) +
                 "\n--- warnings ---\n" + string.Join("\n", plan.Warnings) + "\n--- notes ---\n" + string.Join("\n", plan.Notes));
-            var pw = new PreviewWindow(new PreviewViewModel(plan, _ => { })) { Owner = this, WindowStartupLocation = WindowStartupLocation.Manual, Left = -20000, Top = -20000, ShowActivated = false, ShowInTaskbar = false };
+            var pw = new PreviewWindow(new PreviewViewModel(plan)) { Owner = this, WindowStartupLocation = WindowStartupLocation.Manual, Left = -20000, Top = -20000, ShowActivated = false, ShowInTaskbar = false };
             pw.Show();
             await Task.Delay(1500);
             Render(pw, path);

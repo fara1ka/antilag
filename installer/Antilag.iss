@@ -5,8 +5,8 @@
 ; Tasarım: yönetici izni GEREKTİRMEZ (kullanıcı klasörüne kurar), açılışta çalışan hiçbir şey eklemez,
 ; kaldırınca dosyaları, kısayolları ve .NET önbelleğini siler. Ayarları silmeden önce sorar.
 ; Uygulama içi güncelleme: Antilag yeni kurulum dosyasını indirir, imzasını denetler, yanına "<dosya>.update" notunu bırakır ve
-; Windows kabuğu aracılığıyla (yönetici hakları olmadan) başlatır. Not varsa kurulum, uygulamanın kapanmasını bekler, sormadan kurar
-; ve uygulamayı yeniden açar. Not yoksa her şey eskisi gibidir.
+; Windows kabuğu aracılığıyla (yönetici hakları olmadan) başlatır. Not varsa kurulum hiç pencere açmaz (kendini sessiz yeniden başlatır),
+; uygulamanın kapanmasını bekler, sormadan kurar ve uygulamayı yeniden açar. Not yoksa her şey eskisi gibidir.
 ; Ayar/kayıt klasörü eski adıyla (%APPDATA%\CS2Hazirla) kalır: bekleyen "geri yükleme" kaydı kaybolmasın diye.
 ; AppId eski sürümlerle aynıdır: kurulum, eski "Clear" kurulumunun üstüne gelir ve onu Antilag'a çevirir.
 
@@ -225,8 +225,8 @@ end;
 
 function InitializeSetup(): Boolean;
 var
-  note, installed: String;
-  waited: Integer;
+  note, installed, logDir, logArg: String;
+  waited, resultCode: Integer;
   a, b: Int64;
   isDowngrade: Boolean;
 begin
@@ -250,6 +250,22 @@ begin
       Result := False;
       Exit;
     end;
+    // Kurulum penceresi açılmaz: güncelleme uygulamanın kendi kartında görünür. Pencereli başlatıldıysa (Windows kabuğu bayrak veremez) aynı kurulum
+    // pencere olmadan yeniden başlatılır ve bu kopya hemen biter; not yerinde kalır, sessiz kopya onu üstlenir. Bir saniye sonra başlar ki bu kopya
+    // kurulum mutex'ini bırakmış olsun. Başlatılamazsa pencereli kurulum olduğu gibi sürer.
+    if not WizardSilent() then
+    begin
+      // günlük dosyası: kurulum klasörünün üst klasörü (güncelleme klasörü) varsa oraya, yoksa günlük tutulmaz
+      logDir := ExpandConstant('{localappdata}\Antilag\update');
+      if DirExists(logDir) then logArg := ' /LOG="' + logDir + '\kurulum.log"' else logArg := '';
+      if Exec(ExpandConstant('{sys}\cmd.exe'),
+              '/c ping -n 2 127.0.0.1 >nul & "' + ExpandConstant('{srcexe}') + '" /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP-' + logArg,
+              '', SW_HIDE, ewNoWait, resultCode) then
+      begin
+        Result := False;
+        Exit;
+      end;
+    end;
     // Notun silinmesi uygulamaya "kurulum üstlendi, kapanabilirsin" der.
     DeleteFile(note);
     // işlem bitip Antilag.exe serbest kalana kadar (en çok 20 sn) bekle
@@ -263,6 +279,9 @@ begin
     begin
       SuppressibleMsgBox('Antilag kapandı ama dosyası hâlâ kullanımda (bir virüs tarayıcısı tutuyor olabilir).' + #13#10 + #13#10 +
              'Birkaç saniye sonra Antilag''ı açıp güncellemeyi yeniden dene.', mbInformation, MB_OK, IDOK);
+      // pencere olmadığından kutuyu kimse görmeyebilir: hiçbir şey değişmedi, eski Antilag yeniden açılır (açık bir kopya varsa dokunulmaz)
+      if not AppIsOpen() then
+        ShellExec('open', ExpandConstant('{localappdata}\Programs\Antilag\Antilag.exe'), '', '', SW_SHOWNORMAL, ewNoWait, resultCode);
       Result := False;
     end;
     Exit;

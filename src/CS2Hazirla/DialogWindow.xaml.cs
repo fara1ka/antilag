@@ -5,6 +5,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Interop;
 using System.Runtime.InteropServices;
+using CS2Hazirla.Core;
 
 namespace CS2Hazirla;
 
@@ -48,6 +49,7 @@ public partial class DialogWindow : Window
     public DialogWindow(string text, string title, MessageBoxButton buttons, MessageBoxImage image, bool defaultNo = false)
     {
         InitializeComponent();
+        WindowLanguage.Apply(this);
         Title = title;
         HeadingText.Text = title;
         MessageText.Text = text;
@@ -65,23 +67,23 @@ public partial class DialogWindow : Window
         switch (buttons)
         {
             case MessageBoxButton.YesNo:
-                AddButton("Hayır", MessageBoxResult.No, isDefault: defaultNo, isCancel: true);
-                AddButton("Evet", MessageBoxResult.Yes, isDefault: !defaultNo, isCancel: false);
+                AddButton(Loc.T("Hayır"), MessageBoxResult.No, isDefault: defaultNo, isCancel: true);
+                AddButton(Loc.T("Evet"), MessageBoxResult.Yes, isDefault: !defaultNo, isCancel: false);
                 _escape = MessageBoxResult.No;
                 break;
             case MessageBoxButton.YesNoCancel:
-                AddButton("Vazgeç", MessageBoxResult.Cancel, false, true);
-                AddButton("Hayır", MessageBoxResult.No, false, false);
-                AddButton("Evet", MessageBoxResult.Yes, true, false);
+                AddButton(Loc.T("Vazgeç"), MessageBoxResult.Cancel, false, true);
+                AddButton(Loc.T("Hayır"), MessageBoxResult.No, false, false);
+                AddButton(Loc.T("Evet"), MessageBoxResult.Yes, true, false);
                 _escape = MessageBoxResult.Cancel;
                 break;
             case MessageBoxButton.OKCancel:
-                AddButton("Vazgeç", MessageBoxResult.Cancel, false, true);
-                AddButton("Tamam", MessageBoxResult.OK, true, false);
+                AddButton(Loc.T("Vazgeç"), MessageBoxResult.Cancel, false, true);
+                AddButton(Loc.T("Tamam"), MessageBoxResult.OK, true, false);
                 _escape = MessageBoxResult.Cancel;
                 break;
             default:
-                AddButton("Tamam", MessageBoxResult.OK, true, true);
+                AddButton(Loc.T("Tamam"), MessageBoxResult.OK, true, true);
                 break;
         }
     }

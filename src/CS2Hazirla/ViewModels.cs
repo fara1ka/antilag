@@ -36,15 +36,19 @@ public class OptionVM : ObservableObject
     {
         Def = def; _s = s;
         // what a search finds: the name, the hint, and the programs / services behind the switch ("dropbox" finds "Yedekleme programları")
-        SearchKey = SearchText.Normalize(string.Join(" ", new[] { def.Title, def.Hint, def.Caution }.Concat(Catalog.SearchTerms(def.Id)).Where(t => !string.IsNullOrEmpty(t))));
+        var words = new[] { def.Title, def.Hint, def.Caution }.Concat(Catalog.SearchTerms(def.Id)).Where(t => !string.IsNullOrEmpty(t)).ToList();
+        // in English the words that are on screen are searchable too (the Turkish ones stay: people type either); texts without an English entry (program names) add nothing
+        if (Loc.IsEnglish)
+            words.AddRange(words.Select(t => EnglishStrings.Map.TryGetValue(t!, out var en) ? en : null).Where(t => !string.IsNullOrEmpty(t)).ToList());
+        SearchKey = SearchText.Normalize(string.Join(" ", words));
     }
 
     public string SearchKey { get; }
 
-    public string Title => Def.Title;
-    public string Hint => Def.Hint ?? "";
+    public string Title => Loc.T(Def.Title);
+    public string Hint => string.IsNullOrEmpty(Def.Hint) ? "" : Loc.T(Def.Hint);
     public bool HasHint => !string.IsNullOrEmpty(Def.Hint);
-    public string Caution => Def.Caution ?? "";
+    public string Caution => string.IsNullOrEmpty(Def.Caution) ? "" : Loc.T(Def.Caution);
     public bool HasCaution => !string.IsNullOrEmpty(Def.Caution);
 
     /// <summary>Called after the user flips the switch.</summary>
@@ -72,9 +76,10 @@ public class LogEntry
 
     public static LogEntry From(string time, string level, string message)
     {
-        var kind = level switch { "HATA" => "error", "UYARI" => "warn", _ => "info" };
+        var kind = level switch { "HATA" => "error", "UYARI" => "warn", _ => "info" };       // the levels are the file log's own words, not texts for people
         var text = message;
-        if (kind == "info" && (text.StartsWith("✓") || text.StartsWith("✅") || text.StartsWith("Bitti.")))
+        // the closing line of a run ("Bitti. ..." / "Done. ...") turns green: it is recognised by the same word the run writes it with
+        if (kind == "info" && (text.StartsWith("✓") || text.StartsWith("✅") || text.StartsWith("Bitti.") || text.StartsWith(Loc.T("Bitti."))))
         {
             kind = "ok";
             text = text.TrimStart('✓', '✅', ' ');
@@ -112,7 +117,9 @@ public class MemRowVM
     public string MbText { get; init; } = "";
     public bool IsProtected { get; init; }
     public bool CanClose => !IsProtected;
-    public string Tag => IsProtected ? "korumalı" : "";
+    public string Tag => IsProtected ? Loc.T("korumalı") : "";
+    /// <summary>What a screen reader says for the Kapat button of this row.</summary>
+    public string CloseLabel => Loc.F("Kapat: {0}", Name);
     public RelayCommand? CloseCommand { get; set; }
 }
 
@@ -124,12 +131,15 @@ public class ServiceRuleVM : ObservableObject
     public string Group { get; init; } = "other";
     private bool _on = true;
     public bool IsEnabled { get => _on; set => Set(ref _on, value); }
+    /// <summary>What a screen reader says for the Çıkar button of this row.</summary>
+    public string RemoveLabel => Loc.F("Çıkar: {0}", Title);
 }
 
 public class AppItemVM
 {
     public string Key { get; init; } = "";
     public string Display { get; init; } = "";
+    public string RemoveLabel => Loc.F("Çıkar: {0}", Display);
 }
 
 /// <summary>A list the user builds by PICKING from what is installed/running, never by typing names.</summary>
@@ -137,8 +147,8 @@ public class AppListVM : ObservableObject
 {
     public string Title { get; init; } = "";
     public string Hint { get; init; } = "";
-    public string AddLabel { get; init; } = "Listeden seç";
-    public string EmptyText { get; init; } = "Henüz bir şey eklemedin.";
+    public string AddLabel { get; init; } = Loc.T("Listeden seç");
+    public string EmptyText { get; init; } = Loc.T("Henüz bir şey eklemedin.");
     public ObservableCollection<AppItemVM> Items { get; } = new();
     public RelayCommand AddCommand { get; }
     public RelayCommand RemoveCommand { get; }
@@ -196,7 +206,8 @@ public class HomeAppVM : ObservableObject
     public HomeAppVM(HomeApp app, MainViewModel vm) { App = app; _vm = vm; }
 
     public HomeApp App { get; }
-    public string Title => App.Display;
+    // a program keeps the name it has (Discord, Spotify...); only the row that gathers all browsers is a Turkish text of the app
+    public string Title => App.Key == HomeApps.BrowsersKey ? Loc.T(App.Display) : App.Display;
 
     public bool IsOn { get => _on; set { if (value != _on) _vm.SwitchHomeApp(App, value); } }
     /// <summary>The row can be switched: nothing is running, and the program is not one the chosen mode always keeps open (Discord in Yayıncı).</summary>
@@ -236,6 +247,8 @@ public partial class MainViewModel : ObservableObject
     public ObservableCollection<LogEntry> LogLines { get; } = new();
     public bool HasLog => LogLines.Count > 0;
     public bool HasMetrics => Metrics.Count > 0;
+    /// <summary>The "after" column of Ölçümler. The Turkish word "Sonra" is also the update card's "Later" button, and one Turkish text has one English, so this header is chosen here and not in the dictionary.</summary>
+    public string MetricsAfterHeader => Loc.IsEnglish ? "After" : "Sonra";
     public ObservableCollection<MetricRowVM> Metrics { get; } = new();
     public ObservableCollection<MemRowVM> TopMemory { get; } = new();
     public ObservableCollection<string> InfoLines { get; } = new();
@@ -260,13 +273,15 @@ public partial class MainViewModel : ObservableObject
     /// <summary>Raised when the user presses "Uygulamayı kapat" (or when CS2 is already running at start).</summary>
     public event Action? ExitRequested;
 
-    public MainViewModel(Dispatcher ui)
+    /// <param name="carry">Set when this window replaces another one (the language was changed): the switches the user made in this run stay.</param>
+    public MainViewModel(Dispatcher ui, ProfileSession.Snapshot? carry = null)
     {
         _ui = ui;
         AppPaths.Ensure();
         FileLog.PruneOldLogs();
         Settings = _settingsStore.Load();
         _profiles = new ProfileSession(Settings);          // every start begins with the defaults of "Tam temizlik"
+        if (carry != null) _profiles.Restore(carry);
         _orc = new Orchestrator(_sys, _store, _log);
         _orc.Progress = (done, total) => _ui.BeginInvoke(() => SetSteps(done, total));
 
@@ -289,22 +304,22 @@ public partial class MainViewModel : ObservableObject
         foreach (var def in Catalog.Options)
             _allOptions.Add(new OptionVM(def, Settings) { Changed = () => OnOptionChanged(def.Id) });
         foreach (var g in _allOptions.GroupBy(o => o.Def.Group))
-            Groups.Add(new OptionGroupVM { Title = g.Key, Items = g.ToList() });
+            Groups.Add(new OptionGroupVM { Title = Loc.T(g.Key), Items = g.ToList() });       // grouped by the Turkish identity, shown in the chosen language
         ClearSearchCommand = new RelayCommand(() => Search = "");
         RebuildShown();
 
-        KeepOpenList = new AppListVM(l => _ = PickAppsAsync(l, "Her zaman açık kalacak programları seç",
-            "Çalışan programlar listelendi. Kapanmasını asla istemediklerini işaretle."))
+        KeepOpenList = new AppListVM(l => _ = PickAppsAsync(l, Loc.T("Her zaman açık kalacak programları seç"),
+            Loc.T("Çalışan programlar listelendi. Kapanmasını asla istemediklerini işaretle.")))
         {
-            Title = "Her zaman açık kalsın",
-            Hint = "Buraya eklediğin programlar, hangi ayar seçili olursa olsun kapatılmaz.",
-            EmptyText = "Henüz bir şey eklemedin. Her zaman açık kalmasını istediğin bir program varsa ekle.",
+            Title = Loc.T("Her zaman açık kalsın"),
+            Hint = Loc.T("Buraya eklediğin programlar, hangi ayar seçili olursa olsun kapatılmaz."),
+            EmptyText = Loc.T("Henüz bir şey eklemedin. Her zaman açık kalmasını istediğin bir program varsa ekle."),
         };
-        AlwaysCloseList = new AppListVM(l => _ = PickAppsAsync(l, "Her seferinde kapanacak programları seç",
-            "Çalışan programlar listelendi. Gruplarda olmayan ama her seferinde kapanmasını istediklerini işaretle."))
+        AlwaysCloseList = new AppListVM(l => _ = PickAppsAsync(l, Loc.T("Her seferinde kapanacak programları seç"),
+            Loc.T("Çalışan programlar listelendi. Gruplarda olmayan ama her seferinde kapanmasını istediklerini işaretle.")))
         {
-            Title = "Her seferinde kapat",
-            Hint = "Gruplarda olmayan ama her seferinde kapanmasını istediğin programlar.",
+            Title = Loc.T("Her seferinde kapat"),
+            Hint = Loc.T("Gruplarda olmayan ama her seferinde kapanmasını istediğin programlar."),
         };
         foreach (var n in Settings.NeverClose) KeepOpenList.Add(n, DisplayFor(n));
         foreach (var n in Settings.ExtraProcesses) AlwaysCloseList.Add(n, DisplayFor(n));
@@ -394,7 +409,7 @@ public partial class MainViewModel : ObservableObject
         ShownGroups.Clear();
         foreach (var g in Groups)
         {
-            if (!HasSearch && _drawerTab == DrawerTab.Summary && g.Title != Catalog.GroupApps) continue;     // Özet: only the programs
+            if (!HasSearch && _drawerTab == DrawerTab.Summary && g.Title != Loc.T(Catalog.GroupApps)) continue;     // Özet: only the programs (the title is shown in the chosen language)
             var items = g.Items.Where(o => SearchText.Matches(_search, o.SearchKey)).ToList();
             if (items.Count > 0) ShownGroups.Add(new OptionGroupVM { Title = g.Title, Items = items });
         }
@@ -439,8 +454,9 @@ public partial class MainViewModel : ObservableObject
         return new ServiceRuleVM
         {
             Name = r.Name, Group = r.Group, IsEnabled = r.Enabled,
+            // (Catalog.ServiceTitle / ServicePlain give the catalog's texts in the chosen language themselves; the name Windows gave to a service the user added stays as it is)
             Title = Catalog.ServiceTitle(r.Name, Settings.DisplayNames.TryGetValue("svc:" + r.Name, out var d) ? d : null),
-            Plain = Catalog.ServicePlain(r.Name) is { Length: > 0 } p ? p : "Senin eklediğin hizmet.",
+            Plain = Catalog.ServicePlain(r.Name) is { Length: > 0 } p ? p : Loc.T("Senin eklediğin hizmet."),
         };
     }
 
@@ -485,12 +501,13 @@ public partial class MainViewModel : ObservableObject
             {
                 Key = x.Key,
                 Title = FriendlyNames.ForProcess(x.Key, x.Path),
-                Subtitle = $"{FriendlyNames.Memory(x.Bytes)} bellek kullanıyor · {(x.Win ? "ekranda açık" : "arka planda çalışıyor")}",
+                Subtitle = x.Win ? Loc.F("{0} bellek kullanıyor · ekranda açık", FriendlyNames.Memory(x.Bytes))
+                                 : Loc.F("{0} bellek kullanıyor · arka planda çalışıyor", FriendlyNames.Memory(x.Bytes)),
             }).ToList());
 
         if (items.Count == 0)
         {
-            UiDialog.Show("Eklenebilecek başka bir program bulunamadı.", "Listeden seç", MessageBoxButton.OK, MessageBoxImage.Information);
+            UiDialog.Show(Loc.T("Eklenebilecek başka bir program bulunamadı."), Loc.T("Listeden seç"), MessageBoxButton.OK, MessageBoxImage.Information);
             return;
         }
         var chosen = ShowPicker(new PickerRequest { Title = title, Hint = hint, Items = items });
@@ -518,20 +535,21 @@ public partial class MainViewModel : ObservableObject
             }).ToList());
         if (items.Count == 0)
         {
-            UiDialog.Show("Eklenebilecek başka bir hizmet bulunamadı.", "Listeden seç", MessageBoxButton.OK, MessageBoxImage.Information);
+            UiDialog.Show(Loc.T("Eklenebilecek başka bir hizmet bulunamadı."), Loc.T("Listeden seç"), MessageBoxButton.OK, MessageBoxImage.Information);
             return;
         }
         var chosen = ShowPicker(new PickerRequest
         {
-            Title = "Geçici durdurulacak hizmetleri seç",
-            Hint = "Çalışan Windows hizmetleri listelendi. Bilmediğin bir hizmeti seçme. Hizmetler silinmez, yalnızca durdurulur.",
+            Title = Loc.T("Geçici durdurulacak hizmetleri seç"),
+            Hint = Loc.T("Çalışan Windows hizmetleri listelendi. Bilmediğin bir hizmeti seçme. Hizmetler silinmez, yalnızca durdurulur."),
             Items = items,
         });
         foreach (var key in chosen)
         {
             var item = items.FirstOrDefault(i => i.Key == key);
             if (item == null) continue;
-            Settings.DisplayNames["svc:" + key] = item.Title;
+            // settings.json stays the same in both languages: the catalog's Turkish name (or the name Windows gave), never the English one
+            Settings.DisplayNames["svc:" + key] = Catalog.ServiceTexts.TryGetValue(key, out var catalogText) ? catalogText.Title : item.Title;
             ServiceRules.Add(MakeRule(new ServiceRule { Name = key, Group = "other", Enabled = true }));
         }
         if (chosen.Count > 0) SaveSettings();
@@ -552,7 +570,7 @@ public partial class MainViewModel : ObservableObject
     public bool SaveSettings()
     {
         try { SyncToSettings(); _settingsStore.Save(Settings); return true; }
-        catch (Exception ex) { _log.Error("Ayarlar kaydedilemedi.", ex); return false; }
+        catch (Exception ex) { _log.Error(Loc.T("Ayarlar kaydedilemedi."), ex); return false; }
     }
 
     // ---------------------------------------------------------------- phase / headline
@@ -642,11 +660,11 @@ public partial class MainViewModel : ObservableObject
         PresetName: _profiles.ActiveName,
         Customized: _profiles.IsCustomized || _profiles.AppChoices.Count > 0));
 
-    public string HeroTitle => Phase == Phase.Reverting && _quietRevert ? "Hazırlanıyor" : CurrentStatus().Title;
+    public string HeroTitle => Phase == Phase.Reverting && _quietRevert ? Loc.T("Hazırlanıyor") : CurrentStatus().Title;
     public string HeroHint => Phase == Phase.Reverting
-        ? (_quietRevert ? "Önceki çalıştırmanın ayarları geri yükleniyor; hemen ardından yeniden başlayacak."
-           : Settings.RestartClosedApps ? "Kapatılan programlar açılıyor, ayarlar ve hizmetler eski haline getiriliyor."
-           : "Ayarlar ve hizmetler eski haline getiriliyor.")
+        ? (_quietRevert ? Loc.T("Önceki çalıştırmanın ayarları geri yükleniyor; hemen ardından yeniden başlayacak.")
+           : Settings.RestartClosedApps ? Loc.T("Kapatılan programlar açılıyor, ayarlar ve hizmetler eski haline getiriliyor.")
+           : Loc.T("Ayarlar ve hizmetler eski haline getiriliyor."))
         : CurrentStatus().Hint;
     // the plain "ready" headline is white fading to lavender; green / amber / red stay solid because they are status words
     /// <summary>The sentence under the headline is empty while choosing (the home screen stays plain); it only speaks about a result.</summary>
@@ -656,7 +674,7 @@ public partial class MainViewModel : ObservableObject
     /// <summary>The restore button: there is something to restore and nothing is running.</summary>
     public bool ShowRestore => View.ShowRestore;
     /// <summary>"Kapatılan uygulamaları geri aç" when programs were closed (and Ayarlar lets Geri yükle reopen them); otherwise the button only undoes settings and says so.</summary>
-    public string RestoreLabel => PendingPrograms() > 0 && Settings.RestartClosedApps ? "Kapatılan uygulamaları geri aç" : "Ayarları geri yükle";
+    public string RestoreLabel => PendingPrograms() > 0 && Settings.RestartClosedApps ? Loc.T("Kapatılan uygulamaları geri aç") : Loc.T("Ayarları geri yükle");
 
     private int _pendingPrograms = -1;      // -1: look at the journal again
     private int PendingPrograms() => _pendingPrograms >= 0 ? _pendingPrograms : (_pendingPrograms = _demoSession ? 3 : _orc.SessionActive ? _orc.PendingPrograms() : 0);
@@ -681,16 +699,16 @@ public partial class MainViewModel : ObservableObject
                                   : (IsDone || _restore != RestoreOutcome.None) ? 1 : 0;
     // the arc keeps travelling until the first step is really finished (the measurement and the closing batch take a few seconds): the ring never looks frozen
     public bool RingSweeping => IsBusy && (_stepsTotal == 0 || _stepsDone == 0);
-    public string HeroLabel => !IsBusy ? "Başlat" : _stepsDone > 0 && _stepsTotal > 0 ? $"{_stepsDone} / {_stepsTotal}" : "Çalışıyor";
-    public string StepText => IsBusy && _stepsDone > 0 && _stepsTotal > 0 ? "adım" : "";
+    public string HeroLabel => !IsBusy ? Loc.T("Başlat") : _stepsDone > 0 && _stepsTotal > 0 ? $"{_stepsDone} / {_stepsTotal}" : Loc.T("Çalışıyor");
+    public string StepText => IsBusy && _stepsDone > 0 && _stepsTotal > 0 ? Loc.T("adım") : "";
     public bool HasSteps => StepText.Length > 0;
 
     public string RestoreTip => !HasSession
-        ? "Henüz geri yüklenecek bir şey yok. Başlat'a bastıktan sonra buradan ayarları eski haline getirebilirsin."
+        ? Loc.T("Henüz geri yüklenecek bir şey yok. Başlat'a bastıktan sonra buradan ayarları eski haline getirebilirsin.")
         : Settings.RestartClosedApps
-            ? "Kapatılan programları yeniden açar, değiştirilen ayarları ve durdurulan hizmetleri eski haline getirir. " +
-              "Kendini güncelleyen programlar, arka plan yardımcıları, engel aşma programları ve Mağaza uygulamaları açılamaz; hangileri açılmadıysa sonunda söylenir."
-            : "Değiştirilen ayarları ve durdurulan hizmetleri eski haline getirir. Programları açmaz: Ayarlar'da 'Kapattığım programları geri açsın' kapalı.";
+            ? Loc.T("Kapatılan programları yeniden açar, değiştirilen ayarları ve durdurulan hizmetleri eski haline getirir. " +
+                    "Kendini güncelleyen programlar, arka plan yardımcıları, engel aşma programları ve Mağaza uygulamaları açılamaz; hangileri açılmadıysa sonunda söylenir.")
+            : Loc.T("Değiştirilen ayarları ve durdurulan hizmetleri eski haline getirir. Programları açmaz: Ayarlar'da 'Kapattığım programları geri açsın' kapalı.");
 
     private void RaiseStatus()
     {
@@ -810,7 +828,7 @@ public partial class MainViewModel : ObservableObject
 
     /// <summary>The game is running: say so in the activity list. No window: the headline already reads "CS2 çalışıyor" and nothing was started.</summary>
     private void WarnGameRunning() =>
-        _log.Warn("CS2 şu an çalışıyor. Oyun açıkken Antilag hiçbir şey yapmaz (hile koruma programlarıyla sorun çıkmaması için). Oyunu kapattıktan sonra tekrar dene.");
+        _log.Warn(Loc.T("CS2 şu an çalışıyor. Oyun açıkken Antilag hiçbir şey yapmaz (hile koruma programlarıyla sorun çıkmaması için). Oyunu kapattıktan sonra tekrar dene."));
 
     // ---------------------------------------------------------------- startup
 
@@ -826,15 +844,15 @@ public partial class MainViewModel : ObservableObject
         if (GameRunningNow())
         {
             // the one place that still opens a window: the app is about to close itself, so the activity list would vanish with it
-            _log.Warn("CS2 çalışıyor: bu uygulama oyun açıkken hiçbir işlem yapmaz ve kapanıyor.");
-            UiDialog.Show("CS2 şu an çalışıyor. Oyun açıkken bu uygulama hiçbir şey yapmaz ve kapanır.\n\nOyunu kapattıktan sonra tekrar aç.",
-                "CS2 çalışıyor", MessageBoxButton.OK, MessageBoxImage.Information);
+            _log.Warn(Loc.T("CS2 çalışıyor: bu uygulama oyun açıkken hiçbir işlem yapmaz ve kapanıyor."));
+            UiDialog.Show(Loc.T("CS2 şu an çalışıyor. Oyun açıkken bu uygulama hiçbir şey yapmaz ve kapanır.\n\nOyunu kapattıktan sonra tekrar aç."),
+                Loc.T("CS2 çalışıyor"), MessageBoxButton.OK, MessageBoxImage.Information);
             ExitRequested?.Invoke();
             return Task.CompletedTask;
         }
 
         if (!IsElevated)
-            _log.Warn("Yönetici olarak çalışmıyorsun: bazı işlemler başarısız olabilir. Uygulamayı yönetici olarak başlat.");
+            _log.Warn(Loc.T("Yönetici olarak çalışmıyorsun: bazı işlemler başarısız olabilir. Uygulamayı yönetici olarak başlat."));
 
         if (_orc.SessionActive)
         {
@@ -844,20 +862,20 @@ public partial class MainViewModel : ObservableObject
             if (pending == null && _store.NewerFormat)
             {
                 // written by a newer Antilag (the user went back to an older one): the file is untouched
-                _log.Warn("Önceki çalıştırmanın kaydı daha yeni bir Antilag sürümüyle yazılmış; bu sürüm onu geri yükleyemez.");
+                _log.Warn(Loc.T("Önceki çalıştırmanın kaydı daha yeni bir Antilag sürümüyle yazılmış; bu sürüm onu geri yükleyemez."));
                 UiDialog.Show(
-                    "Önceki çalıştırmanın kaydı bu Antilag sürümünden daha yeni olduğu için geri yüklenemiyor. Kayıt silinmedi.\n\n" +
-                    "Antilag'ı en son sürüme güncelle, sonra ana ekrandaki geri yükleme düğmesini kullan.",
-                    "Antilag: önceki çalıştırma", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    Loc.T("Önceki çalıştırmanın kaydı bu Antilag sürümünden daha yeni olduğu için geri yüklenemiyor. Kayıt silinmedi.\n\n" +
+                          "Antilag'ı en son sürüme güncelle, sonra ana ekrandaki geri yükleme düğmesini kullan."),
+                    Loc.T("Antilag: önceki çalıştırma"), MessageBoxButton.OK, MessageBoxImage.Warning);
             }
             else if (pending == null)
             {
                 // the journal could not be read (it was set aside as state.corrupt-*.json): there is nothing the app can restore
-                _log.Warn("Önceki çalıştırmanın kaydı okunamadı, bir kenara alındı.");
+                _log.Warn(Loc.T("Önceki çalıştırmanın kaydı okunamadı, bir kenara alındı."));
                 UiDialog.Show(
-                    "Önceki çalıştırmanın kaydı okunamadığı için değişiklikler bu uygulamayla geri yüklenemiyor.\n\n" +
-                    "Windows'u yeniden başlatmak durdurulan hizmetleri geri getirir. Kapattığın programları kendin açabilirsin; güç planı gibi ayarlar kalmış olabilir.",
-                    "Antilag: önceki çalıştırma", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    Loc.T("Önceki çalıştırmanın kaydı okunamadığı için değişiklikler bu uygulamayla geri yüklenemiyor.\n\n" +
+                          "Windows'u yeniden başlatmak durdurulan hizmetleri geri getirir. Kapattığın programları kendin açabilirsin; güç planı gibi ayarlar kalmış olabilir."),
+                    Loc.T("Antilag: önceki çalıştırma"), MessageBoxButton.OK, MessageBoxImage.Warning);
             }
             ForgetPendingCount();
             RaiseStatus(); RevertCommand.Refresh();
@@ -905,7 +923,7 @@ public partial class MainViewModel : ObservableObject
             TopMemory.Add(new MemRowVM
             {
                 Name = FriendlyNames.ForProcess(name, r.Path),
-                CountText = r.Count > 1 ? $"{r.Count} parça" : "1 parça",
+                CountText = r.Count > 1 ? Loc.F("{0} parça", r.Count) : Loc.T("1 parça"),
                 MbText = FriendlyNames.Memory(r.Bytes),
                 IsProtected = r.Protected,
                 CloseCommand = new RelayCommand(() => _ = CloseTopAsync(name), () => IsIdle),
@@ -940,20 +958,20 @@ public partial class MainViewModel : ObservableObject
         {
             SaveSettings();
             _sys.StreamMode = Settings.Profile == ProfileKind.Stream;
-            Log("Önizleme hazırlanıyor (hiçbir şey değiştirilmiyor)…");
+            Log(Loc.T("Önizleme hazırlanıyor (hiçbir şey değiştirilmiyor)…"));
             Plan plan;
             try { plan = await Task.Run(() => new Planner(_sys, _log).Build(Settings, ResolveCs2())); }
-            catch (Exception ex) { _log.Error("Önizleme hazırlanamadı.", ex); _error = "preview"; return; }
+            catch (Exception ex) { _log.Error(Loc.T("Önizleme hazırlanamadı."), ex); _error = "preview"; return; }
 
             // The plan is built against the machine as it is NOW. After an earlier run the programs are already closed and the settings
             // already applied, so the list would look nearly empty although the next Başlat first undoes and then redoes everything.
             if (_orc.SessionActive)
-                plan.Warnings.Insert(0, "Önceki çalıştırmanın değişiklikleri hâlâ geçerli (programlar kapalı, ayarlar uygulanmış). Bu liste yalnızca şu an geriye kalanları gösterir; " +
-                                        "Başlat'a basınca önce eski hale döner, sonra baştan yapılır.");
+                plan.Warnings.Insert(0, Loc.T("Önceki çalıştırmanın değişiklikleri hâlâ geçerli (programlar kapalı, ayarlar uygulanmış). Bu liste yalnızca şu an geriye kalanları gösterir; " +
+                                              "Başlat'a basınca önce eski hale döner, sonra baştan yapılır."));
 
             await ApplyHomeChoicesAsync(plan);
             ShowPreview?.Invoke(new PreviewViewModel(plan));       // information only: nothing in it changes the plan
-            Log("Önizleme kapandı.");
+            Log(Loc.T("Önizleme kapandı."));
         }
         finally { SetPreviewing(false); RaiseStatus(); RescanIfStale(); }
     }
@@ -985,7 +1003,7 @@ public partial class MainViewModel : ObservableObject
                 _quietRevert = false;
                 Phase = Phase.Idle;
                 _error = "revert";
-                _log.Error("Önceki çalıştırma geri yüklenemedi.", ex);
+                _log.Error(Loc.T("Önceki çalıştırma geri yüklenemedi."), ex);
                 RaiseStatus();
                 return;
             }
@@ -1003,10 +1021,10 @@ public partial class MainViewModel : ObservableObject
 
         _sys.StreamMode = Settings.Profile == ProfileKind.Stream;
         Phase = Phase.Preparing;
-        _log.Info($"Antilag başladı (seçili ayar: {_profiles.ActiveName}).");
+        _log.Info(Loc.F("Antilag başladı (seçili ayar: {0}).", _profiles.ActiveName));
         try
         {
-            _log.Info("Neler yapılacağı belirleniyor…");
+            _log.Info(Loc.T("Neler yapılacağı belirleniyor…"));
             var plan = await Task.Run(() => new Planner(_sys, _log).Build(Settings, cs2));
             await ApplyHomeChoicesAsync(plan);
             foreach (var w in plan.Warnings) _log.Warn(w);
@@ -1014,19 +1032,21 @@ public partial class MainViewModel : ObservableObject
             var closing = plan.Active.Count(a => a.Kind == ActionKind.CloseProcess);
             var services = plan.Active.Count(a => a.Kind == ActionKind.StopService);
             var others = plan.Active.Count() - closing - services;
-            _log.Info($"Plan hazır: {closing} program kapatılacak, {services} Windows hizmeti durdurulacak, {others} ayar yapılacak.");
-            if (services > 0) _log.Info("Hizmetler yalnızca durdurulur, silinmez; bilgisayarı yeniden başlatınca ya da geri yüklenince geri gelir.");
+            _log.Info(Loc.F("Plan hazır: {0} program kapatılacak, {1} Windows hizmeti durdurulacak, {2} ayar yapılacak.", closing, services, others));
+            if (services > 0) _log.Info(Loc.T("Hizmetler yalnızca durdurulur, silinmez; bilgisayarı yeniden başlatınca ya da geri yüklenince geri gelir."));
             SetSteps(0, plan.Active.Count());
 
             var res = await Task.Run(() => _orc.PrepareAsync(plan, Settings, CancellationToken.None));
             ShowMetrics(res);
             // (every failed step was already written to the list by the Orchestrator, once; skipped ones are harmless notes)
-            foreach (var s in res.Skipped.Where(x => !x.Contains("artık çalışmıyor"))) _log.Info("Atlandı: " + s);
+            // "X: artık çalışmıyor" / "X: no longer running" is only a note: the Orchestrator writes it in the language that is on, so the fragment is looked for in that language
+            var notRunning = Loc.T("artık çalışmıyor");
+            foreach (var s in res.Skipped.Where(x => !x.Contains(notRunning))) _log.Info(Loc.F("Atlandı: {0}", s));
 
             if (res.AbortedBecauseGameStarted)
             {
                 // CS2 opened while the run was going: everything that was left is cancelled. No window; the headline says so.
-                _log.Warn("Hazırlık sürerken CS2 açıldı; kalan işlemler iptal edildi. Oyunu kapattıktan sonra Antilag'ı yeniden açıp geri yükle.");
+                _log.Warn(Loc.T("Hazırlık sürerken CS2 açıldı; kalan işlemler iptal edildi. Oyunu kapattıktan sonra Antilag'ı yeniden açıp geri yükle."));
                 _gameRunning = true;
                 return;
             }
@@ -1034,16 +1054,16 @@ public partial class MainViewModel : ObservableObject
             _failedCount = res.Failed.Count + plan.StepFailures.Count;      // a planning step that could not be checked is a part of the job that was not done
             _doneCount = res.Done.Count;
             _notClosed = res.NotClosed.ToList();
-            if (_failedCount > 0 || _notClosed.Count > 0) _log.Warn($"Bitti. {_doneCount} işlem yapıldı, {_failedCount + _notClosed.Count} işlem tam yapılamadı.");
-            else _log.Info($"Bitti. {_doneCount} işlem yapıldı.");
-            _log.Info("Oyunu başlatmadan önce Antilag'ı kapat.");
+            if (_failedCount > 0 || _notClosed.Count > 0) _log.Warn(Loc.F("Bitti. {0} işlem yapıldı, {1} işlem tam yapılamadı.", _doneCount, _failedCount + _notClosed.Count));
+            else _log.Info(Loc.F("Bitti. {0} işlem yapıldı.", _doneCount));
+            _log.Info(Loc.T("Oyunu başlatmadan önce Antilag'ı kapat."));
             ForgetPendingCount();
             IsDone = true;
         }
         catch (Exception ex)
         {
             _error = "run";
-            _log.Error("İşlem sırasında bir sorun çıktı.", ex);
+            _log.Error(Loc.T("İşlem sırasında bir sorun çıktı."), ex);
         }
         finally
         {
@@ -1055,14 +1075,14 @@ public partial class MainViewModel : ObservableObject
     private void OfferDiscard(RevertResult prev)
     {
         var r = UiDialog.Show(
-            "Önceki çalıştırma tam geri yüklenemedi:\n• " + string.Join("\n• ", prev.Problems) +
+            Loc.F("Önceki çalıştırma tam geri yüklenemedi:\n• {0}", string.Join("\n• ", prev.Problems)) +
             (prev.NotRestarted.Count > 0
-                ? "\n\nAyrıca şu programlar kendiliğinden açılamadı; gerekirse kendin aç:\n• " + string.Join("\n• ", prev.NotRestarted.Distinct())
+                ? "\n\n" + Loc.F("Ayrıca şu programlar kendiliğinden açılamadı; gerekirse kendin aç:\n• {0}", string.Join("\n• ", prev.NotRestarted.Distinct()))
                 : "") +
-            "\n\nBu kayıt yok sayılıp bir kenara alınsın mı?\n" +
-            "(Windows'u yeniden başlatmak durdurulan hizmetleri geri getirir; ama güç planı, kayıt defteri ve ağ kartı ayarları kendiliğinden eski haline dönmez.)\n" +
-            "Hayır dersen kayıt korunur ve daha sonra tekrar denenebilir.",
-            "Geri yükleme tamamlanamadı", MessageBoxButton.YesNo, MessageBoxImage.Warning, defaultNo: true);
+            "\n\n" + Loc.T("Bu kayıt yok sayılıp bir kenara alınsın mı?\n" +
+                           "(Windows'u yeniden başlatmak durdurulan hizmetleri geri getirir; ama güç planı, kayıt defteri ve ağ kartı ayarları kendiliğinden eski haline dönmez.)\n" +
+                           "Hayır dersen kayıt korunur ve daha sonra tekrar denenebilir."),
+            Loc.T("Geri yükleme tamamlanamadı"), MessageBoxButton.YesNo, MessageBoxImage.Warning, defaultNo: true);
         if (r == MessageBoxResult.Yes)
         {
             _orc.DiscardJournal();
@@ -1109,7 +1129,7 @@ public partial class MainViewModel : ObservableObject
         try { res = await Task.Run(() => _orc.Revert(Settings)); }
         catch (Exception ex)
         {
-            _log.Error("Geri yükleme sırasında sorun çıktı.", ex);
+            _log.Error(Loc.T("Geri yükleme sırasında sorun çıktı."), ex);
             _error = "revert";
             Phase = Phase.Idle;
             RaiseStatus();
@@ -1145,7 +1165,7 @@ public partial class MainViewModel : ObservableObject
             A("Discord", "proc.discord", 420), A("GoodbyeDPI", "proc.dpi", 18, "", "goodbyedpi"),
             A("Tarayıcılar", "proc.browsers", 2900, HomeApps.BrowsersKey, "chrome", "msedge"),
             A("Microsoft Teams", "proc.chat", 520), A("Spotify", "proc.chat", 310), A("WhatsApp", "proc.chat", 170),
-            A("Epic Games Launcher", "proc.launchers", 210), A("Not Defteri", "proc.windowed", 20),
+            A("Epic Games Launcher", "proc.launchers", 210), A(Loc.T("Not Defteri"), "proc.windowed", 20),
         };
         HomeRows.Clear();
         foreach (var a in _scan) HomeRows.Add(new HomeAppVM(a, this));
@@ -1160,24 +1180,24 @@ public partial class MainViewModel : ObservableObject
         void M(string l, string b, string a, string d, string brush) => Metrics.Add(new MetricRowVM { Label = l, Before = b, After = a, Delta = d, DeltaBrush = UiBrushes.Get(brush) });
         void L(string t, string lvl, string m) => LogLines.Add(LogEntry.From(t, lvl, m));
         if (state == "idle") return;
-        L("14:02:11", "INFO", "Antilag başladı (seçili ayar: Tam temizlik).");
-        L("14:02:12", "INFO", "Plan hazır: 9 program kapatılacak, 4 Windows hizmeti durdurulacak, 5 ayar yapılacak.");
-        L("14:02:14", "INFO", "✓ Google Chrome kapatıldı.");
-        L("14:02:15", "INFO", "✓ Windows hizmeti durduruldu: Windows Arama.");
+        L("14:02:11", "INFO", Loc.F("Antilag başladı (seçili ayar: {0}).", Loc.T("Tam temizlik")));
+        L("14:02:12", "INFO", Loc.F("Plan hazır: {0} program kapatılacak, {1} Windows hizmeti durdurulacak, {2} ayar yapılacak.", 9, 4, 5));
+        L("14:02:14", "INFO", Loc.F("✓ {0} kapatıldı.", "Google Chrome"));
+        L("14:02:15", "INFO", Loc.F("✓ Windows hizmeti durduruldu: {0}.", Loc.T("Windows Arama")));
         if (state == "busy") { Phase = Phase.Preparing; SetSteps(4, 9); return; }
-        M("Çalışan program sayısı", "312", "248", "-64", "GoodBrush");
-        M("Boş bellek (RAM, GB)", "9,84", "13,02", "+3,18", "GoodBrush");
-        M("İnternet gecikmesi (ping, ms)", "14,2", "14,0", "-0,2", "Text3Brush");
-        SummaryText = "2 değerde iyileşme var, kötüleşen yok.";
+        M(Loc.T("Çalışan program sayısı"), "312", "248", "-64", "GoodBrush");
+        M(Loc.T("Boş bellek (RAM, GB)"), Loc.T("9,84"), Loc.T("13,02"), Loc.T("+3,18"), "GoodBrush");
+        M(Loc.T("İnternet gecikmesi (ping, ms)"), Loc.T("14,2"), Loc.T("14,0"), Loc.T("-0,2"), "Text3Brush");
+        SummaryText = Loc.F("{0} değerde iyileşme var, kötüleşen yok.", 2);
         if (state == "warn")
         {
-            L("14:02:16", "UYARI", "Atlandı: Not Defteri kapanmadı (sonlandırılamadı)");
-            L("14:02:17", "HATA", "Yapılamadı: Yazıcı hizmeti durdurulamadı (Windows izin vermedi).");
-            _notClosed = new List<string> { "Not Defteri" }; _failedCount = 1; _doneCount = 17;
+            L("14:02:16", "UYARI", Loc.T("Atlandı: Not Defteri kapanmadı (sonlandırılamadı)"));
+            L("14:02:17", "HATA", Loc.T("Yapılamadı: Yazıcı hizmeti durdurulamadı (Windows izin vermedi)."));
+            _notClosed = new List<string> { Loc.T("Not Defteri") }; _failedCount = 1; _doneCount = 17;
         }
         else _doneCount = 18;
-        L("14:02:21", "INFO", $"Bitti. {_doneCount} işlem yapıldı.");
-        InfoLines.Add("Wi-Fi kullanıyorsun. Mümkünse internet kablosu (Ethernet) kullan; kablosuz bağlantıdaki dalgalanmayı hiçbir ayar düzeltemez.");
+        L("14:02:21", "INFO", Loc.F("Bitti. {0} işlem yapıldı.", _doneCount));
+        InfoLines.Add(Loc.T("Wi-Fi kullanıyorsun. Mümkünse internet kablosu (Ethernet) kullan; kablosuz bağlantıdaki dalgalanmayı hiçbir ayar düzeltemez."));
         Raise(nameof(HasInfo)); Raise(nameof(ShowInfo));
         IsDone = true;
     }
@@ -1208,9 +1228,10 @@ public class PreviewViewModel
         Plan = plan;
         // only what will really happen: a program switched off on the home list is not a part of the run
         var items = plan.Actions.Where(a => a.Enabled).Select(a => new PlannedActionVM(a)).ToList();
-        Groups = items.GroupBy(i => i.Group).Select(g => new PreviewGroupVM { Title = g.Key, Items = g.ToList() }).ToList();
+        // rows are grouped by the Turkish group text (the identity the planner gives them); the heading is shown in the chosen language
+        Groups = items.GroupBy(i => i.Group).Select(g => new PreviewGroupVM { Title = Loc.T(g.Key), Items = g.ToList() }).ToList();
         Header = items.Count == 0
-            ? "Başlat'a basınca hiçbir şey yapılmayacak. Şu an hiçbir şey değiştirilmedi."
-            : $"Başlat'a basınca {items.Count} şey yapılacak. Şu an hiçbir şey değiştirilmedi.";
+            ? Loc.T("Başlat'a basınca hiçbir şey yapılmayacak. Şu an hiçbir şey değiştirilmedi.")
+            : Loc.F("Başlat'a basınca {0} şey yapılacak. Şu an hiçbir şey değiştirilmedi.", items.Count);
     }
 }

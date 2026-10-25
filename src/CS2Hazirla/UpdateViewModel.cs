@@ -68,8 +68,8 @@ public class UpdateVM : ObservableObject
     /// The legal notice the GPL asks every interactive program to show: who owns it, under which licence, that there is no warranty, where the source is.
     /// </summary>
     public string AboutText =>
-        $"Antilag {Current.ToString(3)}. Telif hakkı (C) 2026 fara1ka. Bu program özgür yazılımdır: GNU Genel Kamu Lisansı'nın 3. sürümü ya da (isteğe bağlı) sonraki bir sürümünün koşulları altında " +
-        "dağıtılır ve HİÇBİR GARANTİ VERİLMEZ. Valve, FACEIT, Discord ve adı geçen diğer şirketlerle bağlantılı değildir. Kaynak kod ve lisans metinleri aşağıdadır.";
+        Loc.F("Antilag {0}. Telif hakkı (C) 2026 fara1ka. Bu program özgür yazılımdır: GNU Genel Kamu Lisansı'nın 3. sürümü ya da (isteğe bağlı) sonraki bir sürümünün koşulları altında " +
+        "dağıtılır ve HİÇBİR GARANTİ VERİLMEZ. Valve, FACEIT, Discord ve adı geçen diğer şirketlerle bağlantılı değildir. Kaynak kod ve lisans metinleri aşağıdadır.", Current.ToString(3));
 
     /// <summary>Through the Windows shell, so that a folder or a page opens in the user's normal (not administrator) Explorer or browser.</summary>
     private static void ShellOpen(string target)
@@ -92,36 +92,37 @@ public class UpdateVM : ObservableObject
 
     public string Title => _flow.State switch
     {
-        UpdateState.Available => "Yeni sürüm var",
-        UpdateState.Downloading => $"İndiriliyor… %{(int)Math.Round(Progress * 100)}",
-        UpdateState.Installing => "Kuruluyor…",
-        UpdateState.Failed => "Güncelleme yapılamadı",
+        UpdateState.Available => Loc.T("Yeni sürüm var"),
+        UpdateState.Downloading => Loc.F("İndiriliyor… %{0}", (int)Math.Round(Progress * 100)),
+        UpdateState.Installing => Loc.T("Kuruluyor…"),
+        UpdateState.Failed => Loc.T("Güncelleme yapılamadı"),
         _ => "",
     };
 
     public string Detail => _flow.State switch
     {
         UpdateState.Available => $"Antilag {_flow.Offer?.VersionText}",
-        UpdateState.Downloading => "Bitince Antilag kapanıp yeniden açılır.",
-        UpdateState.Installing => "Antilag kapanıp yeniden açılacak.",
-        UpdateState.Failed => _flow.FailureText,
+        UpdateState.Downloading => Loc.T("Bitince Antilag kapanıp yeniden açılır."),
+        UpdateState.Installing => Loc.T("Antilag kapanıp yeniden açılacak."),
+        // FailureText stays the Turkish text of the UpdateFlow.Failed* constants (an identity the flow and its tests compare); it is translated here, where it is shown
+        UpdateState.Failed => Loc.T(_flow.FailureText),
         _ => "",
     };
 
-    public string InstallText => _flow.State == UpdateState.Failed ? "Tekrar dene" : "Güncelle";
-    public string DismissText => _flow.State == UpdateState.Failed ? "Kapat" : "Sonra";
+    public string InstallText => _flow.State == UpdateState.Failed ? Loc.T("Tekrar dene") : Loc.T("Güncelle");
+    public string DismissText => _flow.State == UpdateState.Failed ? Loc.T("Kapat") : Loc.T("Sonra");
 
     /// <summary>Not while a run or a restore is going, and not while a check is on its way: the app closes itself at the end of an update.</summary>
     public bool CanInstall => _isIdle() && !_checking && _flow.State is UpdateState.Available or UpdateState.Failed;
 
     /// <summary>What the window may say when the user tries to close it during an update.</summary>
     public string BusyText => _flow.State == UpdateState.Downloading
-        ? "Güncelleme indiriliyor. Bitmesini bekle ya da kartın üstündeki Vazgeç'e bas; sonra Uygulamayı kapat'a bas."
-        : "Güncelleme başlıyor, birkaç saniye bekle.";
+        ? Loc.T("Güncelleme indiriliyor. Bitmesini bekle ya da kartın üstündeki Vazgeç'e bas; sonra Uygulamayı kapat'a bas.")
+        : Loc.T("Güncelleme başlıyor, birkaç saniye bekle.");
 
     // ------------------------------------------------------------------ Ayarlar
 
-    public string VersionText => $"Sürüm {Current.ToString(3)}";
+    public string VersionText => Loc.F("Sürüm {0}", Current.ToString(3));
     /// <summary>"Sürüm 3.4.0 · Antilag güncel."</summary>
     public string VersionLine => StatusText.Length == 0 ? VersionText : VersionText + " · " + StatusText;
 
@@ -144,14 +145,14 @@ public class UpdateVM : ObservableObject
 
     /// <summary>What is true now, from what is known (not from which state the card happens to be in).</summary>
     public string StatusText =>
-        _flow.IsWorking ? "Güncelleniyor…"
-        : _flow.Offer != null && _flow.LastCheckWorked ? $"Yeni sürüm var: {_flow.Offer.VersionText}"
-        : _checking ? "Denetleniyor…"
-        : _lastCheck == UpdateCheck.SkippedGame ? "CS2 çalışırken denetlenmez."
-        : !_checked ? (_settings.CheckForUpdates ? "" : "Denetim kapalı.")
-        : _flow.LastCheckRejected ? "Sürüm bilgisi doğrulanamadı; güncelleme sunulmadı."
-        : _flow.LastCheckWorked ? "Antilag güncel."
-        : "Denetlenemedi. İnternet bağlantını kontrol et.";
+        _flow.IsWorking ? Loc.T("Güncelleniyor…")
+        : _flow.Offer != null && _flow.LastCheckWorked ? Loc.F("Yeni sürüm var: {0}", _flow.Offer.VersionText)
+        : _checking ? Loc.T("Denetleniyor…")
+        : _lastCheck == UpdateCheck.SkippedGame ? Loc.T("CS2 çalışırken denetlenmez.")
+        : !_checked ? (_settings.CheckForUpdates ? "" : Loc.T("Denetim kapalı."))
+        : _flow.LastCheckRejected ? Loc.T("Sürüm bilgisi doğrulanamadı; güncelleme sunulmadı.")
+        : _flow.LastCheckWorked ? Loc.T("Antilag güncel.")
+        : Loc.T("Denetlenemedi. İnternet bağlantını kontrol et.");
 
     // ------------------------------------------------------------------ doing
 

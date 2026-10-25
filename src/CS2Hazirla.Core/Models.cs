@@ -132,6 +132,8 @@ public class AppSettings
     public bool RestartClosedApps { get; set; } = true;
     /// <summary>Once when the app opens, one small request asks GitHub for the newest version number. Nothing about the user is sent.</summary>
     public bool CheckForUpdates { get; set; } = true;
+    /// <summary>"tr" or "en", chosen on the Ayarlar page. Empty = the user never chose: Turkish on a Turkish Windows, English on every other (see <see cref="Loc.Detect"/>).</summary>
+    public string Language { get; set; } = "";
 
     public bool IsOn(string optionId)
     {

@@ -20,6 +20,7 @@
     <Geometry x:Key="IconList" po:Freeze="True">M9.5,7 H20 M9.5,12 H20 M9.5,17 H20 M4.6,7 H4.7 M4.6,12 H4.7 M4.6,17 H4.7</Geometry>
     <Geometry x:Key="IconEye" po:Freeze="True">M2.6,12 C5,7.6 8.3,5.6 12,5.6 C15.7,5.6 19,7.6 21.4,12 C19,16.4 15.7,18.4 12,18.4 C8.3,18.4 5,16.4 2.6,12 Z M12,9.3 A2.7,2.7 0 1 1 12,14.7 A2.7,2.7 0 1 1 12,9.3</Geometry>
     <Geometry x:Key="IconAlert" po:Freeze="True">M12,4.2 L21,19.4 H3 Z M12,10 L12,14 M12,16.6 L12,16.7</Geometry>
+    <Geometry x:Key="IconGlobe" po:Freeze="True">M12,3.5 A8.5,8.5 0 1 1 12,20.5 A8.5,8.5 0 1 1 12,3.5 M3.5,12 H20.5 M12,3.5 C8.8,6.6 8.8,17.4 12,20.5 M12,3.5 C15.2,6.6 15.2,17.4 12,20.5 M5,7.6 H19 M5,16.4 H19</Geometry>
 
     <Style x:Key="Icon" TargetType="Path">
         <Setter Property="Stretch" Value="Uniform"/>

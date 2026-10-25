@@ -10,6 +10,7 @@ public partial class App : Application
 {
     private static Mutex? _mutex;
     public static MainViewModel? Vm { get; private set; }
+    public static string[] Args { get; private set; } = Array.Empty<string>();
 
     /// <summary>DEBUG screenshot runs only: no dialog may ever open (an activated window would take the keyboard away from a running game).</summary>
     public static bool OffScreenRender { get; private set; }
@@ -17,6 +18,8 @@ public partial class App : Application
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
+        Args = e.Args;
+        Loc.Use(Loc.Detect(SettingsStore.PeekLanguage()));      // the first message already speaks the language the user chose (or Windows')
 
         // the long explanations in tooltips (undo, close) need more than the 5 s default; they also appear a little sooner
         System.Windows.Controls.ToolTipService.ShowDurationProperty.OverrideMetadata(typeof(DependencyObject), new FrameworkPropertyMetadata(20000));
@@ -51,6 +54,10 @@ public partial class App : Application
         }
         if (offScreenRender && string.IsNullOrEmpty(Environment.GetEnvironmentVariable("CS2HAZIRLA_DATA")))
             Environment.SetEnvironmentVariable("CS2HAZIRLA_DATA", System.IO.Path.Combine(System.IO.Path.GetTempPath(), "antilag-shot-" + Guid.NewGuid().ToString("N")));
+        AppPaths.Root = Environment.GetEnvironmentVariable("CS2HAZIRLA_DATA") is { Length: > 0 } dataRoot ? dataRoot : AppPaths.Root;
+        Loc.Use(Loc.Detect(SettingsStore.PeekLanguage()));       // a render reads the (throw-away) data folder, not the real one
+        var langAt = Array.IndexOf(e.Args, "--lang");
+        if (langAt >= 0 && langAt + 1 < e.Args.Length) Loc.Use(e.Args[langAt + 1]);       // developer renders in the other language
 #endif
 
         // CS2 already running: do nothing at all and leave (the app must never run next to the game)
@@ -58,7 +65,7 @@ public partial class App : Application
         {
             if (!offScreenRender && new WindowsSystem().FindPidByName(Catalog.Cs2ProcessName) != null)
             {
-                UiDialog.Show("CS2 şu an çalışıyor. Oyun açıkken bu uygulama hiçbir şey yapmaz ve kapanır.\n\nOyunu kapattıktan sonra tekrar aç.",
+                UiDialog.Show(Loc.T("CS2 şu an çalışıyor. Oyun açıkken bu uygulama hiçbir şey yapmaz ve kapanır.\n\nOyunu kapattıktan sonra tekrar aç."),
                     "Antilag", MessageBoxButton.OK, MessageBoxImage.Information);
                 Shutdown();
                 return;
@@ -74,7 +81,7 @@ public partial class App : Application
         _mutex = new Mutex(true, mutexName, out var created);
         if (!created)
         {
-            UiDialog.Show("Antilag zaten çalışıyor (görev yöneticisinde Antilag.exe).", "Antilag",
+            UiDialog.Show(Loc.T("Antilag zaten çalışıyor (görev yöneticisinde Antilag.exe)."), "Antilag",
                 MessageBoxButton.OK, MessageBoxImage.Information);
             Shutdown();
             return;
@@ -86,7 +93,7 @@ public partial class App : Application
 #if DEBUG
             if (OffScreenRender) { args.Handled = true; Environment.Exit(1); return; }
 #endif
-            UiDialog.Show("Beklenmeyen bir hata oluştu.\n\nAyrıntı günlük dosyasına yazıldı.",
+            UiDialog.Show(Loc.T("Beklenmeyen bir hata oluştu.\n\nAyrıntı günlük dosyasına yazıldı."),
                 "Antilag", MessageBoxButton.OK, MessageBoxImage.Error);
             args.Handled = true;
             // no window means nothing is left to interact with: never keep an invisible elevated process alive
@@ -103,10 +110,37 @@ public partial class App : Application
         catch (Exception ex)
         {
             try { new FileLog().Error("Başlatma hatası: " + ex); } catch { }
-            UiDialog.Show("Uygulama başlatılamadı.\n\nAyrıntı günlük dosyasına yazıldı.", "Antilag", MessageBoxButton.OK, MessageBoxImage.Error);
+            UiDialog.Show(Loc.T("Uygulama başlatılamadı.\n\nAyrıntı günlük dosyasına yazıldı."), "Antilag", MessageBoxButton.OK, MessageBoxImage.Error);
             Shutdown();
         }
     }
+    /// <summary>
+    /// The language was changed on Ayarlar: the same window opens again in it, at the same place and size, on the same page, with the switches this run had made.
+    /// Nothing is running then (the language card is disabled while something is), so nothing is lost.
+    /// </summary>
+    public static void ReopenIn(MainWindow old, string language)
+    {
+        if (Current is not App app || old.DataContext is not MainViewModel oldVm) return;
+        var snapshot = oldVm.TakeSessionSnapshot();
+        Loc.Use(language);
+        var vm = new MainViewModel(app.Dispatcher, snapshot);
+        vm.GoTo(Page.Settings);
+        var win = new MainWindow(vm, Array.Empty<string>());        // the developer flags (screenshots, demos) belong to the first window only
+#if DEBUG
+        if (OffScreenRender) { win.ShowActivated = false; win.ShowInTaskbar = false; }      // a render run never takes the keyboard from a game
+#endif
+        if (old.WindowState == WindowState.Normal)
+        {
+            win.WindowStartupLocation = WindowStartupLocation.Manual;
+            win.Left = old.Left; win.Top = old.Top; win.Width = old.Width; win.Height = old.Height;
+        }
+        else win.WindowState = old.WindowState;
+        Vm = vm;
+        app.MainWindow = win;
+        win.Show();
+        old.Close();
+    }
+
     protected override void OnExit(ExitEventArgs e)
     {
         try { _mutex?.ReleaseMutex(); } catch { }
@@ -145,9 +179,9 @@ internal static class AdminGate
             }
         }
 
-        UiDialog.Show("Antilag yalnızca yönetici olarak çalışır (Windows hizmetlerini, güç planını ve ayarlarını değiştirmek için gerekli).\n\n" +
-                        "Uygulamaya sağ tıklayıp 'Yönetici olarak çalıştır' de; Windows izin isterse 'Evet'e bas.",
-            "Yönetici yetkisi gerekli", MessageBoxButton.OK, MessageBoxImage.Warning);
+        UiDialog.Show(Loc.T("Antilag yalnızca yönetici olarak çalışır (Windows hizmetlerini, güç planını ve ayarlarını değiştirmek için gerekli).\n\n" +
+                        "Uygulamaya sağ tıklayıp 'Yönetici olarak çalıştır' de; Windows izin isterse 'Evet'e bas."),
+            Loc.T("Yönetici yetkisi gerekli"), MessageBoxButton.OK, MessageBoxImage.Warning);
         return false;
     }
 }

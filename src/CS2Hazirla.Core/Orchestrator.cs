@@ -65,11 +65,11 @@ public class Orchestrator
         var left = carry != null ? _store.Current ?? _store.LoadPending() : null;
         var adopt = left != null && OnlyPrograms(left);
         if (SessionActive && !adopt)
-            throw new InvalidOperationException("Önceki oturum henüz geri yüklenmedi. Önce önceki çalıştırmayı geri yükle.");
+            throw new InvalidOperationException(Loc.T("Önceki oturum henüz geri yüklenmedi. Önce önceki çalıştırmayı geri yükle."));
 
         // Never operate while the game (or its anti-cheat session) is up: all preparation happens BEFORE the game starts.
         if (_sys.FindPidByName(Catalog.Cs2ProcessName) != null)
-            throw new InvalidOperationException("CS2 zaten çalışıyor. Antilag yalnızca oyun açılmadan ÖNCE çalışır; oyunu kapatıp tekrar dene.");
+            throw new InvalidOperationException(Loc.T("CS2 zaten çalışıyor. Antilag yalnızca oyun açılmadan ÖNCE çalışır; oyunu kapatıp tekrar dene."));
 
         var result = new PrepareResult();
 
@@ -80,9 +80,9 @@ public class Orchestrator
         foreach (var r in carry ?? new List<ProcessRecord>())
             state.Processes.Add(new ProcessRecord { Name = r.Name, Path = r.Path, CanReopen = r.CanReopen, RestartOnRevert = r.RestartOnRevert, ClosedBy = r.ClosedBy });
         _store.Save();
-        _log.Info("✓ Eski ayarların yedeği alındı.");
+        _log.Info(Loc.T("✓ Eski ayarların yedeği alındı."));
 
-        _log.Info("Önce mevcut durumu ölçüyorum (internet gecikmesi, boş bellek, işlemci). Birkaç saniye sürer…");
+        _log.Info(Loc.T("Önce mevcut durumu ölçüyorum (internet gecikmesi, boş bellek, işlemci). Birkaç saniye sürer…"));
         result.Before = await Metrics.CaptureAsync(_sys, s.PingTarget, ct);
 
         var actions = plan.Active.OrderBy(a => a.Kind).ToList();
@@ -93,7 +93,7 @@ public class Orchestrator
             if (!result.AbortedBecauseGameStarted)      // said once, however many times the check runs afterwards
             {
                 result.AbortedBecauseGameStarted = true;
-                _log.Error("CS2 açıldığı için işlem durduruldu. Oyun açıkken hiçbir şeye dokunmuyorum.");
+                _log.Error(Loc.T("CS2 açıldığı için işlem durduruldu. Oyun açıkken hiçbir şeye dokunmuyorum."));
             }
             return true;
         }
@@ -123,22 +123,22 @@ public class Orchestrator
                     case ActionKind.Accessibility: ExecAccessibility(state, a, result); break;
                     case ActionKind.NicPower: ExecNic(state, (NicPayload)a.Payload!, result); break;
                     case ActionKind.FlushDns:
-                        _sys.FlushDns(); result.Done.Add(a.Title); _log.Info("✓ İnternet adres önbelleği (DNS) temizlendi.");
+                        _sys.FlushDns(); result.Done.Add(a.Title); _log.Info(Loc.T("✓ İnternet adres önbelleği (DNS) temizlendi."));
                         break;
                 }
             }
             catch (GameRunningException)
             {
                 if (!result.AbortedBecauseGameStarted)
-                    _log.Error("CS2 açıldığı için işlem durduruldu. Oyun açıkken hiçbir şeye dokunmuyorum.");
+                    _log.Error(Loc.T("CS2 açıldığı için işlem durduruldu. Oyun açıkken hiçbir şeye dokunmuyorum."));
                 result.AbortedBecauseGameStarted = true;
                 break;
             }
             catch (Exception ex)
             {
                 // the raw (usually English) text only goes to the log file
-                result.Failed.Add($"Şu adım yapılamadı: {a.Title}");
-                _log.Error($"Şu adım yapılamadı: {a.Title}");
+                result.Failed.Add(Loc.F("Şu adım yapılamadı: {0}", a.Title));
+                _log.Error(Loc.F("Şu adım yapılamadı: {0}", a.Title));
                 _log.Detail($"{a.Title}: {ex}");
             }
             Report();
@@ -149,7 +149,7 @@ public class Orchestrator
 
         if (result.AbortedBecauseGameStarted) return result;   // no after-measurement: nothing more is touched
 
-        _log.Info("Sonucu ölçüyorum…");
+        _log.Info(Loc.T("Sonucu ölçüyorum…"));
         result.After = await Metrics.CaptureAsync(_sys, s.PingTarget, ct);
         return result;
     }
@@ -181,7 +181,7 @@ public class Orchestrator
                            .Select(x => new ProcRef(x.Pid, x.Name)).ToList();
             if (pids.Count == 0)
             {
-                result.Skipped.Add($"{p.Display ?? p.Name}: artık çalışmıyor");
+                result.Skipped.Add(Loc.F("{0}: artık çalışmıyor", p.Display ?? p.Name));
                 continue;
             }
 
@@ -211,7 +211,7 @@ public class Orchestrator
                     catch { /* already gone, or protected: skipped */ }
                 }
 
-            _log.Info($"{targets.Count} program kapatılıyor… (önce nazikçe; kapanmayanlar en geç 6 saniye sonra zorla kapatılır)");
+            _log.Info(Loc.F("{0} program kapatılıyor… (önce nazikçe; kapanmayanlar en geç 6 saniye sonra zorla kapatılır)", targets.Count));
             var all = targets.SelectMany(t => t.Procs).ToList();
             var remaining = _sys.WaitForExit(all, 6000);
             var remainingSet = remaining.ToHashSet();
@@ -276,7 +276,7 @@ public class Orchestrator
                 foreach (var r in _sys.WaitForExit(respawned, 1000)) killedAll &= TryKill(r, Shown(r));
                 var leftAfterKill = _sys.WaitForExit(respawned, 1500);
                 if (killedAll && leftAfterKill.Count == 0)
-                    _log.Info($"Kendini yeniden açan {respawned.Select(r => ProtectedList.Normalize(r.Name)).Distinct().Count()} program tekrar kapatıldı.");
+                    _log.Info(Loc.F("Kendini yeniden açan {0} program tekrar kapatıldı.", respawned.Select(r => ProtectedList.Normalize(r.Name)).Distinct().Count()));
             }
 
             // the last look: a program that comes back a moment after the sweeps (G HUB, Wallpaper Engine...) must not be reported as closed
@@ -292,7 +292,8 @@ public class Orchestrator
                 {
                     result.NotClosed.Add(shown);
                     var refused = t.Procs.Any(p => stillAfterKill.Contains(p) && !killAccepted.Contains(p));
-                    _log.Warn(refused ? $"{shown} kapanmadı (Windows kapatmaya izin vermedi)." : $"{shown} kapanmadı (kapatma isteği kabul edildi ama program hâlâ çalışıyor).");
+                    _log.Warn(refused ? Loc.F("{0} kapanmadı (Windows kapatmaya izin vermedi).", shown)
+                                      : Loc.F("{0} kapanmadı (kapatma isteği kabul edildi ama program hâlâ çalışıyor).", shown));
                     // for the log file only: which copies, and whether the forced ending was refused or accepted but did not take effect
                     foreach (var p in t.Procs.Where(p => stillAfterKill.Contains(p)))
                         _log.Detail($"Kapanmayan işlem: {p.Name} ({p.Pid}); zorla kapatma {(killAccepted.Contains(p) ? "kabul edildi ama işlem yaşamaya devam etti" : "reddedildi")}.");
@@ -300,13 +301,13 @@ public class Orchestrator
                 else if (back.Contains(t.P.Name))
                 {
                     result.NotClosed.Add(shown);
-                    _log.Warn($"{shown} tekrar açıldı, kapatılamadı.");
+                    _log.Warn(Loc.F("{0} tekrar açıldı, kapatılamadı.", shown));
                     _log.Detail($"{t.P.Name}: kapatıldıktan sonra kendiliğinden yeniden açıldı (bir hizmet ya da yardımcı program açıyor olabilir).");
                 }
                 else
                 {
-                    result.Done.Add($"{shown} kapatıldı");
-                    _log.Info($"✓ {shown} kapatıldı" + (killed > 0 ? " (kapanmadığı için zorla)." : "."));
+                    result.Done.Add(Loc.F("{0} kapatıldı", shown));
+                    _log.Info(killed > 0 ? Loc.F("✓ {0} kapatıldı (kapanmadığı için zorla).", shown) : Loc.F("✓ {0} kapatıldı.", shown));
                 }
             }
         }
@@ -324,7 +325,7 @@ public class Orchestrator
         catch (GameRunningException) { throw; }
         catch (Exception ex)
         {
-            _log.Warn($"{shown} zorla kapatılamadı.");
+            _log.Warn(Loc.F("{0} zorla kapatılamadı.", shown));
             _log.Detail($"{proc.Name} ({proc.Pid}): {ex}");
             return false;
         }
@@ -334,9 +335,10 @@ public class Orchestrator
 
     private void ExecStopService(SessionState state, ServicePayload p, PrepareResult result)
     {
-        if (ProtectedList.IsServiceProtected(p.Name)) { result.Skipped.Add($"{Catalog.ServiceTitle(p.Name)}: korumalı hizmet"); return; }
+        // (Catalog.ServiceTitle already gives the title in the chosen language)
+        if (ProtectedList.IsServiceProtected(p.Name)) { result.Skipped.Add(Loc.F("{0}: korumalı hizmet", Catalog.ServiceTitle(p.Name))); return; }
         var info = _sys.GetService(p.Name);
-        if (info == null || info.State != ServiceRunState.Running) { result.Skipped.Add($"{Catalog.ServiceTitle(p.Name)}: çalışmıyor"); return; }
+        if (info == null || info.State != ServiceRunState.Running) { result.Skipped.Add(Loc.F("{0}: çalışmıyor", Catalog.ServiceTitle(p.Name))); return; }
 
         // record the service and every running dependent (they get stopped with it)
         state.Services.Add(new ServiceRecord { Name = info.Name, WasRunning = true, StartType = info.StartType });
@@ -350,8 +352,8 @@ public class Orchestrator
         _store.Save();
 
         _sys.StopService(p.Name);
-        result.Done.Add($"Hizmet durduruldu: {Catalog.ServiceTitle(p.Name, info.DisplayName)}");
-        _log.Info($"✓ Windows hizmeti durduruldu: {Catalog.ServiceTitle(p.Name, info.DisplayName)}.");
+        result.Done.Add(Loc.F("Hizmet durduruldu: {0}", Catalog.ServiceTitle(p.Name, info.DisplayName)));
+        _log.Info(Loc.F("✓ Windows hizmeti durduruldu: {0}.", Catalog.ServiceTitle(p.Name, info.DisplayName)));
     }
 
     // ---- power plan ----
@@ -369,11 +371,11 @@ public class Orchestrator
             {
                 target = _sys.DuplicatePowerScheme(Catalog.UltimateTemplateGuid);
                 state.CreatedPowerGuid = target; _store.Save();
-                _log.Info("Nihai Performans güç planı hazırlandı.");
+                _log.Info(Loc.T("Nihai Performans güç planı hazırlandı."));
             }
             catch (Exception ex)
             {
-                _log.Warn("Nihai Performans güç planı hazırlanamadı; Yüksek Performans denenecek.");
+                _log.Warn(Loc.T("Nihai Performans güç planı hazırlanamadı; Yüksek Performans denenecek."));
                 _log.Detail(ex.ToString());
             }
         }
@@ -387,20 +389,21 @@ public class Orchestrator
             }
             catch (Exception ex)
             {
-                _log.Warn("Yüksek Performans güç planı da hazırlanamadı.");
+                _log.Warn(Loc.T("Yüksek Performans güç planı da hazırlanamadı."));
                 _log.Detail(ex.ToString());
             }
         }
         if (target == null)
         {
-            result.Failed.Add("Şu adım yapılamadı: Güç planı (uygun plan bulunamadı)");
-            _log.Error("Şu adım yapılamadı: Güç planı (uygun plan bulunamadı)");
+            result.Failed.Add(Loc.T("Şu adım yapılamadı: Güç planı (uygun plan bulunamadı)"));
+            _log.Error(Loc.T("Şu adım yapılamadı: Güç planı (uygun plan bulunamadı)"));
             return;
         }
 
         _sys.SetActivePowerScheme(target);
-        result.Done.Add("Güç planı en yüksek performansa alındı");
-        _log.Info($"✓ Güç planı en yüksek performansa alındı (eski mod: {current.Schemes.FirstOrDefault(x => x.Guid == current.ActiveGuid)?.Name ?? "bilinmiyor"}). Geri yüklenince eski haline döner.");
+        result.Done.Add(Loc.T("Güç planı en yüksek performansa alındı"));
+        _log.Info(Loc.F("✓ Güç planı en yüksek performansa alındı (eski mod: {0}). Geri yüklenince eski haline döner.",
+            current.Schemes.FirstOrDefault(x => x.Guid == current.ActiveGuid)?.Name ?? Loc.T("bilinmiyor")));
     }
 
     // ---- registry ----
@@ -425,7 +428,7 @@ public class Orchestrator
             _sys.WriteRegistry(c.Hive, c.SubKey, c.Name, c.Kind, RegCodec.Encode(c.Kind, c.Value));
         }
         result.Done.Add(a.Title);
-        _log.Info($"✓ {a.Title}.");
+        _log.Info(Loc.F("✓ {0}.", a.Title));
     }
 
     // ---- mouse / nic ----
@@ -439,7 +442,7 @@ public class Orchestrator
         _store.Save();
         _sys.SetMouse(new MouseParams(0, 0, 0));
         result.Done.Add(a.Title);
-        _log.Info("✓ Fare ivmesi bu oturum için kapatıldı.");
+        _log.Info(Loc.T("✓ Fare ivmesi bu oturum için kapatıldı."));
     }
 
     private void ExecAccessibility(SessionState state, PlannedAction a, PrepareResult result)
@@ -450,7 +453,7 @@ public class Orchestrator
         _store.Save();
         _sys.SetAccessibility(cur.WithoutHotkeys());
         result.Done.Add(a.Title);
-        _log.Info("✓ Yapışkan Tuşlar penceresi bu oturum için engellendi.");
+        _log.Info(Loc.T("✓ Yapışkan Tuşlar penceresi bu oturum için engellendi."));
     }
 
     private void ExecNic(SessionState state, NicPayload p, PrepareResult result)
@@ -459,8 +462,8 @@ public class Orchestrator
         state.NicPower.Add(new NicPowerRecord { InstanceName = inst, OldEnabled = true });
         _store.Save();
         _sys.SetNicPower(inst, false);
-        result.Done.Add($"Ağ kartının enerji tasarrufu kapatıldı: {p.Nic.Name}");
-        _log.Info($"✓ Ağ kartının ({p.Nic.Name}) enerji tasarrufu kapatıldı.");
+        result.Done.Add(Loc.F("Ağ kartının enerji tasarrufu kapatıldı: {0}", p.Nic.Name));
+        _log.Info(Loc.F("✓ Ağ kartının ({0}) enerji tasarrufu kapatıldı.", p.Nic.Name));
     }
 
     // =================================================================== REVERT
@@ -474,48 +477,48 @@ public class Orchestrator
         var state = _store.Current ?? _store.LoadPending();
         if (state == null && _store.NewerFormat)
         {
-            res.Problems.Add("Önceki çalıştırmanın kaydı daha yeni bir Antilag sürümüyle yazılmış; bu sürüm onu geri yükleyemez. Antilag'ı güncelleyip yeniden dene.");
+            res.Problems.Add(Loc.T("Önceki çalıştırmanın kaydı daha yeni bir Antilag sürümüyle yazılmış; bu sürüm onu geri yükleyemez. Antilag'ı güncelleyip yeniden dene."));
             _log.Warn(res.Problems[0]);
             return res;   // state.json is kept untouched
         }
-        if (state == null) { _log.Info("Geri yüklenecek bir şey yok."); return res; }
+        if (state == null) { _log.Info(Loc.T("Geri yüklenecek bir şey yok.")); return res; }
 
         if (_sys.FindPidByName(Catalog.Cs2ProcessName) != null)
         {
-            res.Problems.Add("CS2 çalışıyor: oyun açıkken geri yükleme çalışmaz (anti-cheat güvenliği). Oyunu kapattıktan sonra tekrar dene.");
+            res.Problems.Add(Loc.T("CS2 çalışıyor: oyun açıkken geri yükleme çalışmaz (anti-cheat güvenliği). Oyunu kapattıktan sonra tekrar dene."));
             _log.Warn(res.Problems[0]);
             return res;   // state.json is kept untouched
         }
 
-        _log.Info(forgetPrograms ? "Önceki çalıştırmanın ayarları geri yükleniyor…"
+        _log.Info(forgetPrograms ? Loc.T("Önceki çalıştırmanın ayarları geri yükleniyor…")
             : restartApps
-            ? "Geri yüklüyorum: ayarlar eski haline dönüyor, kapatılan programlar yeniden başlatılıyor…"
-            : "Önceki ayarlar geri yükleniyor (programlar şimdilik açılmıyor: Antilag onları zaten tekrar kapatacak)…");
+            ? Loc.T("Geri yüklüyorum: ayarlar eski haline dönüyor, kapatılan programlar yeniden başlatılıyor…")
+            : Loc.T("Önceki ayarlar geri yükleniyor (programlar şimdilik açılmıyor: Antilag onları zaten tekrar kapatacak)…"));
 
         // mouse
         if (state.Mouse is { Reverted: false } m)
-            Try(res, "Fare ivmesi", () =>
+            Try(res, Loc.T("Fare ivmesi"), () =>
             {
                 _sys.SetMouse(new MouseParams(m.Threshold1, m.Threshold2, m.Accel));
                 var now = _sys.GetMouse();
                 if (now.Accel != m.Accel) throw new InvalidOperationException("doğrulama başarısız");
-                m.Reverted = true; res.Restored.Add("Fare ivmesi eski haline döndü");
+                m.Reverted = true; res.Restored.Add(Loc.T("Fare ivmesi eski haline döndü"));
             });
 
         // sticky / toggle / filter keys
         if (state.Accessibility is { Reverted: false } acc)
-            Try(res, "Yapışkan/Filtre tuşları", () =>
+            Try(res, Loc.T("Yapışkan/Filtre tuşları"), () =>
             {
                 _sys.SetAccessibility(new AccessibilityFlags(acc.Sticky, acc.Toggle, acc.Filter));
-                acc.Reverted = true; res.Restored.Add("Yapışkan/Filtre/Geçiş tuşları eski haline döndü");
+                acc.Reverted = true; res.Restored.Add(Loc.T("Yapışkan/Filtre/Geçiş tuşları eski haline döndü"));
             });
 
         // nic
         foreach (var n in state.NicPower.Where(x => !x.Reverted))
-            Try(res, "Ağ kartı güç tasarrufu", () =>
+            Try(res, Loc.T("Ağ kartı güç tasarrufu"), () =>
             {
                 _sys.SetNicPower(n.InstanceName, n.OldEnabled); n.Reverted = true;
-                res.Restored.Add("Ağ kartı güç tasarrufu eski haline döndü");
+                res.Restored.Add(Loc.T("Ağ kartı güç tasarrufu eski haline döndü"));
             });
 
         // registry (reverse order)
@@ -524,12 +527,12 @@ public class Orchestrator
             if (!StateGuard.IsAllowed(r))
             {
                 // state.json is user-writable but replayed with admin rights: never touch anything this app could not have written
-                _log.Error("Kayıt dosyasındaki bir Windows ayarı tanınmadığı için atlandı (güvenlik).");
+                _log.Error(Loc.T("Kayıt dosyasındaki bir Windows ayarı tanınmadığı için atlandı (güvenlik)."));
                 _log.Detail($"İzin listesinde olmayan kayıt yok sayıldı: {r.Hive}\\{r.SubKey}\\{r.Name}");
                 r.Reverted = true;
                 continue;
             }
-            Try(res, "Windows ayarı", () =>
+            Try(res, Loc.T("Windows ayarı"), () =>
             {
                 if (r.ValueExisted)
                 {
@@ -547,18 +550,18 @@ public class Orchestrator
             }, $@"{r.Hive}\{r.SubKey}\{r.Name}");
         }
         if (state.Registry.Count > 0 && state.Registry.All(x => x.Reverted))
-            res.Restored.Add($"Windows ayarları: {state.Registry.Count} değişiklik eski haline döndü");
+            res.Restored.Add(Loc.F("Windows ayarları: {0} değişiklik eski haline döndü", state.Registry.Count));
 
         // services (original order: a service before its dependents)
         foreach (var sv in state.Services.Where(x => !x.Reverted))
         {
             if (!StateGuard.IsValidServiceName(sv.Name))
             {
-                _log.Error("Kayıt dosyasındaki bir hizmet adı geçersiz olduğu için atlandı (güvenlik).");
+                _log.Error(Loc.T("Kayıt dosyasındaki bir hizmet adı geçersiz olduğu için atlandı (güvenlik)."));
                 _log.Detail($"Geçersiz hizmet adı yok sayıldı: {sv.Name}");
                 sv.Reverted = true; continue;
             }
-            Try(res, $"Hizmet: {Catalog.ServiceTitle(sv.Name)}", () =>
+            Try(res, Loc.F("Hizmet: {0}", Catalog.ServiceTitle(sv.Name)), () =>
             {
                 if (sv.WasRunning)
                 {
@@ -574,13 +577,13 @@ public class Orchestrator
             }, sv.Name);
         }
         if (state.Services.Count > 0 && state.Services.All(x => x.Reverted))
-            res.Restored.Add($"Arka plan hizmetleri: {state.Services.Count} hizmet eski durumuna döndü");
+            res.Restored.Add(Loc.F("Arka plan hizmetleri: {0} hizmet eski durumuna döndü", state.Services.Count));
 
         // power plan (GUIDs from state.json are validated before they reach powercfg)
-        if (state.OriginalPowerGuid != null && !StateGuard.IsValidGuid(state.OriginalPowerGuid)) { _log.Error("Kayıt dosyasındaki güç planı kimliği geçersiz, atlandı (güvenlik)."); state.OriginalPowerGuid = null; }
-        if (state.CreatedPowerGuid != null && !StateGuard.IsValidGuid(state.CreatedPowerGuid)) { _log.Error("Kayıt dosyasındaki oluşturulan güç planı kimliği geçersiz, atlandı (güvenlik)."); state.CreatedPowerGuid = null; }
+        if (state.OriginalPowerGuid != null && !StateGuard.IsValidGuid(state.OriginalPowerGuid)) { _log.Error(Loc.T("Kayıt dosyasındaki güç planı kimliği geçersiz, atlandı (güvenlik).")); state.OriginalPowerGuid = null; }
+        if (state.CreatedPowerGuid != null && !StateGuard.IsValidGuid(state.CreatedPowerGuid)) { _log.Error(Loc.T("Kayıt dosyasındaki oluşturulan güç planı kimliği geçersiz, atlandı (güvenlik).")); state.CreatedPowerGuid = null; }
         if (!state.PowerReverted && (state.OriginalPowerGuid != null || state.CreatedPowerGuid != null))
-            Try(res, "Güç planı", () =>
+            Try(res, Loc.T("Güç planı"), () =>
             {
                 if (state.OriginalPowerGuid != null)
                 {
@@ -597,7 +600,7 @@ public class Orchestrator
                         _sys.DeletePowerScheme(created);
                 }
                 state.PowerReverted = true;
-                res.Restored.Add("Güç planı eski haline döndü" + (state.CreatedPowerGuid != null ? " (oluşturulan plan silindi)" : ""));
+                res.Restored.Add(state.CreatedPowerGuid != null ? Loc.T("Güç planı eski haline döndü (oluşturulan plan silindi)") : Loc.T("Güç planı eski haline döndü"));
             });
 
         // apps closed earlier: "Geri yükle" starts every one that can be started again; the rest is listed for the user
@@ -622,7 +625,7 @@ public class Orchestrator
             if (_sys.FindPidByName(Catalog.Cs2ProcessName) != null)
             {
                 // the game started while the restore was running: nothing more is started, and what is left stays in the journal
-                res.Problems.Add("CS2 çalıştığı için kalan programlar açılmadı. Oyunu kapattıktan sonra geri yüklemeyi tekrar dene.");
+                res.Problems.Add(Loc.T("CS2 çalıştığı için kalan programlar açılmadı. Oyunu kapattıktan sonra geri yüklemeyi tekrar dene."));
                 _log.Warn(res.Problems[^1]);
                 break;
             }
@@ -637,7 +640,7 @@ public class Orchestrator
         if (!res.Complete)
         {
             _store.Save();
-            _log.Error($"Geri yükleme tam yapılamadı ({res.Problems.Count} sorun). Yedek korundu, tekrar deneyebilirsin.");
+            _log.Error(Loc.F("Geri yükleme tam yapılamadı ({0} sorun). Yedek korundu, tekrar deneyebilirsin.", res.Problems.Count));
         }
         else if (res.Carry.Count > 0)
         {
@@ -648,12 +651,12 @@ public class Orchestrator
             state.OriginalPowerGuid = null; state.CreatedPowerGuid = null; state.PowerReverted = false;
             state.Processes.RemoveAll(p => p.Reverted);
             _store.Save();
-            _log.Info("Önceki ayarlar eski haline döndü.");
+            _log.Info(Loc.T("Önceki ayarlar eski haline döndü."));
         }
         else
         {
             _store.Clear();
-            _log.Info(restartApps ? "Ayarlar ve hizmetler eski haline döndü." : "Önceki ayarlar eski haline döndü.");
+            _log.Info(restartApps ? Loc.T("Ayarlar ve hizmetler eski haline döndü.") : Loc.T("Önceki ayarlar eski haline döndü."));
         }
         LogNotReopened(res);
         return res;
@@ -682,28 +685,28 @@ public class Orchestrator
         if (!string.IsNullOrEmpty(pr.Path) && pr.Path.Contains(@"\WindowsApps\", StringComparison.OrdinalIgnoreCase))
         {
             // Store (MSIX) apps cannot be started by their package path; the user reopens them from the Start menu
-            _log.Info($"{shown} bir Microsoft Store uygulaması: otomatik açılamaz, Başlat menüsünden açabilirsin.");
-            ByHand(shown + " (Store uygulaması)");
+            _log.Info(Loc.F("{0} bir Microsoft Store uygulaması: otomatik açılamaz, Başlat menüsünden açabilirsin.", shown));
+            ByHand(Loc.F("{0} (Store uygulaması)", shown));
             return true;
         }
         if (!(pr.CanReopen || pr.RestartOnRevert) || string.IsNullOrEmpty(pr.Path)) { ByHand(shown); return true; }
-        if (!StateGuard.IsSafeRestartPath(pr.Path)) { _log.Warn($"{shown}: başlatma yolu güvenli değil ya da dosya yok, atlandı."); ByHand(shown); return true; }
+        if (!StateGuard.IsSafeRestartPath(pr.Path)) { _log.Warn(Loc.F("{0}: başlatma yolu güvenli değil ya da dosya yok, atlandı.", shown)); ByHand(shown); return true; }
         try
         {
             _sys.RestartProcess(pr.Path);
             live.Add((pr.Name, pr.Path));
-            res.Restored.Add($"{shown} başlatıldı");
-            _log.Info($"✓ {shown} başlatıldı.");
+            res.Restored.Add(Loc.F("{0} başlatıldı", shown));
+            _log.Info(Loc.F("✓ {0} başlatıldı.", shown));
         }
         catch (GameRunningException)
         {
-            res.Problems.Add("CS2 çalıştığı için kalan programlar açılmadı. Oyunu kapattıktan sonra geri yüklemeyi tekrar dene.");
+            res.Problems.Add(Loc.T("CS2 çalıştığı için kalan programlar açılmadı. Oyunu kapattıktan sonra geri yüklemeyi tekrar dene."));
             _log.Warn(res.Problems[^1]);
             return false;
         }
         catch (Exception ex)
         {
-            _log.Warn($"{shown} başlatılamadı.");
+            _log.Warn(Loc.F("{0} başlatılamadı.", shown));
             _log.Detail($"{pr.Path}: {ex}");
             ByHand(shown);
         }
@@ -713,7 +716,7 @@ public class Orchestrator
     private void LogNotReopened(RevertResult res)
     {
         if (res.NotRestarted.Count > 0)
-            _log.Warn("Şu programlar kendiliğinden açılamadı, gerekirse kendin aç: " + string.Join(", ", res.NotRestarted) + ".");
+            _log.Warn(Loc.F("Şu programlar kendiliğinden açılamadı, gerekirse kendin aç: {0}.", string.Join(", ", res.NotRestarted)));
     }
 
     /// <summary>
@@ -761,7 +764,7 @@ public class Orchestrator
     public void DiscardJournal()
     {
         _store.Quarantine("discarded");
-        _log.Warn("Geri yükleme yok sayıldı: kayıt dosyası (state.json) bir kenara alındı.");
+        _log.Warn(Loc.T("Geri yükleme yok sayıldı: kayıt dosyası (state.json) bir kenara alındı."));
     }
 
     /// <param name="tech">Technical detail for the log file only (registry path, service name...).</param>
@@ -770,8 +773,8 @@ public class Orchestrator
         try { a(); }
         catch (Exception ex)
         {
-            res.Problems.Add($"Şu adım yapılamadı: {what}");
-            _log.Error($"Şu adım yapılamadı: {what}");
+            res.Problems.Add(Loc.F("Şu adım yapılamadı: {0}", what));
+            _log.Error(Loc.F("Şu adım yapılamadı: {0}", what));
             _log.Detail($"{what}{(tech != null ? $" [{tech}]" : "")}: {ex}");
         }
     }
@@ -786,7 +789,7 @@ public class Orchestrator
     {
         if (_sys.FindPidByName(Catalog.Cs2ProcessName) != null)
         {
-            _log.Warn("CS2 çalışıyor: oyun açıkken hiçbir uygulama kapatılmaz.");
+            _log.Warn(Loc.T("CS2 çalışıyor: oyun açıkken hiçbir uygulama kapatılmaz."));
             return false;
         }
         var n = ProtectedList.Normalize(name);
@@ -795,7 +798,7 @@ public class Orchestrator
         if (procs.Count == 0) return false;
         if (procs.Any(p => ProtectedList.IsProcessProtected(p.Name, p.Path, streamMode)))
         {
-            _log.Warn($"{n}.exe korumalı: kapatılmadı.");
+            _log.Warn(Loc.F("{0}.exe korumalı: kapatılmadı.", n));
             return false;
         }
         var path = procs.Select(p => p.Path).FirstOrDefault(x => !string.IsNullOrEmpty(x));
@@ -804,7 +807,7 @@ public class Orchestrator
         var state = _store.Current ?? _store.LoadPending();
         if (state == null && _store.NewerFormat)
         {
-            _log.Warn("Önceki çalıştırmanın kaydı daha yeni bir Antilag sürümüyle yazılmış: kayıt bozulmasın diye şimdi bir program kapatılmadı.");
+            _log.Warn(Loc.T("Önceki çalıştırmanın kaydı daha yeni bir Antilag sürümüyle yazılmış: kayıt bozulmasın diye şimdi bir program kapatılmadı."));
             return false;
         }
         state ??= _store.Begin("Manuel");
@@ -826,10 +829,10 @@ public class Orchestrator
         }
         catch (GameRunningException)
         {
-            _log.Warn("CS2 çalışıyor: oyun açıkken hiçbir uygulama kapatılmaz.");
+            _log.Warn(Loc.T("CS2 çalışıyor: oyun açıkken hiçbir uygulama kapatılmaz."));
             return false;
         }
-        _log.Info($"✓ {shown} kapatıldı.");
+        _log.Info(Loc.F("✓ {0} kapatıldı.", shown));
         return true;
     }
 }

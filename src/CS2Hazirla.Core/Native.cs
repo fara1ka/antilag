@@ -27,6 +27,8 @@ internal static class Native
     [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
     public static extern bool QueryFullProcessImageName(IntPtr hProcess, uint flags, StringBuilder exeName, ref int size);
     [DllImport("kernel32.dll")] public static extern bool GetSystemTimes(out long idle, out long kernel, out long user);
+    // the code page in which the console programs (powercfg...) write: Windows' own, not the one of the language the app shows (Loc.Use sets the culture to en-US)
+    [DllImport("kernel32.dll")] public static extern uint GetOEMCP();
 
     [DllImport("kernel32.dll", SetLastError = true)] public static extern bool GlobalMemoryStatusEx(ref MemoryStatusEx buf);
 

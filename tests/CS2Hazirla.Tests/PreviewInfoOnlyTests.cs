@@ -28,7 +28,7 @@ public class PreviewInfoOnlyTests
 
         var buttons = all.Where(e => e.Name == Wpf + "Button").ToList();
         var only = Assert.Single(buttons);
-        Assert.Equal("Kapat", (string?)only.Attribute("Content"));
+        Assert.Equal("{local:T 'Kapat'}", (string?)only.Attribute("Content"));
         Assert.True((bool?)only.Attribute("IsCancel") == true, "Esc must close the window");
     }
 

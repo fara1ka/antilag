@@ -91,8 +91,8 @@ public partial class MainViewModel
     public bool EditBaseStream { get => _editBase == ProfileKind.Stream; set { if (value) SetEditBase(ProfileKind.Stream); } }
 
     private bool _saveFailed;
-    public string EditStatus => _saveFailed ? "Dosyaya yazılamadı: profil bu açılışta çalışır ama Antilag'ı kapatınca kaybolur."
-        : _dirty ? "Kaydedilmemiş değişiklikler var." : _justSaved ? "✓ Kaydedildi." : "";
+    public string EditStatus => _saveFailed ? Loc.T("Dosyaya yazılamadı: profil bu açılışta çalışır ama Antilag'ı kapatınca kaybolur.")
+        : _dirty ? Loc.T("Kaydedilmemiş değişiklikler var.") : _justSaved ? Loc.T("✓ Kaydedildi.") : "";
 
     // deleting asks inside the page (no window): the "Profili sil" button turns into "Silinsin mi?  Evet, sil · Vazgeç"
     private bool _confirmingDelete;
@@ -110,7 +110,7 @@ public partial class MainViewModel
         foreach (var def in Catalog.Options)
             _draftOptions.Add(new OptionVM(def, _draft) { Changed = MarkDirty });
         foreach (var g in _draftOptions.GroupBy(o => o.Def.Group))
-            EditGroups.Add(new OptionGroupVM { Title = g.Key, Items = g.ToList() });
+            EditGroups.Add(new OptionGroupVM { Title = Loc.T(g.Key), Items = g.ToList() });       // grouped by the Turkish identity, shown in the chosen language
         _draft.Options = ProfileSession.PresetDefaults(ProfileKind.Maximum);
 
         NewProfileCommand = new RelayCommand(NewProfile, () => IsIdle);
@@ -137,16 +137,16 @@ public partial class MainViewModel
 
         void Preset(string key, string name, string tip) =>
             Chips.Add(new ProfileChipVM(name, tip, false, () => _profiles.ActiveKey == key, () => ActivateProfile(key)));
-        Preset(ProfileSession.SafeKey, "Hafif", "Hiçbir programı kapatmaz; Windows güncellemelerini geçici durdurur ve birkaç Windows ayarı yapar (en yüksek performans güç planı, Oyun Modu…).");
-        Preset(ProfileSession.MaximumKey, "Tam temizlik", "CS2, Steam, FACEIT, Windows, ekran kartı ve ses sürücüleri ile 'Her zaman açık kalsın' listesindekiler dışındaki programları kapatır. Windows bildirimlerini susturur (geri yüklenene kadar) ve CS2 için tam ekran iyileştirmesini kapatır.");
-        Preset(ProfileSession.StreamKey, "Yayıncı", "OBS, Streamlabs, Discord, Elgato gibi tanınan yayın araçları, tarayıcı, VPN, GoodbyeDPI, diğer engel aşma programları ve tanınmayan arka plan programları açık kalır; gerisi kapanır. Bildirimler susturulur (geri yüklenene kadar), tam ekran iyileştirmesi kapatılır. Başka bir yayın aracını Ayarlar'dan 'Her zaman açık kalsın' listesine ekle.");
+        Preset(ProfileSession.SafeKey, Loc.T("Hafif"), Loc.T("Hiçbir programı kapatmaz; Windows güncellemelerini geçici durdurur ve birkaç Windows ayarı yapar (en yüksek performans güç planı, Oyun Modu…)."));
+        Preset(ProfileSession.MaximumKey, Loc.T("Tam temizlik"), Loc.T("CS2, Steam, FACEIT, Windows, ekran kartı ve ses sürücüleri ile 'Her zaman açık kalsın' listesindekiler dışındaki programları kapatır. Windows bildirimlerini susturur (geri yüklenene kadar) ve CS2 için tam ekran iyileştirmesini kapatır."));
+        Preset(ProfileSession.StreamKey, Loc.T("Yayıncı"), Loc.T("OBS, Streamlabs, Discord, Elgato gibi tanınan yayın araçları, tarayıcı, VPN, GoodbyeDPI, diğer engel aşma programları ve tanınmayan arka plan programları açık kalır; gerisi kapanır. Bildirimler susturulur (geri yüklenene kadar), tam ekran iyileştirmesi kapatılır. Başka bir yayın aracını Ayarlar'dan 'Her zaman açık kalsın' listesine ekle."));
 
         var first = true;
         foreach (var p in Settings.SavedProfiles)
         {
             var id = p.Id;
             var key = ProfileSession.KeyOfCustom(id);
-            Chips.Add(new ProfileChipVM(p.Name, "Senin kaydettiğin profil: " + p.Name, first, () => _profiles.ActiveKey == key, () => ActivateProfile(key)));
+            Chips.Add(new ProfileChipVM(p.Name, Loc.F("Senin kaydettiğin profil: {0}", p.Name), first, () => _profiles.ActiveKey == key, () => ActivateProfile(key)));
             first = false;
             var row = new SavedProfileVM(id, p.Name, OnProfileRowSelected) { InUse = _profiles.ActiveKey == key };
             SavedProfiles.Add(row);
@@ -281,9 +281,9 @@ public partial class MainViewModel
         var a = _profiles.Create(ProfileKind.Maximum);
         var optionsA = ProfileSession.PresetDefaults(ProfileKind.Maximum);
         optionsA["proc.browsers"] = false; optionsA["proc.claude"] = false;
-        _profiles.Save(a.Id, "Maç günü", ProfileKind.Maximum, optionsA);
+        _profiles.Save(a.Id, Loc.T("Maç günü"), ProfileKind.Maximum, optionsA);
         var b = _profiles.Create(ProfileKind.Stream);
-        _profiles.Save(b.Id, "Yayın", ProfileKind.Stream, ProfileSession.PresetDefaults(ProfileKind.Stream));
+        _profiles.Save(b.Id, Loc.T("Yayın"), ProfileKind.Stream, ProfileSession.PresetDefaults(ProfileKind.Stream));
         RebuildProfileLists();
         SavedProfiles[0].IsSelected = true;
     }

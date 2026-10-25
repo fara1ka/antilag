@@ -9,6 +9,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using CS2Hazirla.Core;
 
 namespace CS2Hazirla;
 
@@ -24,6 +25,7 @@ public partial class MainWindow : Window
         _vm = vm;
         _args = args;
         InitializeComponent();
+        WindowLanguage.Apply(this);
         DataContext = vm;
 #if DEBUG
         // screenshot runs must never disturb the person at the computer (a game, a call...): off-screen, no focus, no taskbar button
@@ -69,6 +71,8 @@ public partial class MainWindow : Window
         vm.ShowPreview = ShowPreview;
         vm.ShowPicker = ShowPicker;
         vm.ExitRequested += ExitApp;
+        // a new language: the window opens again in it (after this click has been handled, not inside it)
+        vm.LanguageChangeRequested += language => Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Background, () => App.ReopenIn(this, language));
         SourceInitialized += (_, _) => DarkTitleBar.Apply(this);
 
         // Esc closes the Ayrıntılar panel
@@ -281,6 +285,20 @@ public partial class MainWindow : Window
         if (Has("--info")) await _vm.RefreshInfoAsync();
         var path = _args[i + 1];
 
+        if (Has("--reopen"))
+        {
+            // the language switch for real: choose English on Ayarlar, wait for the window that replaces this one and render THAT one
+            _vm.SelectProfile(Core.ProfileKind.Stream);         // a choice of this run: it must survive the switch
+            _vm.GoTo(Page.Settings);
+            _vm.LanguageEnglish = true;
+            await Task.Delay(3000);
+            var fresh = Application.Current.MainWindow;
+            var freshVm = fresh.DataContext as MainViewModel;
+            File.WriteAllText(path + ".reopen.txt", $"replaced: {!ReferenceEquals(fresh, this)}; language: {Core.Loc.Language}; windows open: {Application.Current.Windows.Count}; title: {fresh.Title}; page settings: {freshVm?.PageSettings}; active profile: {freshVm?.TakeSessionSnapshot().ActiveKey}; saved language: {Core.SettingsStore.PeekLanguage()}");
+            Render(fresh, path);
+            Environment.Exit(0);
+        }
+
         if (Has("--preview"))
         {
             // real read-only plan of this machine (Tam temizlik) → text dump + window screenshot
@@ -298,8 +316,8 @@ public partial class MainWindow : Window
         else if (Has("--dialog"))
         {
             var dlg = new DialogWindow(
-                "Önceki çalıştırma tam geri yüklenemedi:\n• Güç planı geri yüklenemedi\n\nBu kayıt yok sayılıp bir kenara alınsın mı?\nHayır dersen kayıt korunur ve daha sonra tekrar denenebilir.",
-                "Geri yükleme tamamlanamadı", MessageBoxButton.YesNo, MessageBoxImage.Warning, defaultNo: true)
+                Loc.T("Önceki çalıştırma tam geri yüklenemedi:\n• Güç planı geri yüklenemedi\n\nBu kayıt yok sayılıp bir kenara alınsın mı?\nHayır dersen kayıt korunur ve daha sonra tekrar denenebilir."),
+                Loc.T("Geri yükleme tamamlanamadı"), MessageBoxButton.YesNo, MessageBoxImage.Warning, defaultNo: true)
             { Owner = this, WindowStartupLocation = WindowStartupLocation.Manual, Left = -20000, Top = -20000, ShowActivated = false, ShowInTaskbar = false };
             dlg.Show();
             await Task.Delay(1200);
@@ -310,14 +328,14 @@ public partial class MainWindow : Window
         {
             var req = new PickerRequest
             {
-                Title = "Her zaman açık kalacak programları seç",
-                Hint = "Çalışan programlar listelendi. Kapanmasını asla istemediklerini işaretle.",
+                Title = Loc.T("Her zaman açık kalacak programları seç"),
+                Hint = Loc.T("Çalışan programlar listelendi. Kapanmasını asla istemediklerini işaretle."),
                 Items = new List<PickItemVM>
                 {
-                    new() { Key = "chrome", Title = "Google Chrome", Subtitle = "1,2 GB bellek kullanıyor · ekranda açık", IsChecked = true },
-                    new() { Key = "spotify", Title = "Spotify", Subtitle = "310 MB bellek kullanıyor · ekranda açık" },
-                    new() { Key = "onedrive", Title = "Microsoft OneDrive", Subtitle = "95 MB bellek kullanıyor · arka planda çalışıyor" },
-                    new() { Key = "discord", Title = "Discord", Subtitle = "480 MB bellek kullanıyor · ekranda açık" },
+                    new() { Key = "chrome", Title = "Google Chrome", Subtitle = Loc.T("1,2 GB bellek kullanıyor · ekranda açık"), IsChecked = true },
+                    new() { Key = "spotify", Title = "Spotify", Subtitle = Loc.T("310 MB bellek kullanıyor · ekranda açık") },
+                    new() { Key = "onedrive", Title = "Microsoft OneDrive", Subtitle = Loc.T("95 MB bellek kullanıyor · arka planda çalışıyor") },
+                    new() { Key = "discord", Title = "Discord", Subtitle = Loc.T("480 MB bellek kullanıyor · ekranda açık") },
                 },
             };
             var pk = new PickerWindow(req) { Owner = this, WindowStartupLocation = WindowStartupLocation.Manual, Left = -20000, Top = -20000, ShowActivated = false, ShowInTaskbar = false };
@@ -330,6 +348,8 @@ public partial class MainWindow : Window
             await Task.Delay(1800);
             Render(this, path);
         }
+        // a render in English also says which texts had no English (they stayed Turkish in the picture)
+        if (Core.Loc.IsEnglish) File.WriteAllLines(path + ".missing.txt", Core.Loc.Missing.OrderBy(x => x));
         _exiting = true;
         Application.Current.Shutdown();
     }
@@ -364,7 +384,7 @@ public partial class MainWindow : Window
         if ((_vm.IsBusy || _vm.Update.IsWorking) && !_exiting)
         {
             UiDialog.Show(_vm.Update.IsWorking ? _vm.Update.BusyText
-                                               : "Şu an bir işlem sürüyor. Bitmesini bekle; sonra Uygulamayı kapat'a bas.", "Antilag",
+                                               : Loc.T("Şu an bir işlem sürüyor. Bitmesini bekle; sonra Uygulamayı kapat'a bas."), "Antilag",
                 MessageBoxButton.OK, MessageBoxImage.Information);
             e.Cancel = true;
             return;

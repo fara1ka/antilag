@@ -50,6 +50,7 @@ public static class HomeApps
                 : new HomeApp(g.First().Key, g.First().Display, g.Key.OptionId, g.SelectMany(x => x.Names).Distinct().ToList(), g.First().Path, g.Sum(x => x.Bytes)))
             .ToList();
         if (browsers.Count > 0)
+            // "Tarayıcılar" stays Turkish here (it is the row's Display, which the scan keeps and sorts by); the row translates it where it is shown (HomeAppVM.Title)
             merged.Add(new HomeApp(BrowsersKey, "Tarayıcılar", "proc.browsers", browsers.Select(b => b.Name).Distinct().ToList(), browsers[0].Path, browsers.Sum(b => b.Bytes)));
 
         static int Rank(HomeApp r) => r.OptionId switch { "proc.discord" => 0, "proc.dpi" => 1, _ => 2 };

@@ -111,11 +111,12 @@ public static class Catalog
             ["XboxNetApiSvc"] = ("Xbox ağ hizmeti", "Xbox çok oyunculu bağlantıları içindir."),
         };
 
+    // The tables above stay Turkish (identity); the language is chosen where the text is read. A name that is not in the table (fallback, the service's own name) is shown as it is.
     public static string ServiceTitle(string serviceName, string? fallback = null) =>
-        ServiceTexts.TryGetValue(serviceName, out var t) ? t.Title : (fallback ?? serviceName);
+        ServiceTexts.TryGetValue(serviceName, out var t) ? Loc.T(t.Title) : (fallback ?? serviceName);
 
     public static string ServicePlain(string serviceName) =>
-        ServiceTexts.TryGetValue(serviceName, out var t) ? t.Plain : "";
+        ServiceTexts.TryGetValue(serviceName, out var t) ? (t.Plain.Length == 0 ? "" : Loc.T(t.Plain)) : "";
     public static OptionDef? Find(string id) => Options.FirstOrDefault(o => o.Id == id);
 
     // ---- process categories (executable names without .exe, lowercase) ----
@@ -203,18 +204,26 @@ public static class Catalog
             Array.Empty<string>()),
     };
 
-    /// <summary>Words a search for this switch should find besides its title: the programs it closes (and the Windows services it stops).</summary>
+    /// <summary>
+    /// Words a search for this switch should find besides its title: the programs it closes (and the Windows services it stops).
+    /// In English the English words the user reads come too; the Turkish ones stay findable.
+    /// </summary>
     public static IEnumerable<string> SearchTerms(string optionId)
     {
         foreach (var c in ProcessCategories.Where(c => c.OptionId == optionId))
         {
             yield return c.Title;
+            var shown = Loc.T(c.Title);
+            if (shown != c.Title) yield return shown;
             foreach (var n in c.Names) { yield return n; yield return FriendlyNames.ForProcess(n, null); }
             foreach (var p in c.Prefixes) yield return p;
         }
         if (optionId is "svc.update" or "svc.other")
             foreach (var r in DefaultServices().Where(r => r.Group == (optionId == "svc.update" ? "update" : "other")))
+            {
                 yield return ServiceTitle(r.Name);
+                if (Loc.IsEnglish && ServiceTexts.TryGetValue(r.Name, out var turkish)) yield return turkish.Title;
+            }
     }
 
     public static ProcessCategory? CategoryOf(string normalizedName)

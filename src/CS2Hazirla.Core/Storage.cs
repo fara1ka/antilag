@@ -74,6 +74,7 @@ public class SettingsStore
                     // explicit nulls in a hand-edited file must never crash the app
                     s.Options ??= new(); s.NeverClose ??= new(); s.ExtraProcesses ??= new();
                     s.DisplayNames ??= new();
+                    s.Language ??= "";
                     // saved profiles: a hand-edited file must never crash the app or hide a profile behind a duplicate id
                     s.SavedProfiles ??= new();
                     s.SavedProfiles.RemoveAll(p => p == null);
@@ -82,7 +83,7 @@ public class SettingsStore
                     {
                         if (string.IsNullOrWhiteSpace(p.Id) || !ids.Add(p.Id)) { p.Id = Guid.NewGuid().ToString("N"); ids.Add(p.Id); }
                         p.Options ??= new();
-                        if (string.IsNullOrWhiteSpace(p.Name)) p.Name = "Profil";
+                        if (string.IsNullOrWhiteSpace(p.Name)) p.Name = Loc.T("Profil");       // a name the user never typed: the suggestion speaks the language of the moment (the name is the user's own from then on)
                     }
                     // only a MISSING list gets the defaults: a user who removed every service from the list keeps it empty
                     s.Services ??= Catalog.DefaultServices();
@@ -110,13 +111,28 @@ public class SettingsStore
         {
             var target = Path.Combine(AppPaths.Root, copy);
             if (!File.Exists(target)) File.Copy(AppPaths.SettingsFile, target);
-            return $"Ayarlar okunamadı, varsayılanlar kullanıldı; eski dosya {copy} olarak saklandı.";
+            return Loc.F("Ayarlar okunamadı, varsayılanlar kullanıldı; eski dosya {0} olarak saklandı.", copy);
         }
-        catch { return "Ayarlar okunamadı, varsayılanlar kullanıldı."; }
+        catch { return Loc.T("Ayarlar okunamadı, varsayılanlar kullanıldı."); }
     }
 
     public void Save(AppSettings s) =>
         Json.WriteAtomic(AppPaths.SettingsFile, JsonSerializer.Serialize(s, Json.Options));
+
+    /// <summary>
+    /// The language the user chose, read before anything else is built (the first dialog already speaks it). Changes nothing: no copy of a broken file,
+    /// no warning; a missing, unreadable or empty answer is simply "no choice yet".
+    /// </summary>
+    public static string? PeekLanguage()
+    {
+        try
+        {
+            if (!File.Exists(AppPaths.SettingsFile)) return null;
+            using var doc = JsonDocument.Parse(File.ReadAllText(AppPaths.SettingsFile));
+            return doc.RootElement.TryGetProperty(nameof(AppSettings.Language), out var v) && v.ValueKind == JsonValueKind.String ? v.GetString() : null;
+        }
+        catch { return null; }
+    }
 }
 
 /// <summary>Holds the write-ahead journal (state.json) of the active session.</summary>

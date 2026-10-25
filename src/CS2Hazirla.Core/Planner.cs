@@ -90,8 +90,10 @@ public class Planner
         catch (GameRunningException) { throw; }
         catch (Exception ex)
         {
-            plan.Warnings.Add($"{what} kontrol edilemedi, bu adım atlandı.");
-            plan.StepFailures.Add(what);
+            // `what` is one of six fixed step names (Turkish, see Build); it is translated where it is shown. The Detail line goes to the log file only and stays Turkish.
+            var shown = Loc.T(what);
+            plan.Warnings.Add(Loc.F("{0} kontrol edilemedi, bu adım atlandı.", shown));
+            plan.StepFailures.Add(shown);
             _log?.Detail($"{what} planlanamadı: {ex}");
         }
     }
@@ -128,8 +130,9 @@ public class Planner
                 Id = $"proc:{name}",
                 Kind = ActionKind.CloseProcess,
                 Group = group ?? Catalog.GroupApps,
-                Title = $"{display}  ({FriendlyNames.Memory(bytes)}, {list.Count} parça)",
-                Detail = category + (reopen ? "" : " · Geri yüklenince açılmaz, elle açman gerekir") + (path != null ? $" · {path}" : ""),
+                Title = Loc.F("{0}  ({1}, {2} parça)", display, FriendlyNames.Memory(bytes), list.Count),
+                // `category` stays Turkish in the payload (identity); only the shown line is translated
+                Detail = Loc.T(category) + (reopen ? "" : " · " + Loc.T("Geri yüklenince açılmaz, elle açman gerekir")) + (path != null ? $" · {path}" : ""),
                 Payload = new ProcessPayload(name, category, path, list.Select(p => p.Pid).ToList(), reopen, bytes, display, optionId),
             });
         }
@@ -158,7 +161,7 @@ public class Planner
                 if (never.Contains(name)) continue;
                 if (ProtectedList.IsProcessProtected(name, list.Select(p => p.Path).FirstOrDefault(), stream))
                 {
-                    plan.Warnings.Add($"'{FriendlyNames.ForProcess(name, null)}' Windows, Steam, FACEIT ya da ekran/ses sürücüsüne ait olduğundan kapatılmayacak.");
+                    plan.Warnings.Add(Loc.F("'{0}' Windows, Steam, FACEIT ya da ekran/ses sürücüsüne ait olduğundan kapatılmayacak.", FriendlyNames.ForProcess(name, null)));
                     continue;
                 }
                 Add(name, list, "Senin eklediğin program", "proc.extra");
@@ -212,7 +215,7 @@ public class Planner
 
             if (ProtectedList.IsServiceProtected(rule.Name))
             {
-                plan.Warnings.Add($"'{Catalog.ServiceTitle(rule.Name)}' Windows için gerekli olduğundan durdurulmayacak.");
+                plan.Warnings.Add(Loc.F("'{0}' Windows için gerekli olduğundan durdurulmayacak.", Catalog.ServiceTitle(rule.Name)));
                 continue;
             }
 
@@ -221,19 +224,19 @@ public class Planner
             if (info.State != ServiceRunState.Running) continue;
             if (!info.CanStop)
             {
-                plan.Notes.Add($"'{Catalog.ServiceTitle(rule.Name, info.DisplayName)}' durdurulamıyor (Windows izin vermiyor), atlanacak.");
+                plan.Notes.Add(Loc.F("'{0}' durdurulamıyor (Windows izin vermiyor), atlanacak.", Catalog.ServiceTitle(rule.Name, info.DisplayName)));
                 continue;
             }
 
-            var deps = info.RunningDependents.Count > 0 ? $" · bağımlı: {string.Join(", ", info.RunningDependents)}" : "";
+            var deps = info.RunningDependents.Count > 0 ? " · " + Loc.F("bağımlı: {0}", string.Join(", ", info.RunningDependents)) : "";
             plan.Actions.Add(new PlannedAction
             {
                 Id = $"svc:{rule.Name.ToLowerInvariant()}",
                 Kind = ActionKind.StopService,
-                Group = "Geçici durdurulacak Windows hizmetleri",
-                Title = Catalog.ServiceTitle(rule.Name, info.DisplayName),
+                Group = "Geçici durdurulacak Windows hizmetleri",       // identity (rows are grouped by it); the heading is translated where it is shown
+                Title = Catalog.ServiceTitle(rule.Name, info.DisplayName),       // (ServiceTitle / ServicePlain pick the language themselves)
                 Detail = (Catalog.ServicePlain(rule.Name) is { Length: > 0 } plain ? plain + " " : "") +
-                         $"Yalnızca durdurulur, silinmez; bilgisayarı yeniden başlatınca ya da geri yüklenince geri gelir.{deps}",
+                         Loc.T("Yalnızca durdurulur, silinmez; bilgisayarı yeniden başlatınca ya da geri yüklenince geri gelir.") + deps,
                 Payload = new ServicePayload(rule.Name),
             });
         }
@@ -251,7 +254,7 @@ public class Planner
             || (active != null && (UltimateName.IsMatch(active.Name) || HighPerfName.IsMatch(active.Name)));
         if (activeIsPerf)
         {
-            plan.Notes.Add($"Güç planı zaten yüksek performans ({active?.Name}).");
+            plan.Notes.Add(Loc.F("Güç planı zaten yüksek performans ({0}).", active?.Name));
             return;
         }
 
@@ -260,15 +263,17 @@ public class Planner
         var high = power.Schemes.FirstOrDefault(x =>
             string.Equals(x.Guid, Catalog.HighPerfGuid, StringComparison.OrdinalIgnoreCase) || HighPerfName.IsMatch(x.Name))?.Guid;
 
-        var target = ultimate != null ? "mevcut Nihai Performans planı"
-            : "Nihai Performans planı oluşturulacak (olmazsa Yüksek Performans)";
+        // two whole sentences (the English builds the middle part its own way), not a sentence with a text pasted into it
+        var current = active?.Name ?? power.ActiveGuid;
         plan.Actions.Add(new PlannedAction
         {
             Id = "pwr",
             Kind = ActionKind.PowerPlan,
             Group = Catalog.GroupSystem,
-            Title = "Bilgisayar en yüksek performans modunda çalışacak",
-            Detail = $"Şu an '{active?.Name ?? power.ActiveGuid}' modu açık; {target}. Geri yüklenince eski mod geri gelir.",
+            Title = Loc.T("Bilgisayar en yüksek performans modunda çalışacak"),
+            Detail = ultimate != null
+                ? Loc.F("Şu an '{0}' modu açık; mevcut Nihai Performans planı. Geri yüklenince eski mod geri gelir.", current)
+                : Loc.F("Şu an '{0}' modu açık; Nihai Performans planı oluşturulacak (olmazsa Yüksek Performans). Geri yüklenince eski mod geri gelir.", current),
             Payload = new PowerPayload(ultimate, high),
         });
     }
@@ -285,11 +290,12 @@ public class Planner
 
     private void PlanRegistry(AppSettings s, Plan plan, string? cs2Path)
     {
+        // title and detail arrive already in the language of the moment (the callers wrap their texts in Loc.T)
         void AddReg(string optionId, string id, string title, string detail, List<RegChange> wanted)
         {
             if (!s.IsOn(optionId)) return;
             var pending = wanted.Where(c => !AlreadySet(c)).ToList();
-            if (pending.Count == 0) { plan.Notes.Add($"{title}: zaten ayarlı."); return; }
+            if (pending.Count == 0) { plan.Notes.Add(Loc.F("{0}: zaten ayarlı.", title)); return; }
             plan.Actions.Add(new PlannedAction
             {
                 Id = id, Kind = ActionKind.Registry, Group = Catalog.GroupSystem, Title = title,
@@ -297,43 +303,43 @@ public class Planner
             });
         }
 
-        AddReg("sys.gamemode", "reg:gamemode", "Windows Oyun Modu açık",
-            "Windows oyun sırasında arka plan işlerini kısar. Geri yüklenince eski ayar geri gelir.",
+        AddReg("sys.gamemode", "reg:gamemode", Loc.T("Windows Oyun Modu açık"),
+            Loc.T("Windows oyun sırasında arka plan işlerini kısar. Geri yüklenince eski ayar geri gelir."),
             new()
             {
                 new(RegHive.CurrentUser, GameBarKey, "AutoGameModeEnabled", RegistryValueKind.DWord, 1),
                 new(RegHive.CurrentUser, GameBarKey, "AllowAutoGameMode", RegistryValueKind.DWord, 1),
             });
 
-        AddReg("sys.gamedvr", "reg:gamedvr", "Xbox Game Bar oyun kaydı kapalı",
-            "Windows'un oyunu arka planda kaydetmeye hazır beklemesi durur. OBS gibi programlar etkilenmez.",
+        AddReg("sys.gamedvr", "reg:gamedvr", Loc.T("Xbox Game Bar oyun kaydı kapalı"),
+            Loc.T("Windows'un oyunu arka planda kaydetmeye hazır beklemesi durur. OBS gibi programlar etkilenmez."),
             new()
             {
                 new(RegHive.CurrentUser, GameConfigKey, "GameDVR_Enabled", RegistryValueKind.DWord, 0),
                 new(RegHive.CurrentUser, GameDvrKey, "AppCaptureEnabled", RegistryValueKind.DWord, 0),
             });
 
-        AddReg("sys.notifications", "reg:toast", "Windows bildirimleri kapalı",
-            "Sağ alttan çıkan bildirim kutuları Geri yüklenene kadar kapalı kalır.",
+        AddReg("sys.notifications", "reg:toast", Loc.T("Windows bildirimleri kapalı"),
+            Loc.T("Sağ alttan çıkan bildirim kutuları Geri yüklenene kadar kapalı kalır."),
             new() { new(RegHive.CurrentUser, PushKey, "ToastEnabled", RegistryValueKind.DWord, 0) });
 
         if (s.IsOn("sys.gpupref") || s.IsOn("sys.fso"))
         {
             if (cs2Path == null)
             {
-                plan.Warnings.Add("CS2'nin kurulu olduğu yer bulunamadı: CS2 için ekran kartı ayarları atlandı.");
+                plan.Warnings.Add(Loc.T("CS2'nin kurulu olduğu yer bulunamadı: CS2 için ekran kartı ayarları atlandı."));
             }
             else
             {
                 // registry values keyed by the exe path only: neither the game process nor its files are touched
                 var gpuOld = _sys.ReadRegistry(RegHive.CurrentUser, GpuPrefKey, cs2Path)?.Data;
-                AddReg("sys.gpupref", "reg:gpupref", "CS2 için güçlü ekran kartı seçili",
-                    "Windows Ayarlar > Ekran > Grafik bölümündeki seçeneğin aynısı; yalnızca CS2 için. Oyun dosyalarına ve oyunun kendisine dokunulmaz.",
+                AddReg("sys.gpupref", "reg:gpupref", Loc.T("CS2 için güçlü ekran kartı seçili"),
+                    Loc.T("Windows Ayarlar > Ekran > Grafik bölümündeki seçeneğin aynısı; yalnızca CS2 için. Oyun dosyalarına ve oyunun kendisine dokunulmaz."),
                     new() { new(RegHive.CurrentUser, GpuPrefKey, cs2Path, RegistryValueKind.String, MergeGpuPreference(gpuOld)) });
 
                 var layersOld = _sys.ReadRegistry(RegHive.CurrentUser, LayersKey, cs2Path)?.Data;
-                AddReg("sys.fso", "reg:fso", "CS2 için tam ekran iyileştirmesi kapalı",
-                    "Yalnızca CS2 için: Windows'un tam ekran oyunlara eklediği uyumluluk katmanını bu oyun için kapatır. Tam temizlik ve Yayıncı'da açıktır; Ayrıntılar'dan kapatabilirsin.",
+                AddReg("sys.fso", "reg:fso", Loc.T("CS2 için tam ekran iyileştirmesi kapalı"),
+                    Loc.T("Yalnızca CS2 için: Windows'un tam ekran oyunlara eklediği uyumluluk katmanını bu oyun için kapatır. Tam temizlik ve Yayıncı'da açıktır; Ayrıntılar'dan kapatabilirsin."),
                     new() { new(RegHive.CurrentUser, LayersKey, cs2Path, RegistryValueKind.String, MergeLayerFlags(layersOld, FsoFlag)) });
             }
         }
@@ -370,8 +376,8 @@ public class Planner
         if (s.IsOn("net.flushdns"))
             plan.Actions.Add(new PlannedAction
             {
-                Id = "dns", Kind = ActionKind.FlushDns, Group = "İnternet", Title = "İnternet adres önbelleğini temizle (DNS)",
-                Detail = "Eski internet adresi kayıtlarını siler; bir sonraki bağlantıda yenilenir. Ping'i düşürmez.",
+                Id = "dns", Kind = ActionKind.FlushDns, Group = "İnternet", Title = Loc.T("İnternet adres önbelleğini temizle (DNS)"),
+                Detail = Loc.T("Eski internet adresi kayıtlarını siler; bir sonraki bağlantıda yenilenir. Ping'i düşürmez."),
             });
 
         if (s.IsOn("net.nicpower"))
@@ -382,8 +388,8 @@ public class Planner
                 plan.Actions.Add(new PlannedAction
                 {
                     Id = $"nic:{nic.Guid}", Kind = ActionKind.NicPower, Group = "İnternet",
-                    Title = $"Güç tasarrufunu kapat: {nic.Name}",
-                    Detail = "'Güç tasarrufu için bu aygıtı kapatabilir' işareti kaldırılır, geri yüklenince geri gelir",
+                    Title = Loc.F("Güç tasarrufunu kapat: {0}", nic.Name),
+                    Detail = Loc.T("'Güç tasarrufu için bu aygıtı kapatabilir' işareti kaldırılır, geri yüklenince geri gelir"),
                     Payload = new NicPayload(nic),
                 });
             }
@@ -401,11 +407,11 @@ public class Planner
                 plan.Actions.Add(new PlannedAction
                 {
                     Id = "mouse", Kind = ActionKind.MouseAccel, Group = Catalog.GroupSystem,
-                    Title = "Fare ivmesini kapat (bu oturum için)",
-                    Detail = "Kalıcı kaydedilmez; Windows'u yeniden başlatınca ya da geri yüklenince eski değer geri gelir",
+                    Title = Loc.T("Fare ivmesini kapat (bu oturum için)"),
+                    Detail = Loc.T("Kalıcı kaydedilmez; Windows'u yeniden başlatınca ya da geri yüklenince eski değer geri gelir"),
                     Payload = m,
                 });
-            else plan.Notes.Add("Fare ivmesi zaten kapalı.");
+            else plan.Notes.Add(Loc.T("Fare ivmesi zaten kapalı."));
         }
 
         if (s.IsOn("sys.hotkeys"))
@@ -415,11 +421,11 @@ public class Planner
                 plan.Actions.Add(new PlannedAction
                 {
                     Id = "hotkeys", Kind = ActionKind.Accessibility, Group = Catalog.GroupSystem,
-                    Title = "Yapışkan/Filtre/Geçiş tuşları kısayollarını kapat (bu oturum için)",
-                    Detail = "Shift x5 gibi kısayollar oyunu simge durumuna küçültebilir; kayıtlı ayarlar yeniden yazılmaz",
+                    Title = Loc.T("Yapışkan/Filtre/Geçiş tuşları kısayollarını kapat (bu oturum için)"),
+                    Detail = Loc.T("Shift x5 gibi kısayollar oyunu simge durumuna küçültebilir; kayıtlı ayarlar yeniden yazılmaz"),
                     Payload = acc,
                 });
-            else plan.Notes.Add("Yapışkan/Filtre/Geçiş tuşları kısayolları zaten kapalı.");
+            else plan.Notes.Add(Loc.T("Yapışkan/Filtre/Geçiş tuşları kısayolları zaten kapalı."));
         }
     }
 
@@ -432,7 +438,7 @@ public class Planner
         try
         {
             if (_sys.GetNics().Any(n => n.IsWireless))
-                lines.Add("Wi-Fi kullanıyorsun. Mümkünse internet kablosu (Ethernet) kullan; kablosuz bağlantıdaki dalgalanma ve paket kaybını hiçbir ayar düzeltemez.");
+                lines.Add(Loc.T("Wi-Fi kullanıyorsun. Mümkünse internet kablosu (Ethernet) kullan; kablosuz bağlantıdaki dalgalanma ve paket kaybını hiçbir ayar düzeltemez."));
         }
         catch { /* advisory only */ }
 
@@ -458,9 +464,9 @@ public static class RamAnalysis
             double running = m.ConfiguredMhz.Value;
             if (running < rated * 0.6) running *= 2;   // some firmware reports the clock, not the transfer rate
             if (rated - running >= 100)
-                return $"Belleğin (RAM) olabileceğinden yavaş çalışıyor olabilir ({running:F0} yerine {rated:F0} MT/s hız için üretilmiş). " +
-                       "Bilgisayarın BIOS ayarlarında 'XMP' ya da 'EXPO' diye bir seçenek varsa açmak oyunda fark edilebilir; emin değilsen bir uzmana sor. " +
-                       "(Uygulama BIOS'a dokunmaz, bu yalnızca bir bilgi.)";
+                return Loc.F("Belleğin (RAM) olabileceğinden yavaş çalışıyor olabilir ({0:F0} yerine {1:F0} MT/s hız için üretilmiş). " +
+                             "Bilgisayarın BIOS ayarlarında 'XMP' ya da 'EXPO' diye bir seçenek varsa açmak oyunda fark edilebilir; emin değilsen bir uzmana sor. " +
+                             "(Uygulama BIOS'a dokunmaz, bu yalnızca bir bilgi.)", running, rated);
         }
         return null;
     }

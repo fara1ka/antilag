@@ -4,6 +4,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using CS2Hazirla.Core;
 
 namespace CS2Hazirla;
 
@@ -17,10 +18,11 @@ public partial class PickerWindow : Window
     {
         _req = req;
         InitializeComponent();
+        WindowLanguage.Apply(this);
         Title = req.Title;
         TitleText.Text = req.Title;
         HintText.Text = req.Hint;
-        OkButton.Content = "Ekle";
+        OkButton.Content = Loc.T("Ekle");
         foreach (var i in req.Items) i.PropertyChanged += (_, _) => UpdateCount();
         SourceInitialized += (_, _) => DarkTitleBar.Apply(this);
         ApplyFilter();
@@ -38,13 +40,13 @@ public partial class PickerWindow : Window
                                  || i.Key.Contains(q, StringComparison.OrdinalIgnoreCase)).ToList();
         ItemList.ItemsSource = shown;
         EmptyText.Visibility = shown.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
-        EmptyText.Text = _req.Items.Count == 0 ? "Listelenecek program yok." : "Aramana uyan program yok.";
+        EmptyText.Text = _req.Items.Count == 0 ? Loc.T("Listelenecek program yok.") : Loc.T("Aramana uyan program yok.");
     }
 
     private void UpdateCount()
     {
         var n = _req.Items.Count(i => i.IsChecked);
-        CountText.Text = n == 0 ? $"{_req.Items.Count} seçenek" : $"{n} tanesi seçildi";
+        CountText.Text = n == 0 ? Loc.F("{0} seçenek", _req.Items.Count) : Loc.F("{0} tanesi seçildi", n);
         OkButton.IsEnabled = n > 0;
     }
 

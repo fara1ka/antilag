@@ -6,6 +6,8 @@ namespace CS2Hazirla.Core;
 /// <summary>
 /// The search box of the Ayrıntılar panel: a Turkish keyboard without the Turkish letters still finds what it looks for
 /// ("tarayicilar", "ISIK", "gorev" find "Tarayıcılar", "ışık", "görev"), and several words must all be there.
+/// English needs nothing of its own: plain letters are only lower-cased (invariantly, so a Turkish Windows cannot turn I into ı; I, ı and İ all
+/// fold to i), and both the text and the query go through the same folding, so "Light", "light" and "LIGHT" meet whatever language the text is in.
 /// </summary>
 public static class SearchText
 {

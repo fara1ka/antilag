@@ -1,7 +1,8 @@
 <Window x:Class="CS2Hazirla.PickerWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Listeden seç" Width="620" Height="660" MinWidth="480" MinHeight="440"
+        xmlns:local="clr-namespace:CS2Hazirla"
+        Title="{local:T 'Listeden seç'}" Width="620" Height="660" MinWidth="480" MinHeight="440"
         Background="{StaticResource BgBrush}" Foreground="{StaticResource TextBrush}" FontFamily="{StaticResource UiFont}" FontSize="14" TextOptions.TextFormattingMode="Display"
         xml:lang="tr-TR" WindowStartupLocation="CenterOwner" UseLayoutRounding="True" ShowInTaskbar="False">
     <Grid Margin="28,24,28,22">
@@ -18,8 +19,8 @@
         </StackPanel>
 
         <!-- kutu yalnızca listeyi süzer; yazarak hiçbir şey eklenmez -->
-        <TextBox x:Name="SearchBox" Grid.Row="1" Margin="0,16,0,10" TextChanged="Search_Changed" Tag="Listede ara…" AutomationProperties.Name="Listede ara"
-                 ToolTip="Listeyi süzmek için yazabilirsin"/>
+        <TextBox x:Name="SearchBox" Grid.Row="1" Margin="0,16,0,10" TextChanged="Search_Changed" Tag="{local:T 'Listede ara…'}" AutomationProperties.Name="{local:T 'Listede ara'}"
+                 ToolTip="{local:T 'Listeyi süzmek için yazabilirsin'}"/>
 
         <Border Grid.Row="2" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource RimBrush}" BorderThickness="1" CornerRadius="16">
             <Grid>
@@ -56,7 +57,7 @@
         <DockPanel Grid.Row="3" Margin="0,16,0,0" LastChildFill="False">
             <TextBlock x:Name="CountText" DockPanel.Dock="Left" VerticalAlignment="Center" Style="{StaticResource Hint}"/>
             <Button x:Name="OkButton" DockPanel.Dock="Right" IsDefault="True" Click="Ok_Click" Style="{StaticResource PrimaryButton}" Padding="26,10"/>
-            <Button DockPanel.Dock="Right" Content="Vazgeç" Padding="22,10" Margin="0,0,10,0" IsCancel="True" Click="Cancel_Click"/>
+            <Button DockPanel.Dock="Right" Content="{local:T 'Vazgeç'}" Padding="22,10" Margin="0,0,10,0" IsCancel="True" Click="Cancel_Click"/>
         </DockPanel>
     </Grid>
 </Window>

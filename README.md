@@ -3,7 +3,7 @@
 CS2'ye girmeden önce çalıştır: arka plandaki gereksiz programları kapatır, birkaç Windows ayarını oyun için düzeltir. Bitince
 **Uygulamayı kapat**'a basarsın ve CS2'yi açarsın. Oyun açıkken Antilag hiçbir değişiklik yapmaz ve hiçbir şeyi izlemez. İnternete yalnızca iki iş için
 çıkar: ping ölçümü ve yeni sürüm denetimi ([Gizlilik](#gizlilik)). Windows 10/11 (64 bit), tek `.exe`, yalnızca yönetici olarak çalışır.
-Açık kaynaktır ([Lisans](#lisans)).
+Açık kaynaktır ([Lisans](#lisans)). Arayüz **Türkçe** ve **English**: dili Ayarlar'ın en üstündeki "Dil / Language" kartından seçersin (seçmediysen Windows Türkçeyse Türkçe, değilse English açılır).
 
 > **Dürüst beklenti:** Antilag ping'i düşürmez ve sihirli bir FPS artışı vermez; bir kazanç garantisi de vermez, sonuçlar bilgisayarına göre değişir.
 > Yaptığı şey, oyun sırasında bellek, işlemci, disk ve internet tüketen arka plan işlerini kapatmaktır. Bilgisayar zaten temizse

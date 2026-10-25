@@ -291,7 +291,7 @@ public sealed class WindowsSystem : ISystem
         if (!Path.IsPathRooted(exe)) exe = Path.Combine(Environment.SystemDirectory, exe + ".exe");
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
         Encoding enc;
-        try { enc = Encoding.GetEncoding(CultureInfo.CurrentCulture.TextInfo.OEMCodePage); }
+        try { enc = Encoding.GetEncoding((int)Native.GetOEMCP()); }          // not CurrentCulture: in English the app sets it to en-US, whatever Windows speaks
         catch { enc = Encoding.UTF8; }
         var psi = new ProcessStartInfo(exe, args)
         {

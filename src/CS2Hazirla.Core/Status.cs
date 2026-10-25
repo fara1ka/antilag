@@ -43,35 +43,38 @@ public static class Status
     public static StatusView Compute(StatusInput i)
     {
         if (i.GameRunning)
-            return new("CS2 çalışıyor", "Oyun açıkken Antilag hiçbir şeyi değiştirmez. Oyunu kapattıktan sonra tekrar dene.", Tone.Warn);
+            return new(Loc.T("CS2 çalışıyor"), Loc.T("Oyun açıkken Antilag hiçbir şeyi değiştirmez. Oyunu kapattıktan sonra tekrar dene."), Tone.Warn);
         if (i.Busy)
-            return new("Çalışıyor", "Bu yarım dakikayı bulabilir; lütfen bekle.", Tone.Neutral);
+            return new(Loc.T("Çalışıyor"), Loc.T("Bu yarım dakikayı bulabilir; lütfen bekle."), Tone.Neutral);
         if (!string.IsNullOrWhiteSpace(i.ErrorMessage))
-            return new("İşlem tamamlanamadı", "Ayrıntı aşağıdaki listede.", Tone.Bad);
+            return new(Loc.T("İşlem tamamlanamadı"), Loc.T("Ayrıntı aşağıdaki listede."), Tone.Bad);
 
         var notRestarted = i.NotRestarted ?? Array.Empty<string>();
         if (i.Restore == RestoreOutcome.Partial && notRestarted.Count > 0)
-            return new($"Geri yüklendi, {notRestarted.Count} program kendiliğinden açılamadı",
-                       Names(notRestarted) + ". Gerekirse kendin aç.", Tone.Warn);
+            // the second value only serves the English ("Open it / them yourself"); the Turkish sentence ignores it
+            return new(Loc.F("Geri yüklendi, {0} program kendiliğinden açılamadı", notRestarted.Count),
+                       Loc.F("{0}. Gerekirse kendin aç.", Names(notRestarted), notRestarted.Count), Tone.Warn);
         if (i.Restore != RestoreOutcome.None)
-            return new("Geri yüklendi", "Ayarlar ve hizmetler eski haline döndü.", Tone.Good);
+            return new(Loc.T("Geri yüklendi"), Loc.T("Ayarlar ve hizmetler eski haline döndü."), Tone.Good);
 
         if (i.Done)
         {
             var notClosed = i.NotClosed ?? Array.Empty<string>();
             if (notClosed.Count > 0)
-                return new($"Bitti, ancak {notClosed.Count} program kapanmadı",
-                           $"Kapanmayanlar: {Names(notClosed)}." + (i.FailedCount > 0 ? $" {i.FailedCount} işlem de yapılamadı." : "") + " Ayrıntı aşağıdaki listede.", Tone.Warn);
+                return new(Loc.F("Bitti, ancak {0} program kapanmadı", notClosed.Count),
+                           Loc.F("Kapanmayanlar: {0}.", Names(notClosed))
+                           + (i.FailedCount > 0 ? " " + Loc.F("{0} işlem de yapılamadı.", i.FailedCount) : "")
+                           + " " + Loc.T("Ayrıntı aşağıdaki listede."), Tone.Warn);
             if (i.FailedCount > 0)
-                return new($"Bitti, ancak {i.FailedCount} işlem yapılamadı", "Ayrıntı aşağıdaki listede.", Tone.Warn);
-            return new("Bitti", i.DoneCount > 0
-                ? $"{i.DoneCount} işlem yapıldı. Oyunu başlatmadan önce Antilag'ı kapat."
-                : "Kapatılacak ya da değiştirilecek bir şey bulunamadı.", Tone.Good);
+                return new(Loc.F("Bitti, ancak {0} işlem yapılamadı", i.FailedCount), Loc.T("Ayrıntı aşağıdaki listede."), Tone.Warn);
+            return new(Loc.T("Bitti"), i.DoneCount > 0
+                ? Loc.F("{0} işlem yapıldı. Oyunu başlatmadan önce Antilag'ı kapat.", i.DoneCount)
+                : Loc.T("Kapatılacak ya da değiştirilecek bir şey bulunamadı."), Tone.Good);
         }
 
         // the home screen stays plain: the chosen mode and nothing else (no sentence about what it does, no reminder of an earlier run)
-        var title = string.IsNullOrWhiteSpace(i.PresetName) ? "Başlamaya hazır"
-            : i.Customized ? $"{i.PresetName} (değiştirilmiş) hazır" : $"{i.PresetName} hazır";
+        var title = string.IsNullOrWhiteSpace(i.PresetName) ? Loc.T("Başlamaya hazır")
+            : i.Customized ? Loc.F("{0} (değiştirilmiş) hazır", i.PresetName) : Loc.F("{0} hazır", i.PresetName);
         return new(title, "", Tone.Neutral);
     }
 
@@ -79,6 +82,6 @@ public static class Status
     private static string Names(IReadOnlyList<string> names)
     {
         var shown = string.Join(", ", names.Take(3));
-        return names.Count > 3 ? $"{shown} ve {names.Count - 3} diğeri" : shown;
+        return names.Count > 3 ? Loc.F("{0} ve {1} diğeri", shown, names.Count - 3) : shown;
     }
 }

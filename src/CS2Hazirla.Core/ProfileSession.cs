@@ -81,9 +81,9 @@ public class ProfileSession
 
     public string NameOf(string key) => FindByKey(key)?.Name ?? key switch
     {
-        SafeKey => "Hafif",
-        StreamKey => "Yayıncı",
-        _ => "Tam temizlik",
+        SafeKey => Loc.T("Hafif"),
+        StreamKey => Loc.T("Yayıncı"),
+        _ => Loc.T("Tam temizlik"),
     };
 
     public string ActiveName => NameOf(ActiveKey);
@@ -140,11 +140,32 @@ public class ProfileSession
         _s.Options = _edits.TryGetValue(key, out var e) ? Complete(e, BaseOf(key)) : DefaultsOf(key);
     }
 
+    // ------------------------------------------------------------------ carrying a run over to a window that is opened anew
+
+    /// <summary>What the user switched during this run of the app, so that a window opened anew (another language) does not lose it.</summary>
+    public record Snapshot(string ActiveKey, Dictionary<string, bool> ActiveOptions,
+                           Dictionary<string, Dictionary<string, bool>> Edits, Dictionary<string, Dictionary<string, bool>> Apps);
+
+    public Snapshot TakeSnapshot() => new(ActiveKey, new Dictionary<string, bool>(_s.Options), CopyOf(_edits), CopyOf(_apps));
+
+    public void Restore(Snapshot snap)
+    {
+        foreach (var (key, v) in snap.Edits) _edits[key] = new Dictionary<string, bool>(v);
+        foreach (var (key, v) in snap.Apps) _apps[key] = new Dictionary<string, bool>(v);
+        if (!Exists(snap.ActiveKey)) return;                        // the profile is gone: stay on the default preset
+        ActiveKey = snap.ActiveKey;
+        _s.Profile = BaseOf(ActiveKey);
+        _s.Options = Complete(snap.ActiveOptions, BaseOf(ActiveKey));
+    }
+
+    private static Dictionary<string, Dictionary<string, bool>> CopyOf(Dictionary<string, Dictionary<string, bool>> d) =>
+        d.ToDictionary(kv => kv.Key, kv => new Dictionary<string, bool>(kv.Value));
+
     // ------------------------------------------------------------------ the user's own profiles
 
     private string UniqueName(string wanted, string? exceptId)
     {
-        var name = string.IsNullOrWhiteSpace(wanted) ? "Profil" : wanted.Trim();
+        var name = string.IsNullOrWhiteSpace(wanted) ? Loc.T("Profil") : wanted.Trim();     // the suggestion speaks the language of the moment; once saved the name is the user's own
         if (name.Length > 40) name = name[..40].TrimEnd();
         bool Taken(string n) => _s.SavedProfiles.Any(p => !string.Equals(p.Id, exceptId, StringComparison.OrdinalIgnoreCase)
                                                            && string.Equals(p.Name, n, StringComparison.CurrentCultureIgnoreCase));
@@ -161,7 +182,7 @@ public class ProfileSession
     {
         var p = new SavedProfile
         {
-            Name = UniqueName("Profil", null),
+            Name = UniqueName(Loc.T("Profil"), null),
             Base = baseKind,
             Options = PresetDefaults(baseKind),
         };

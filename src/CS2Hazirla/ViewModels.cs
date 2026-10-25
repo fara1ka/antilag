@@ -110,7 +110,7 @@ public class MetricRowVM
     public bool IsNumbers => !IsNote;
 }
 
-public class MemRowVM
+public class MemRowVM : ObservableObject
 {
     public string Name { get; init; } = "";
     public string CountText { get; init; } = "";
@@ -118,6 +118,12 @@ public class MemRowVM
     public bool IsProtected { get; init; }
     public bool CanClose => !IsProtected;
     public string Tag => IsProtected ? Loc.T("korumalı") : "";
+
+    private string _load = "";
+    /// <summary>"İşlemci %3 · Okuma/yazma 12 MB/sn": empty for a protected program (nothing is read from it) and while the two readings are being taken.</summary>
+    public string LoadText { get => _load; set { if (Set(ref _load, value)) Raise(nameof(DetailText)); } }
+    /// <summary>The grey line under the name: how many parts, and what the program has been using.</summary>
+    public string DetailText => LoadText.Length == 0 ? CountText : CountText + " · " + LoadText;
     /// <summary>What a screen reader says for the Kapat button of this row.</summary>
     public string CloseLabel => Loc.F("Kapat: {0}", Name);
     public RelayCommand? CloseCommand { get; set; }
@@ -340,6 +346,8 @@ public partial class MainViewModel : ObservableObject
         // the flow looks at the game from the download thread too (once a second): that look goes through the window's thread, because it also refreshes the headline
         Update = new UpdateVM(new UpdateFlow(new UpdateClient(UpdateVM.Current), _sys, _log, () => ui.CheckAccess() ? GameRunningNow() : ui.Invoke(GameRunningNow)), ui, Settings,
                               () => IsIdle, () => ExitRequested?.Invoke(), () => SaveSettings(), UpdateBusyChanged, FlushProfileEdits);
+        Update.AutomaticInstallAllowed = carry == null;        // a window opened anew (the language was changed) only shows the card
+        OpenDisplaySettingsCommand = new RelayCommand(() => { if (!GameRunningNow()) UpdateVM.ShellOpen("ms-settings:display-advanced"); });
         InitProfiles();
     }
 
@@ -887,45 +895,153 @@ public partial class MainViewModel : ObservableObject
         return Task.CompletedTask;
     }
 
-    /// <summary>Wi-Fi and memory-speed notes: computed once by the planner's own rules, shown once, in the Ayrıntılar panel.</summary>
+    /// <summary>Notes on the screen, Wi-Fi and memory speed: computed once by the planner's own rules, shown once, in the Ayrıntılar panel.</summary>
     public async Task RefreshInfoAsync()
     {
-        var lines = await Task.Run(() => new Planner(_sys, _log).InfoLines());
+        var report = await Task.Run(() => new Planner(_sys, _log).Info());
         InfoLines.Clear();
-        foreach (var l in lines) InfoLines.Add(l);
-        Raise(nameof(HasInfo)); Raise(nameof(ShowInfo));
+        foreach (var l in report.Lines) InfoLines.Add(l);
+        _screenCanBeFaster = report.ScreenCanBeFaster;
+        Raise(nameof(HasInfo)); Raise(nameof(ShowInfo)); Raise(nameof(ScreenCanBeFaster));
     }
 
-    // ---------------------------------------------------------------- top memory (Ayrıntılar > Bellek)
+    private bool _screenCanBeFaster;
+    /// <summary>One of the notes says the screen runs below its speed: the panel then shows the button that opens Windows' display settings.</summary>
+    public bool ScreenCanBeFaster => _screenCanBeFaster;
 
+    /// <summary>Opens Windows' own page for the refresh rate. Antilag changes nothing there.</summary>
+    public RelayCommand OpenDisplaySettingsCommand { get; }
+
+    /// <summary>The note is a statement about the machine NOW: when the window is used again after the user went to Windows' display page, it is looked at again.</summary>
+    public void RefreshScreenNote()
+    {
+        if (_screenCanBeFaster && IsIdle && !GameRunningNow()) _ = RefreshInfoAsync();
+    }
+
+    // ---------------------------------------------------------------- who uses the machine (Ayrıntılar > Kullanım)
+
+    private enum UsageSort { Memory, Cpu, Io }
+
+    /// <summary>One program (all its parts) as the Kullanım list knows it. Cpu/IoRate stay -1 until the two readings are done, and for a protected program for good.</summary>
+    private sealed class UsageGroup
+    {
+        public string Name = "", CountText = "", MbText = "";
+        public string? Path, DisplayName;
+        public long Bytes;
+        public bool Protected;
+        public List<int> Pids = new();
+        public double Cpu = -1, IoRate = -1;
+        /// <summary>The two readings are over (whether or not this program could be read): until then its row says that it is being measured.</summary>
+        public bool Measured;
+    }
+
+    private UsageSort _usageSort = UsageSort.Memory;
+    private List<UsageGroup> _usage = new();
+    private int _usageRun;
+    public bool UsageSortMemory { get => _usageSort == UsageSort.Memory; set { if (value) SetUsageSort(UsageSort.Memory); } }
+    public bool UsageSortCpu { get => _usageSort == UsageSort.Cpu; set { if (value) SetUsageSort(UsageSort.Cpu); } }
+    public bool UsageSortIo { get => _usageSort == UsageSort.Io; set { if (value) SetUsageSort(UsageSort.Io); } }
+
+    private void SetUsageSort(UsageSort sort)
+    {
+        if (_usageSort == sort) return;
+        _usageSort = sort;
+        Raise(nameof(UsageSortMemory)); Raise(nameof(UsageSortCpu)); Raise(nameof(UsageSortIo));
+        if (!GameRunningNow()) ShowUsage();  // the readings are already there: only the order changes (and no file is looked at while the game runs)
+    }
+
+    /// <summary>
+    /// The ten programs that use the most, by memory, processor or reading/writing (the sorting chips). The memory is known at once; the processor and
+    /// the reading/writing come from two readings two seconds apart (only the programs that are not protected are read, never while the game runs).
+    /// </summary>
     public async Task RefreshTopMemoryAsync()
     {
+        if (!DrawerOpen || _drawerTab != DrawerTab.Memory) return;     // nothing is read behind the user's back: only for a list that is on screen
         if (GameRunningNow()) return;   // while the game runs this app does nothing
+        var run = ++_usageRun;
         var stream = Settings.Profile == ProfileKind.Stream;
-        var rows = await Task.Run(() =>
+        _sys.StreamMode = stream;       // the system layer protects by the same rule as this list (it is also asked, not only told)
+        var groups = await Task.Run(() =>
         {
             return _sys.GetProcesses()
                 .GroupBy(p => ProtectedList.Normalize(p.Name))
-                .Select(g => new
+                .Select(g => new UsageGroup
                 {
-                    Name = g.Key, Count = g.Count(), Bytes = g.Sum(p => p.WorkingSetBytes),
+                    Name = g.Key,
                     Path = g.Select(p => p.Path).FirstOrDefault(x => !string.IsNullOrEmpty(x)),
+                    CountText = g.Count() > 1 ? Loc.F("{0} parça", g.Count()) : Loc.T("1 parça"),
+                    Bytes = g.Sum(p => p.WorkingSetBytes),
+                    MbText = FriendlyNames.Memory(g.Sum(p => p.WorkingSetBytes)),
                     Protected = g.Any(p => ProtectedList.IsProcessProtected(p.Name, p.Path, stream))
                              || g.Any(p => p.SessionId != _sys.CurrentSessionId) || g.Key is "cs2hazirla" or "antilag" or "clear",
+                    Pids = g.Select(p => p.Pid).ToList(),
                 })
-                .OrderByDescending(x => x.Bytes).Take(10).ToList();
+                .ToList();
         });
+        if (run != _usageRun) return;        // a newer look has been asked for meanwhile
+        _usage = groups;
+        ShowUsage();
 
-        TopMemory.Clear();
-        foreach (var r in rows)
+        // two readings, two seconds apart; a protected program is not asked for at all
+        var asked = groups.Where(g => !g.Protected).SelectMany(g => g.Pids).ToList();
+        (IReadOnlyDictionary<int, UsageCounters> first, IReadOnlyDictionary<int, UsageCounters> second, double seconds) measured;
+        try
         {
-            var name = r.Name;
+            measured = await Task.Run(() =>
+            {
+                var a = _sys.GetUsageCounters(asked);
+                var clock = System.Diagnostics.Stopwatch.StartNew();
+                Thread.Sleep(2000);
+                var b = _sys.GetUsageCounters(asked);
+                return (a, b, clock.Elapsed.TotalSeconds);
+            });
+        }
+        catch (Exception ex)
+        {
+            _log.Detail("Kullanım ölçülemedi: " + ex.Message);
+            measured = (new Dictionary<int, UsageCounters>(), new Dictionary<int, UsageCounters>(), 1);       // the rows stop saying "measuring" and show nothing
+        }
+        if (run != _usageRun || GameRunningNow()) return;
+        var cores = Environment.ProcessorCount;
+        foreach (var g in groups.Where(g => !g.Protected))
+        {
+            double cpu = 0, io = 0;
+            var any = false;
+            foreach (var pid in g.Pids)
+            {
+                if (!measured.first.TryGetValue(pid, out var a) || !measured.second.TryGetValue(pid, out var b)) continue;   // started or ended meanwhile: not counted
+                var (c, r) = UsageMath.Rate(a, b, measured.seconds, cores);
+                cpu += c; io += r; any = true;
+            }
+            if (any) { g.Cpu = Math.Min(cpu, 100); g.IoRate = io; }
+            g.Measured = true;
+        }
+        ShowUsage();
+    }
+
+    /// <summary>Builds the rows from what is known now, in the order the sorting chip says.</summary>
+    private void ShowUsage()
+    {
+        IEnumerable<UsageGroup> ordered = _usageSort switch
+        {
+            UsageSort.Cpu => _usage.OrderByDescending(g => g.Cpu).ThenByDescending(g => g.Bytes),
+            UsageSort.Io => _usage.OrderByDescending(g => g.IoRate).ThenByDescending(g => g.Bytes),
+            _ => _usage.OrderByDescending(g => g.Bytes),
+        };
+        TopMemory.Clear();
+        foreach (var g in ordered.Take(10))
+        {
+            var name = g.Name;
+            // protected: nothing is read, nothing is said. Not measured yet: "measuring". Measured but unreadable (it ended, or Windows says no): nothing is said.
+            var load = g.Protected ? "" : !g.Measured ? Loc.T("ölçülüyor…") : g.Cpu < 0 ? ""
+                       : Loc.F("İşlemci {0} · Okuma/yazma {1}", UsageMath.CpuText(g.Cpu), UsageMath.RateText(g.IoRate));
             TopMemory.Add(new MemRowVM
             {
-                Name = FriendlyNames.ForProcess(name, r.Path),
-                CountText = r.Count > 1 ? Loc.F("{0} parça", r.Count) : Loc.T("1 parça"),
-                MbText = FriendlyNames.Memory(r.Bytes),
-                IsProtected = r.Protected,
+                Name = g.DisplayName ??= FriendlyNames.ForProcess(g.Name, g.Path),
+                CountText = g.CountText,
+                MbText = g.MbText,
+                IsProtected = g.Protected,
+                LoadText = load,
                 CloseCommand = new RelayCommand(() => _ = CloseTopAsync(name), () => IsIdle),
             });
         }
@@ -941,8 +1057,8 @@ public partial class MainViewModel : ObservableObject
         try { await Task.Run(() => _orc.CloseByUser(name, Settings.Profile == ProfileKind.Stream)); }
         finally { SetManualClosing(false); }
         ForgetPendingCount();
-        await RefreshTopMemoryAsync();
-        RaiseStatus(); RevertCommand.Refresh();
+        RaiseStatus(); RevertCommand.Refresh();          // the headline and the restore button do not wait for the two-second look
+        _ = RefreshTopMemoryAsync();
     }
 
     // ---------------------------------------------------------------- preview
@@ -1197,6 +1313,8 @@ public partial class MainViewModel : ObservableObject
         }
         else _doneCount = 18;
         L("14:02:21", "INFO", Loc.F("Bitti. {0} işlem yapıldı.", _doneCount));
+        InfoLines.Add(DisplayAdvice.Check(new DisplayInfo(1920, 1080, 60, 144))!);
+        _screenCanBeFaster = true; Raise(nameof(ScreenCanBeFaster));
         InfoLines.Add(Loc.T("Wi-Fi kullanıyorsun. Mümkünse internet kablosu (Ethernet) kullan; kablosuz bağlantıdaki dalgalanmayı hiçbir ayar düzeltemez."));
         Raise(nameof(HasInfo)); Raise(nameof(ShowInfo));
         IsDone = true;

@@ -50,7 +50,8 @@ Windows'ta animasyonlar kapalıysa hiçbir şey hareket etmez. Tıklanabilir her
 - **Tam liste**: programların yanında Windows hizmetleri, Windows ayarları ve internet ayarları. Her satır bir anahtardır.
 - Özet ve Tam liste'de, listenin üstünde bir **arama kutusu** var: kapatılmasını istemediğin bir şeyi bulmak için programın adını yaz ("dropbox", "discord"). Türkçe harf kullanmadan da bulur ("tarayicilar", "guc plani"). Arama her zaman tüm listeyi tarar; `Esc` aramayı siler.
 - **Ölçümler**: önce / sonra değerleri.
-- **Bellek**: en çok bellek kullanan 10 program. **Kapat** soru sormadan kapatır (5 saniyede kapanmazsa zorla); ana ekrandaki geri açma düğmesi programı yeniden açar.
+- **Kullanım**: en çok kaynak kullanan 10 program; **Bellek / İşlemci / Okuma/yazma** düğmeleriyle sıralarsın. İşlemci (toplam işlemcinin yüzde kaçı) ve okuma/yazma (programın dosyalardan okuduğu ve dosyalara yazdığı veri; disk dahil, ama yalnızca disk değil) iki okumayla, sekmeyi açtığında ya da **Yenile**'ye bastığında 2 saniyede ölçülür; arka planda kendiliğinden ölçülmez. Korumalı adlar (CS2, Steam, FACEIT, Windows parçaları, ekran kartı ve ses sürücüsü bileşenleri) ölçülmez: adı korumalı listede olan hiçbir programa tutamak açılmaz. Diğer hile korumaları (Vanguard, EasyAntiCheat...) kapatılabilir programlar gibi listelenir ve ölçülür. **Kapat** soru sormadan kapatır (5 saniyede kapanmazsa zorla); ana ekrandaki geri açma düğmesi programı yeniden açar.
+- **Tam liste**'nin sonunda **Öneriler** vardır: ekranın yenileme hızı düşükse (144 Hz'e kadar çıkabilen monitör 60 Hz'de çalışıyorsa), Wi-Fi ve bellek hızı. Antilag buna dokunmaz, yalnızca söyler; ekran notundaki **Ekran ayarlarını aç** düğmesi Windows'un kendi sayfasını açar.
 
 Kendi anlaşılır adı olmayan birkaç satırın altında kısa bir ipucu, gerçek bir risk taşıyanın altında sarı bir uyarı vardır.
 
@@ -92,9 +93,10 @@ yalnızca pencereyi ve tepsi simgesini kapatır; hizmetin kendisi çalışmaya d
 
 ## Güncelleme
 
-Antilag açılırken (Ayarlar'da kapatılabilir; kapalıyken **Şimdi denetle** yine çalışır) GitHub'dan yalnızca en yeni sürüm numarasına bakar. Yeni sürüm varsa sol çubukta küçük bir kart çıkar:
-**Güncelle** ya da **Sonra**. Güncelle'ye basarsan kurulum dosyası indirilir, **proje sahibinin anahtarıyla imzalı** sürüm bilgisine göre doğrulanır (boyut, SHA-256 ve imza),
-Antilag kapanır, kurulum çalışır ve Antilag yeniden açılır. Hiçbir şey sormadan ya da arka planda kurulmaz.
+Antilag açılırken (Ayarlar'da kapatılabilir; kapalıyken **Şimdi denetle** yine çalışır) GitHub'dan yalnızca en yeni sürüm numarasına bakar. Yeni sürüm varsa sol çubukta küçük bir kart çıkar.
+**Varsayılan olarak yeni sürüm kendiliğinden kurulur** (Ayarlar > **Yeni sürümü kendiliğinden kur**): kartta ilerleme ve **Vazgeç** görünür, kurulum dosyası indirilir, **proje sahibinin anahtarıyla imzalı** sürüm bilgisine göre
+doğrulanır (boyut, SHA-256 ve imza), Antilag kapanır, kurulum **pencere açmadan** çalışır ve Antilag yeniden açılır. Bu anahtarı kapatırsan kart yalnızca haber verir (**Güncelle** ya da **Sonra**) ve kurulum sen Güncelle'ye basınca olur.
+Bir sürüm için kendiliğinden deneme **bir kez** yapılır: indirme ya da kurulum başlayıp başarısız olursa her açılışta yeniden denenmez (kartta **Tekrar dene** ya da **Güncelle** ile sen denersin). Yalnızca henüz hiçbir şey indirilmeden CS2 açıldıysa bir sonraki açılışta yeniden denenir. Antilag açık değilken hiçbir şey indirilmez ya da kurulmaz.
 
 - Güncelleme yalnızca **boştayken** yapılır (Başlat çalışırken değil) ve **CS2 açıkken hiç yapılmaz**: o zaman denetim bile yapılmaz; indirme sürerken CS2 açılırsa indirme durur.
 - Önceki çalıştırmanın geri yükleme kaydı güncellemeden etkilenmez; güncellemeden sonra da geri yükleyebilirsin.
@@ -128,7 +130,7 @@ adı değiştirmek bekleyen bir geri yükleme kaydını kaybettirirdi. Telemetri
 
 İnternete yalnızca iki iş için çıkılır; ikisinde de hesap, kullanıcı adı, program listesi ya da dosya bilgisi gönderilmez. Yalnızca her internet isteğinde olduğu gibi IP adresin ve "Antilag/sürüm" bilgisi karşı tarafın sunucusuna görünür:
 - **Ping ölçümü:** Başlat'a bastığında, değişiklikten önce ve sonra olmak üzere en çok 20'şer ICMP yankı isteği `1.1.1.1`'e (Cloudflare) gider. Hedef `settings.json` içindeki `PingTarget` ile değişir. Hedef senin IP adresini görür.
-- **Yeni sürüm denetimi:** Antilag açılırken `github.com/fara1ka/antilag/releases` adresinden (dosyalar `githubusercontent.com` üzerinden gelir) yalnızca küçük bir sürüm bilgisi dosyası istenir. Ayarlar'da kapatılabilir: kapalıyken kendiliğinden istek yapılmaz, yalnızca **Şimdi denetle**'ye basınca yapılır. Güncelle'ye basmazsan hiçbir şey indirilmez; basarsan kurulum dosyası `%LOCALAPPDATA%\Antilag\update` altına iner ve bir sonraki açılışta silinir.
+- **Yeni sürüm denetimi:** Antilag açılırken `github.com/fara1ka/antilag/releases` adresinden (dosyalar `githubusercontent.com` üzerinden gelir) yalnızca küçük bir sürüm bilgisi dosyası istenir. Ayarlar'da kapatılabilir: kapalıyken kendiliğinden istek yapılmaz, yalnızca **Şimdi denetle**'ye basınca yapılır. Kurulum dosyası, "Yeni sürümü kendiliğinden kur" açıksa (varsayılan) yeni sürüm bulununca kendiliğinden, kapalıysa yalnızca sen Güncelle'ye basınca `%LOCALAPPDATA%\Antilag\update` altına iner ve bir sonraki açılışta silinir. Ayrıca kurulum, yanına bir günlük (`kurulum.log`) yazar; bu günlük dosya yollarını (Windows kullanıcı adın dahil) içerir ve internete gönderilmez; bir sorun bildirirken paylaşmadan önce kontrol et.
 
 Günlük ve geri yükleme kaydı kapattığın programların adlarını ve dosya yollarını (Windows kullanıcı adın dahil) içerebilir; bir hata bildirirken paylaşmadan önce kontrol et.
 

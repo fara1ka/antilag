@@ -132,6 +132,16 @@ public class AppSettings
     public bool RestartClosedApps { get; set; } = true;
     /// <summary>Once when the app opens, one small request asks GitHub for the newest version number. Nothing about the user is sent.</summary>
     public bool CheckForUpdates { get; set; } = true;
+    /// <summary>
+    /// A newer version that the check finds is downloaded and installed by the app itself, right after it opened (on by default; needs <see cref="CheckForUpdates"/>).
+    /// Off: the card only tells and the user presses Güncelle. Never while CS2 runs: the app does not even start then.
+    /// </summary>
+    public bool AutoUpdate { get; set; } = true;
+    /// <summary>
+    /// The version for which an automatic update was already started. It is tried ONCE per version: if the installer failed after the app had closed, the next start must
+    /// not try it again and again (the user can still press Güncelle). Forgotten again only when the game opened before anything was transferred.
+    /// </summary>
+    public string AutoUpdateTried { get; set; } = "";
     /// <summary>"tr" or "en", chosen on the Ayarlar page. Empty = the user never chose: Turkish on a Turkish Windows, English on every other (see <see cref="Loc.Detect"/>).</summary>
     public string Language { get; set; } = "";
 

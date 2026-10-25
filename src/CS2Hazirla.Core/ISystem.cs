@@ -25,6 +25,14 @@ public interface ISystem
     IReadOnlyList<RamModule> GetRamModules();
     MouseParams GetMouse();
     AccessibilityFlags GetAccessibility();
+    /// <summary>The main screen's size and refresh rate (now and the fastest it offers), or null when Windows does not say. Only reads.</summary>
+    DisplayInfo? GetPrimaryDisplay();
+    /// <summary>
+    /// The totals (CPU time, bytes read and written) of these processes; one that cannot be read is simply missing. Only reads. A process whose NAME is on the
+    /// protected list is never read (no handle is opened to it), whatever is asked; nothing is read while the game runs. (A program that is protected only by its folder is
+    /// kept out of the question by the caller, which knows the paths.)
+    /// </summary>
+    IReadOnlyDictionary<int, UsageCounters> GetUsageCounters(IReadOnlyCollection<int> pids);
 
     /// <summary>
     /// Id of a running process with this name, or null. Built on the system process snapshot only:

@@ -494,7 +494,17 @@
                         <StackPanel>
                             <TextBlock Text="{local:T 'Yeni sürüm olunca haber ver'}" FontSize="14.5" FontWeight="SemiBold" TextWrapping="Wrap"/>
                             <TextBlock Style="{StaticResource Hint}" Margin="0,4,0,0"
-                                       Text="{local:T 'Antilag açılırken GitHub\'dan yalnızca en yeni sürüm numarasına bakar; hesap, program listesi ya da dosya bilgisi göndermez (GitHub, her internet isteğinde olduğu gibi IP adresini görür). Kapalıyken kendiliğinden istek yapılmaz; Şimdi denetle yine çalışır. İndirme ve kurulum yalnızca sen Güncelle\'ye basınca olur.'}"/>
+                                       Text="{local:T 'Antilag açılırken GitHub\'dan yalnızca en yeni sürüm numarasına bakar; hesap, program listesi ya da dosya bilgisi göndermez (GitHub, her internet isteğinde olduğu gibi IP adresini görür). Kapalıyken kendiliğinden istek yapılmaz; Şimdi denetle yine çalışır.'}"/>
+                        </StackPanel>
+                    </CheckBox>
+                    <Rectangle Style="{StaticResource Hairline}"/>
+                    <!-- kendiliğinden kurulum: varsayılan açık. Denetim kapalıysa anlamsız olduğundan o zaman devre dışı görünür -->
+                    <CheckBox Style="{StaticResource SwitchRow}" IsChecked="{Binding Update.AutoUpdate, Mode=TwoWay}" IsEnabled="{Binding Update.CheckForUpdates}" Padding="0,14"
+                              AutomationProperties.Name="{local:T 'Yeni sürümü kendiliğinden kur'}">
+                        <StackPanel>
+                            <TextBlock Text="{local:T 'Yeni sürümü kendiliğinden kur'}" FontSize="14.5" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                            <TextBlock Style="{StaticResource Hint}" Margin="0,4,0,0"
+                                       Text="{local:T 'Yeni sürüm bulununca Antilag onu kendisi indirip kurar; birkaç saniye kapanıp yeniden açılır. Yalnızca haber vermesini istersen kapat: o zaman kurulum sen Güncelle\'ye basınca olur. CS2 açıkken Antilag zaten hiçbir şey yapmaz.'}"/>
                         </StackPanel>
                     </CheckBox>
                     <Rectangle Style="{StaticResource Hairline}"/>
@@ -650,7 +660,7 @@
                         <RadioButton Content="{local:T 'Özet'}" Style="{StaticResource PanelTab}" GroupName="drawertab" IsChecked="{Binding TabSummary, Mode=TwoWay}"/>
                         <RadioButton Content="{local:T 'Tam liste'}" Style="{StaticResource PanelTab}" GroupName="drawertab" IsChecked="{Binding TabFull, Mode=TwoWay}"/>
                         <RadioButton Content="{local:T 'Ölçümler'}" Style="{StaticResource PanelTab}" GroupName="drawertab" IsChecked="{Binding TabMetrics, Mode=TwoWay}"/>
-                        <RadioButton Content="{local:T 'Bellek'}" Style="{StaticResource PanelTab}" GroupName="drawertab" IsChecked="{Binding TabMemory, Mode=TwoWay}"/>
+                        <RadioButton Content="{local:T 'Kullanım'}" Style="{StaticResource PanelTab}" GroupName="drawertab" IsChecked="{Binding TabMemory, Mode=TwoWay}"/>
                     </StackPanel>
                     <Rectangle Grid.Row="2" Style="{StaticResource Hairline}" VerticalAlignment="Bottom"/>
 
@@ -682,6 +692,8 @@
                                         <DataTemplate><TextBlock Text="{Binding}" Style="{StaticResource Hint}" MaxWidth="400" Margin="0,0,0,8"/></DataTemplate>
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
+                                <Button Content="{local:T 'Ekran ayarlarını aç'}" Style="{StaticResource TextButton}" Command="{Binding OpenDisplaySettingsCommand}" HorizontalAlignment="Left" Margin="-12,0,0,0" Padding="12,7" MinHeight="36"
+                                        Visibility="{Binding ScreenCanBeFaster, Converter={StaticResource B2V}}"/>
                             </StackPanel>
                         </StackPanel>
                     </ScrollViewer>
@@ -732,9 +744,10 @@
                         </StackPanel>
                     </ScrollViewer>
 
-                    <!-- bellek: en çok bellek kullanan 10 program -->
+                    <!-- kullanım: en çok kaynak kullanan 10 program (bellek, işlemci ya da okuma/yazmaya göre) -->
                     <Grid Grid.Row="3" Margin="24,16,16,16" Visibility="{Binding TabMemory, Converter={StaticResource B2V}}">
                         <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
@@ -743,10 +756,17 @@
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock Text="{local:T 'En çok bellek kullanan 10 program. Kapat, programı hemen kapatır (5 saniyede kapanmazsa zorla); kaydedilmemiş iş kaybolur. Kapatılan programı ana ekrandaki geri açma düğmesi yeniden açar. Korumalı olanlar kapatılamaz.'}" Style="{StaticResource Hint}" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                            <TextBlock Text="{local:T 'En çok kaynak kullanan 10 program. İşlemci: toplam işlemcinin yüzde kaçı. Okuma/yazma: dosyalardan okuduğu ve dosyalara yazdığı veri. İkisi de sekmeyi açtığın ya da Yenile\'ye bastığın andaki 2 saniyeye göredir. Kapat, programı hemen kapatır (5 saniyede kapanmazsa zorla); kaydedilmemiş iş kaybolur, ana ekrandaki geri açma düğmesi onu yeniden açar. Korumalı olanlar kapatılamaz ve ölçülmez.'}" Style="{StaticResource Hint}" VerticalAlignment="Center" Margin="0,0,12,0"/>
                             <Button Grid.Column="1" Content="{local:T 'Yenile'}" Padding="14,8" MinHeight="36" VerticalAlignment="Top" Command="{Binding RefreshMemoryCommand}"/>
                         </Grid>
-                        <ScrollViewer Grid.Row="1" Margin="0,10,0,0" VerticalScrollBarVisibility="Auto">
+                        <Border Grid.Row="1" Style="{StaticResource GlassPill}" Margin="0,10,0,0" HorizontalAlignment="Left">
+                            <StackPanel Orientation="Horizontal">
+                                <RadioButton Content="{local:T 'Bellek'}" Style="{StaticResource Segment}" GroupName="usagesort" Padding="16,8" IsChecked="{Binding UsageSortMemory, Mode=TwoWay}"/>
+                                <RadioButton Content="{local:T 'İşlemci'}" Style="{StaticResource Segment}" GroupName="usagesort" Padding="16,8" IsChecked="{Binding UsageSortCpu, Mode=TwoWay}"/>
+                                <RadioButton Content="{local:T 'Okuma/yazma'}" Style="{StaticResource Segment}" GroupName="usagesort" Padding="16,8" IsChecked="{Binding UsageSortIo, Mode=TwoWay}"/>
+                            </StackPanel>
+                        </Border>
+                        <ScrollViewer Grid.Row="2" Margin="0,10,0,0" VerticalScrollBarVisibility="Auto">
                             <ItemsControl ItemsSource="{Binding TopMemory}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
@@ -760,7 +780,7 @@
                                                 </Grid.ColumnDefinitions>
                                                 <StackPanel VerticalAlignment="Center" Margin="0,0,10,0">
                                                     <TextBlock Text="{Binding Name}" TextTrimming="CharacterEllipsis"/>
-                                                    <TextBlock Text="{Binding CountText}" Style="{StaticResource Hint}"/>
+                                                    <TextBlock Text="{Binding DetailText}" Style="{StaticResource Hint}" TextTrimming="CharacterEllipsis"/>
                                                 </StackPanel>
                                                 <TextBlock Grid.Column="1" Text="{Binding MbText}" HorizontalAlignment="Right" VerticalAlignment="Center" Typography.NumeralAlignment="Tabular" Margin="0,0,10,0"/>
                                                 <Button Grid.Column="2" Content="{local:T 'Kapat'}" Padding="14,7" MinHeight="34" MinWidth="64" HorizontalAlignment="Right" FontSize="13" AutomationProperties.Name="{Binding CloseLabel}"

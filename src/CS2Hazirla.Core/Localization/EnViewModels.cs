@@ -5,6 +5,9 @@ public static class EnViewModels
 {
     public static readonly (string Tr, string En)[] Entries =
     {
+        // the Kullanım list: the two readings take two seconds
+        ("ölçülüyor…", "measuring…"),
+        ("İşlemci {0} · Okuma/yazma {1}", "Processor {0} · Read/write {1}"),
         // ------------------------------------------------------------------ the activity list
         // the closing line of a run starts with this word: the list turns it green by looking for it (LogEntry.From), so the two lines below must start with it too
         ("Bitti.", "Done."),

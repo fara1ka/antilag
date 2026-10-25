@@ -71,6 +71,72 @@ public sealed class WindowsSystem : ISystem
         return list;
     }
 
+    // ---------------------------------------------------------------- screen and usage (read-only)
+
+    public DisplayInfo? GetPrimaryDisplay()
+    {
+        try
+        {
+            for (uint i = 0; i < 16; i++)
+            {
+                var dd = new Native.DisplayDevice { cb = Marshal.SizeOf<Native.DisplayDevice>() };
+                if (!Native.EnumDisplayDevices(null, i, ref dd, 0)) break;
+                if ((dd.StateFlags & Native.DISPLAY_DEVICE_ATTACHED_TO_DESKTOP) == 0 || (dd.StateFlags & Native.DISPLAY_DEVICE_PRIMARY_DEVICE) == 0) continue;
+
+                var cur = new Native.DevMode { dmSize = (ushort)Marshal.SizeOf<Native.DevMode>() };
+                if (!Native.EnumDisplaySettings(dd.DeviceName, Native.ENUM_CURRENT_SETTINGS, ref cur)) return null;
+                var hz = (int)cur.dmDisplayFrequency;
+                if (hz <= 1) return null;                                    // 0 and 1 mean "the driver's default": no number to compare
+
+                // the modes this screen offers at the size and colour depth it runs at now (an interlaced mode is not a choice for games)
+                var max = hz;
+                for (var m = 0; m < 4000; m++)
+                {
+                    var dm = new Native.DevMode { dmSize = (ushort)Marshal.SizeOf<Native.DevMode>() };
+                    if (!Native.EnumDisplaySettings(dd.DeviceName, m, ref dm)) break;
+                    if (dm.dmPelsWidth != cur.dmPelsWidth || dm.dmPelsHeight != cur.dmPelsHeight || dm.dmBitsPerPel != cur.dmBitsPerPel) continue;
+                    if ((dm.dmDisplayFlags & Native.DM_INTERLACED) != 0) continue;
+                    max = Math.Max(max, (int)dm.dmDisplayFrequency);
+                }
+                return new DisplayInfo((int)cur.dmPelsWidth, (int)cur.dmPelsHeight, hz, max);
+            }
+        }
+        catch { /* advice only */ }
+        return null;
+    }
+
+    public IReadOnlyDictionary<int, UsageCounters> GetUsageCounters(IReadOnlyCollection<int> pids)
+    {
+        var result = new Dictionary<int, UsageCounters>();
+        // while the game is up NO handle is opened to anything
+        if (FindPidByName(Catalog.Cs2ProcessName) != null) return result;
+
+        // the names come from the system snapshot (no handle): a protected program is skipped here again, whatever the caller asked
+        var all = Process.GetProcesses();
+        var names = new Dictionary<int, string>();
+        try { foreach (var p in all) { try { names[p.Id] = p.ProcessName; } catch { } } }
+        finally { foreach (var p in all) p.Dispose(); }
+        // the game may have started between the first look and this list: the list itself is looked at once more
+        if (names.Values.Any(n => n.Equals(Catalog.Cs2ProcessName, StringComparison.OrdinalIgnoreCase))) return result;
+
+        foreach (var pid in pids)
+        {
+            if (!names.TryGetValue(pid, out var name) || ProtectedList.IsProcessProtected(name, null, StreamMode)) continue;
+            var h = Native.OpenProcess(Native.PROCESS_QUERY_LIMITED_INFORMATION, false, pid);
+            if (h == IntPtr.Zero) continue;
+            try
+            {
+                if (!Native.GetProcessTimes(h, out _, out _, out var kernel, out var user)) continue;
+                var io = default(Native.IoCounters);
+                if (!Native.GetProcessIoCounters(h, out io)) continue;
+                result[pid] = new UsageCounters(kernel + user, (long)Math.Min(io.ReadBytes + io.WriteBytes, long.MaxValue));
+            }
+            catch { /* the process ended meanwhile */ }
+            finally { Native.CloseHandle(h); }
+        }
+        return result;
+    }
+
     public int? FindPidByName(string name)
     {
         var ps = Process.GetProcessesByName(name);   // snapshot-based: no handle is opened

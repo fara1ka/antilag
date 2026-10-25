@@ -431,10 +431,25 @@ public class Planner
 
     // ---------------------------------------------------------------- info (read-only advice)
 
+    /// <summary>The read-only notes, and whether one of them is about the screen (the panel then offers a button that opens Windows' display settings).</summary>
+    public sealed record InfoReport(IReadOnlyList<string> Lines, bool ScreenCanBeFaster);
+
     /// <summary>Read-only notes (Wi-Fi, memory speed). Shown once in the Ayrıntılar panel; they are not part of the plan and never change anything.</summary>
-    public IReadOnlyList<string> InfoLines()
+    public IReadOnlyList<string> InfoLines() => Info().Lines;
+
+    public InfoReport Info()
     {
         var lines = new List<string>();
+        var screenSlow = false;
+        try
+        {
+            // the screen first: a monitor that runs far below its speed is the most common reason a game feels sluggish
+            var screen = _sys.GetPrimaryDisplay();
+            var note = DisplayAdvice.Check(screen);
+            if (note != null) { lines.Add(note); screenSlow = true; }
+        }
+        catch { /* advisory only */ }
+
         try
         {
             if (_sys.GetNics().Any(n => n.IsWireless))
@@ -448,7 +463,7 @@ public class Planner
             if (rpt != null) lines.Add(rpt);
         }
         catch { /* advisory only */ }
-        return lines;
+        return new InfoReport(lines, screenSlow);
     }
 }
 

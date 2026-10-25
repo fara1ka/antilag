@@ -89,7 +89,7 @@ Name: "{autoprograms}\{#AppName}"; Filename: "{app}\{#AppExe}"
 [Run]
 ; Uygulama yönetici izni ister; shellexec ile başlatılınca Windows izin penceresini gösterir.
 Filename: "{app}\{#AppExe}"; Description: "{#AppName} uygulamasını şimdi aç"; Flags: postinstall shellexec skipifsilent unchecked
-; Güncellemeden sonra uygulama kendiliğinden yeniden açılır (kullanıcı zaten "Güncelle"ye bastı).
+; Güncellemeden sonra uygulama kendiliğinden yeniden açılır (güncellemeyi kullanıcı başlattı ya da "Yeni sürümü kendiliğinden kur" açıktı).
 Filename: "{app}\{#AppExe}"; Flags: shellexec nowait; Check: ReopenAfterUpdate
 
 [UninstallDelete]
@@ -275,12 +275,18 @@ begin
       Sleep(250);
       waited := waited + 250;
     end;
+    // bekleme sırasında oyun açıldıysa hiçbir şey kurulmaz ve hiçbir pencere ya da uygulama açılmaz
+    if GameIsRunning() then
+    begin
+      Result := False;
+      Exit;
+    end;
     if AppIsOpen() or ExeLocked() then
     begin
       SuppressibleMsgBox('Antilag kapandı ama dosyası hâlâ kullanımda (bir virüs tarayıcısı tutuyor olabilir).' + #13#10 + #13#10 +
              'Birkaç saniye sonra Antilag''ı açıp güncellemeyi yeniden dene.', mbInformation, MB_OK, IDOK);
-      // pencere olmadığından kutuyu kimse görmeyebilir: hiçbir şey değişmedi, eski Antilag yeniden açılır (açık bir kopya varsa dokunulmaz)
-      if not AppIsOpen() then
+      // pencere olmadığından kutuyu kimse görmeyebilir: hiçbir şey değişmedi, eski Antilag yeniden açılır (açık bir kopya varsa ve oyun yoksa)
+      if (not AppIsOpen()) and (not GameIsRunning()) then
         ShellExec('open', ExpandConstant('{localappdata}\Programs\Antilag\Antilag.exe'), '', '', SW_SHOWNORMAL, ewNoWait, resultCode);
       Result := False;
     end;

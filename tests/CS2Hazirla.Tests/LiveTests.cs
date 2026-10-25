@@ -48,6 +48,47 @@ public class LiveReadOnlyTests
     }
 
     [Fact]
+    public void The_main_screen_reports_a_plausible_mode_and_never_less_than_it_runs_at()
+    {
+        var d = _sys.GetPrimaryDisplay();
+        _out.WriteLine(d == null ? "no screen reported" : $"{d.Width}x{d.Height}, now {d.CurrentHz} Hz, fastest at this size {d.MaxHz} Hz");
+        if (d == null) return;                       // a machine without a screen (remote session, build server) says nothing: that is allowed
+        Assert.InRange(d.Width, 320, 16384);
+        Assert.InRange(d.Height, 200, 16384);
+        Assert.InRange(d.CurrentHz, 24, 1000);
+        Assert.True(d.MaxHz >= d.CurrentHz);
+    }
+
+    [Fact]
+    public void Usage_totals_of_this_process_grow_between_two_readings_and_unknown_pids_are_skipped()
+    {
+        var me = Environment.ProcessId;
+        var first = _sys.GetUsageCounters(new[] { me, int.MaxValue });
+        if (first.Count == 0) return;                // the game is running (or a protected name): nothing is read, by design
+        Assert.True(first.ContainsKey(me));
+        Assert.False(first.ContainsKey(int.MaxValue));
+        var burn = System.Diagnostics.Stopwatch.StartNew();
+        while (burn.ElapsedMilliseconds < 120) { _ = Math.Sqrt(burn.ElapsedTicks); }          // use a little CPU time
+        File.WriteAllBytes(Path.Combine(Path.GetTempPath(), "antilag-usage-probe.tmp"), new byte[256 * 1024]);
+        try { File.Delete(Path.Combine(Path.GetTempPath(), "antilag-usage-probe.tmp")); } catch { }
+        var second = _sys.GetUsageCounters(new[] { me });
+        Assert.True(second[me].CpuTicks >= first[me].CpuTicks);
+        Assert.True(second[me].IoBytes > first[me].IoBytes);
+        var (cpu, io) = UsageMath.Rate(first[me], second[me], burn.Elapsed.TotalSeconds, Environment.ProcessorCount);
+        Assert.InRange(cpu, 0, 100);
+        Assert.True(io > 0);
+    }
+
+    [Fact]
+    public void A_protected_program_is_never_read_even_when_it_is_asked_for()
+    {
+        // any running process whose name is on the protected list (Windows' own parts are always there)
+        var protectedPid = _sys.GetProcesses().FirstOrDefault(p => ProtectedList.IsProcessProtected(p.Name, null, false))?.Pid;
+        if (protectedPid == null) return;
+        Assert.Empty(_sys.GetUsageCounters(new[] { protectedPid.Value }));
+    }
+
+    [Fact]
     public void Cpu_idle_percent_is_in_range()
     {
         var idle = _sys.SampleCpuIdlePercent(300);

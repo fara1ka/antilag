@@ -50,7 +50,7 @@ public partial class MainWindow : Window
         // looks: the fine grain over the background glow, the entrance of the home page, the breathing light behind the dial, the bar on the mode card
         Grain.Fill = MakeGrain();
         _breathing = new Breathing(HeroHalo, HaloScale);
-        Activated += (_, _) => { UpdateBreathing(); vm.RescanIfStale(); };
+        Activated += (_, _) => { UpdateBreathing(); vm.RescanIfStale(); vm.RefreshScreenNote(); };
         Deactivated += (_, _) => UpdateBreathing();
         StateChanged += (_, _) => UpdateBreathing();
         IsVisibleChanged += (_, _) => UpdateBreathing();
@@ -279,8 +279,12 @@ public partial class MainWindow : Window
         var si = Array.IndexOf(_args, "--search");
         if (si >= 0 && si + 1 < _args.Length) _vm.Search = _args[si + 1];
         if (Has("--metrics")) _vm.SetTab(DrawerTab.Metrics);
-        if (Has("--memory")) { _vm.SetTab(DrawerTab.Memory); await Task.Delay(1500); }
+        if (Has("--sortcpu")) _vm.UsageSortCpu = true;
+        if (Has("--memory")) { _vm.DrawerOpen = true; _vm.SetTab(DrawerTab.Memory); await Task.Delay(4500); }      // the two readings of the Kullanım list take two seconds
         if (Has("--drawer")) { _vm.DrawerOpen = true; await Task.Delay(700); }
+        var sc = Array.IndexOf(_args, "--scroll");
+        if (sc >= 0 && sc + 1 < _args.Length && double.TryParse(_args[sc + 1], out var scrollTo)) { SettingsPage.ScrollToVerticalOffset(scrollTo); await Task.Delay(400); }
+        if (Has("--end")) { SelectionScroll.ScrollToEnd(); SettingsPage.ScrollToEnd(); await Task.Delay(400); }       // the list of the drawer (Öneriler) and the Ayarlar page, scrolled to their end
         if (Has("--narrow")) { Width = 940; Height = 620; UpdateLayout(); }   // smallest supported size
         if (Has("--info")) await _vm.RefreshInfoAsync();
         var path = _args[i + 1];

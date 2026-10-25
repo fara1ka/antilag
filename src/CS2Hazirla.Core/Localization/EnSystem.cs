@@ -5,6 +5,16 @@ public static class EnSystem
 {
     public static readonly (string Tr, string En)[] Entries =
     {
+        // Usage.cs: the numbers of the Kullanım list (Turkish writes the percent sign first)
+        ("%0", "0%"),
+        ("%{0:0.0}", "{0:0.0}%"),
+        ("%{0:0}", "{0:0}%"),
+        ("0 KB/sn", "0 KB/s"),
+        ("{0:0} KB/sn", "{0:0} KB/s"),
+        ("{0:0.0} MB/sn", "{0:0.0} MB/s"),
+        // Usage.cs: the note about the screen (shown in Öneriler)
+        ("Ekranın {0} Hz'e kadar çıkabiliyor ama şu an {1} Hz'de çalışıyor. Windows Ayarlar > Sistem > Ekran > Gelişmiş ekran'dan yenileme hızını yükseltirsen görüntü daha akıcı olur ve ekran gecikmesi azalır.",
+         "Your screen can run at up to {0} Hz but is running at {1} Hz now. If you raise the refresh rate in Windows Settings > System > Display > Advanced display, the picture is smoother and the screen delay is lower."),
         // ------------------------------------------------------------------ Status.cs: the headline and the sentence under it on the home screen
         ("CS2 çalışıyor", "CS2 is running"),
         ("Oyun açıkken Antilag hiçbir şeyi değiştirmez. Oyunu kapattıktan sonra tekrar dene.", "While the game is open, Antilag changes nothing. Try again after you close the game."),

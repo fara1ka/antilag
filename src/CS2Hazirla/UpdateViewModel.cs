@@ -11,7 +11,7 @@ namespace CS2Hazirla;
 /// <summary>
 /// The small card in the left bar ("Yeni sürüm var · Güncelle · Sonra") and the update row in Ayarlar. All the logic is in <see cref="UpdateFlow"/>;
 /// this class only turns its state into words and buttons. Nothing runs by itself: one check when the app opens (if the switch in Ayarlar is on),
-/// and the download starts only when the user presses Güncelle.
+/// and the download starts when the user presses Güncelle, or right after that check when "Yeni sürümü kendiliğinden kur" is on (the default).
 /// </summary>
 public class UpdateVM : ObservableObject
 {
@@ -20,7 +20,7 @@ public class UpdateVM : ObservableObject
     private readonly AppSettings _settings;
     private readonly Func<bool> _isIdle;
     private readonly Action _exit;
-    private readonly Action _saveSettings;
+    private readonly Func<bool> _saveSettings;
     private readonly Action _busyChanged;
     private readonly Action _flushEdits;
     private bool _checked;
@@ -28,7 +28,7 @@ public class UpdateVM : ObservableObject
     private bool _wasWorking;
     private UpdateCheck _lastCheck = UpdateCheck.Done;
 
-    public UpdateVM(UpdateFlow flow, Dispatcher ui, AppSettings settings, Func<bool> isIdle, Action exit, Action saveSettings, Action busyChanged, Action flushEdits)
+    public UpdateVM(UpdateFlow flow, Dispatcher ui, AppSettings settings, Func<bool> isIdle, Action exit, Func<bool> saveSettings, Action busyChanged, Action flushEdits)
     {
         _flow = flow; _ui = ui; _settings = settings; _isIdle = isIdle; _exit = exit; _saveSettings = saveSettings; _busyChanged = busyChanged; _flushEdits = flushEdits;
         InstallCommand = new RelayCommand(() => _ = InstallAsync(), () => CanInstall);
@@ -72,7 +72,7 @@ public class UpdateVM : ObservableObject
         "dağıtılır ve HİÇBİR GARANTİ VERİLMEZ. Valve, FACEIT, Discord ve adı geçen diğer şirketlerle bağlantılı değildir. Kaynak kod ve lisans metinleri aşağıdadır.", Current.ToString(3));
 
     /// <summary>Through the Windows shell, so that a folder or a page opens in the user's normal (not administrator) Explorer or browser.</summary>
-    private static void ShellOpen(string target)
+    internal static void ShellOpen(string target)
     {
         try
         {
@@ -143,6 +143,19 @@ public class UpdateVM : ObservableObject
         }
     }
 
+    /// <summary>"Yeni sürümü kendiliğinden kur": on by default. Only has a meaning while the check is on (the row is greyed out otherwise).</summary>
+    public bool AutoUpdate
+    {
+        get => _settings.AutoUpdate;
+        set
+        {
+            if (_settings.AutoUpdate == value) return;
+            _settings.AutoUpdate = value;
+            _saveSettings();
+            RaiseAll();
+        }
+    }
+
     /// <summary>What is true now, from what is known (not from which state the card happens to be in).</summary>
     public string StatusText =>
         _flow.IsWorking ? Loc.T("Güncelleniyor…")
@@ -156,11 +169,42 @@ public class UpdateVM : ObservableObject
 
     // ------------------------------------------------------------------ doing
 
-    /// <summary>The one automatic check, right after the app opened. Skipped when the switch is off.</summary>
+    /// <summary>
+    /// The one automatic check, right after the app opened (skipped when the switch is off). When it finds a newer version and "Yeni sürümü kendiliğinden kur" is on,
+    /// the update is started at once, with the card and its Vazgeç button; <see cref="AutoUpdatePolicy"/> decides, and allows ONE automatic try per version.
+    /// </summary>
     public async Task StartAsync()
     {
         _flow.CleanDownloads();
         if (_settings.CheckForUpdates) await CheckAsync();
+        await InstallByItselfAsync();
+    }
+
+    // one automatic install per run of the program: a window that is opened anew (the language was changed) starts its own check, and two checks that end together
+    // must not start two installers
+    private static int s_automaticInstallStarted;
+
+    /// <summary>False for a window that replaces another one (the language was changed): it shows the card but does not start an update by itself.</summary>
+    public bool AutomaticInstallAllowed { get; set; } = true;
+
+    private async Task InstallByItselfAsync()
+    {
+        if (!AutomaticInstallAllowed) return;
+        var offer = _flow.LastCheckWorked && _flow.State == UpdateState.Available ? _flow.Offer : null;
+        if (!AutoUpdatePolicy.ShouldInstall(_settings, offer, _isIdle() && CanInstall)) return;
+        // the version is written BEFORE the start, and the start waits for the write to succeed: without that note on disk a failed installer would be started again
+        // by every start. No note, no automatic install; the user can still press Güncelle.
+        var previous = _settings.AutoUpdateTried;
+        _settings.AutoUpdateTried = offer!.VersionText;
+        if (!_saveSettings()) { _settings.AutoUpdateTried = previous; return; }
+        if (Interlocked.Exchange(ref s_automaticInstallStarted, 1) == 1) return;
+        await InstallAsync();
+        if (_flow.State == UpdateState.Failed && AutoUpdatePolicy.MayTryAgainAtNextStart(_flow.FailureText))
+        {
+            _settings.AutoUpdateTried = "";                   // the game opened before anything was transferred: the next start may try again
+            _saveSettings();
+        }
+        else if (_flow.State == UpdateState.Available) Interlocked.Exchange(ref s_automaticInstallStarted, 0);     // cancelled with Vazgeç: nothing runs any more
     }
 
     public async Task CheckAsync()
@@ -189,7 +233,7 @@ public class UpdateVM : ObservableObject
         foreach (var name in new[]
         {
             nameof(Show), nameof(ShowButtons), nameof(ShowCancel), nameof(ShowProgress), nameof(Progress), nameof(Title), nameof(Detail),
-            nameof(InstallText), nameof(DismissText), nameof(CanInstall), nameof(StatusText), nameof(VersionLine), nameof(CheckForUpdates), nameof(BusyText),
+            nameof(InstallText), nameof(DismissText), nameof(CanInstall), nameof(StatusText), nameof(VersionLine), nameof(CheckForUpdates), nameof(AutoUpdate), nameof(BusyText),
         }) Raise(name);
         Refresh();
     }

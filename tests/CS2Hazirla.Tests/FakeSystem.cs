@@ -97,6 +97,17 @@ public class FakeSystem : ISystem
     public IReadOnlyList<NicInfo> GetNics() { Probe("GetNics"); return GetNicsCore(); }
     private IReadOnlyList<NicInfo> GetNicsCore() => Nics.Select(n => n.PowerInstanceName == null ? n : n with { PowerSaveEnabled = NicPower[n.PowerInstanceName] }).ToList();
     public IReadOnlyList<RamModule> GetRamModules() => new[] { new RamModule(16L << 30, 6000, 6000) };
+    /// <summary>What the "screen" runs at (null = Windows does not say).</summary>
+    public DisplayInfo? Display;
+    public DisplayInfo? GetPrimaryDisplay() { Probe("GetPrimaryDisplay"); return Display; }
+    /// <summary>Totals per pid for the usage list; the pids that were asked for and are listed here come back, the others are "unreadable".</summary>
+    public readonly Dictionary<int, UsageCounters> Usage = new();
+    public readonly List<int> UsageAsked = new();
+    public IReadOnlyDictionary<int, UsageCounters> GetUsageCounters(IReadOnlyCollection<int> pids)
+    {
+        UsageAsked.AddRange(pids);
+        return pids.Where(Usage.ContainsKey).ToDictionary(p => p, p => Usage[p]);
+    }
     public MouseParams GetMouse() { Probe("GetMouse"); return Mouse; }
     public AccessibilityFlags GetAccessibility() => Acc;
     public int FindPidCalls;

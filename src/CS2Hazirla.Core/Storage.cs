@@ -74,7 +74,7 @@ public class SettingsStore
                     // explicit nulls in a hand-edited file must never crash the app
                     s.Options ??= new(); s.NeverClose ??= new(); s.ExtraProcesses ??= new();
                     s.DisplayNames ??= new();
-                    s.Language ??= "";
+                    s.Language ??= ""; s.AutoUpdateTried ??= "";
                     // saved profiles: a hand-edited file must never crash the app or hide a profile behind a duplicate id
                     s.SavedProfiles ??= new();
                     s.SavedProfiles.RemoveAll(p => p == null);

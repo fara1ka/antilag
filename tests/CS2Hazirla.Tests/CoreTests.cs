@@ -594,6 +594,8 @@ public class CrashingSystem : ISystem
     public IReadOnlyList<NicInfo> GetNics() => _f.GetNics();
     public IReadOnlyList<RamModule> GetRamModules() => _f.GetRamModules();
     public MouseParams GetMouse() => _f.GetMouse();
+    public DisplayInfo? GetPrimaryDisplay() => _f.GetPrimaryDisplay();
+    public IReadOnlyDictionary<int, UsageCounters> GetUsageCounters(IReadOnlyCollection<int> pids) => _f.GetUsageCounters(pids);
     public int? FindPidByName(string name) => _f.FindPidByName(name);
     public void RequestClose(ProcRef p) => _f.RequestClose(p);
     public IReadOnlyList<ProcRef> WaitForExit(IEnumerable<ProcRef> procs, int t) => _f.WaitForExit(procs, t);

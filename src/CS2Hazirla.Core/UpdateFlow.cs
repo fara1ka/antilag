@@ -8,7 +8,8 @@ public enum UpdateCheck { Done, Failed, SkippedGame, Busy }
 /// <summary>
 /// The whole life of one update offer, without any window: found → downloaded and verified → installer started. The screen only shows
 /// <see cref="State"/>, <see cref="Progress"/> and <see cref="FailureText"/>; "Sonra" and "Güncelle" call <see cref="Dismiss"/> and <see cref="InstallAsync"/>.
-/// Nothing here runs in the background: a check is one request when the app opens (or when the user asks), and the installer is started only after a click.
+/// Nothing here runs in the background: a check is one request when the app opens (or when the user asks), and the installer is started after a click
+/// (or, when "Güncellemeyi kendiliğinden kur" is on, by the app right after that check: <see cref="AutoUpdatePolicy"/>).
 /// Nothing is asked, downloaded or started while cs2.exe runs: the game is looked at before a check, before and DURING a download (once a second) and
 /// right before the installer is started.
 /// </summary>
@@ -220,4 +221,23 @@ public sealed class UpdateFlow
         public InlineProgress(Action<double> report) => _report = report;
         public void Report(double value) => _report(value);
     }
+}
+
+/// <summary>
+/// When the app installs a newer version by itself ("Güncellemeyi kendiliğinden kur" in Ayarlar, on by default). The decision is made here, in one place, so that
+/// it can be tested: the switch, the check switch (no check, nothing to install), an idle app, and ONE automatic try per version (see
+/// <see cref="AppSettings.AutoUpdateTried"/>): a version whose installer failed after the app had closed is never started again by itself at every start.
+/// </summary>
+public static class AutoUpdatePolicy
+{
+    public static bool ShouldInstall(AppSettings settings, UpdateOffer? offer, bool idle) =>
+        offer != null && idle && settings.CheckForUpdates && settings.AutoUpdate
+        && !string.Equals(settings.AutoUpdateTried, offer.VersionText, StringComparison.Ordinal);
+
+    /// <summary>
+    /// Only the game that opened BEFORE anything was transferred may be tried again by the next start. Every other failure is left to the user's own Güncelle (or
+    /// "Tekrar dene"): a download that fails is not always the internet (a missing or wrong file on the release page would otherwise be fetched, up to 60 MB, at
+    /// every start of every copy), and a file that did not verify or an installer that did not start must never loop.
+    /// </summary>
+    public static bool MayTryAgainAtNextStart(string failureText) => failureText == UpdateFlow.FailedGame;
 }

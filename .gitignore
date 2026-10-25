@@ -1,0 +1,33 @@
+# derleme çıktıları
+bin/
+obj/
+publish/
+dist/
+.vs/
+*.user
+*.suo
+TestResults/
+# yerel dosyalar
+*.log
+# imzalama anahtarları ve gizli dosyalar: ASLA repoya girmez
+*.pfx
+*.p12
+*.snk
+*.pem
+*.key
+*.anahtar
+*.cer
+update-private*
+secrets/
+.env
+.env.*
+# yerel araç ve editör ayarları
+.claude/
+.vscode/
+.idea/
+# DEBUG ekran görüntüsü araçlarının yazdığı yan dosyalar (gerçek program adları ve yollar içerebilir)
+*.plan.txt
+*.bindings.txt
+*.idle.txt
+state.*.json
+settings.*.json

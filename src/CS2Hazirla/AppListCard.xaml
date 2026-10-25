@@ -1,0 +1,39 @@
+<UserControl x:Class="CS2Hazirla.AppListCard"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- bir liste: başlık, kısa açıklama, satırlar (yalnızca ad + Çıkar), "Listeden seç". Kart değil: ince çizgilerle ayrılmış satırlar -->
+    <StackPanel>
+        <TextBlock Text="{Binding Title}" Style="{StaticResource Heading}" FontSize="16"/>
+        <TextBlock Text="{Binding Hint}" Style="{StaticResource Hint}" Margin="0,4,0,10"/>
+        <TextBlock Text="{Binding EmptyText}" Style="{StaticResource Hint}" Margin="0,0,0,10" Visibility="{Binding IsEmpty, Converter={StaticResource B2V}}"/>
+        <ItemsControl ItemsSource="{Binding Items}">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel>
+                        <Rectangle x:Name="Sep" Style="{StaticResource Hairline}"/>
+                        <Grid Margin="0,4">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="{Binding Display}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,6"/>
+                            <Button Grid.Column="1" Content="Çıkar" Style="{StaticResource LinkButton}" AutomationProperties.Name="{Binding Display, StringFormat='Çıkar: {0}'}"
+                                    Command="{Binding DataContext.RemoveCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}"/>
+                        </Grid>
+                    </StackPanel>
+                    <DataTemplate.Triggers>
+                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource PreviousData}}" Value="{x:Null}">
+                            <Setter TargetName="Sep" Property="Visibility" Value="Collapsed"/>
+                        </DataTrigger>
+                    </DataTemplate.Triggers>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+        <Button Style="{StaticResource TextButton}" Command="{Binding AddCommand}" HorizontalAlignment="Left" Margin="-12,6,0,0">
+            <StackPanel Orientation="Horizontal">
+                <Path Style="{StaticResource Icon}" Data="{StaticResource IconPlus}" Margin="0,0,9,0"/>
+                <TextBlock Text="{Binding AddLabel}"/>
+            </StackPanel>
+        </Button>
+    </StackPanel>
+</UserControl>

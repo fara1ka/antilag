@@ -1,0 +1,441 @@
+## preset Safe
+close: 
+stop: svc:bits,svc:usosvc,svc:wuauserv
+## preset Safe + lists
+close: 
+stop: svc:bits,svc:usosvc,svc:wuauserv
+## Safe base, all on
+close: proc:adobe desktop service,proc:adobearm,proc:adobegcclient,proc:adobeipcbroker,proc:adobeupdateservice,proc:armourycrateagent,proc:armsvc,proc:astrocommandagent,proc:audeze hq,proc:avastagent,proc:avgagent,proc:aviraagent,proc:avp,proc:bandicam,proc:battle.net,proc:battleyeagent,proc:bdagentagent,proc:bdservicehostagent,proc:bedaisy,proc:beservice,proc:bitdefenderagent,proc:box,proc:boxsync,proc:brave,proc:byedpiagent,proc:cclibrary,proc:ccxprocess,proc:chrome,proc:clash-verge,proc:clashagent,proc:clashverge,proc:claude,proc:cloudflare warpagent,proc:cloudflaredagent,proc:codeeditor,proc:comodoagent,proc:corsairagent,proc:cortana,proc:cyberghostagent,proc:dellsupportassistagent,proc:discord,proc:discordcanary,proc:discordptb,proc:dragoncenter,proc:dropbox,proc:dxtory,proc:eabackgroundservice,proc:eac_launcher,proc:eadesktop,proc:easyanticheatagent,proc:egui,proc:ekrn,proc:elgato,proc:endgamegear,proc:epicgameslauncher,proc:epicwebhelper,proc:eseaagent,proc:esetagent,proc:esportalagent,proc:exitlag,proc:expressvpnagent,proc:f-secureagent,proc:finalmouse,proc:firefox,proc:foobar,proc:fpsmonitor,proc:fraps,proc:galaxyclient,proc:galaxyclient helper,proc:gamebar,proc:gamebarftserver,proc:gamebarpresencewriter,proc:gameguardagent,proc:gamersclubagent,proc:gccontrolcenter,proc:gdataagent,proc:gloriousagent,proc:gloriouscore,proc:goodbyedpiagent,proc:googlecrashhandler,proc:googlecrashhandler64,proc:googledrive,proc:googledrivefs,proc:googledrivesync,proc:googleupdate,proc:greenshot,proc:hamachi,proc:hamachi-2-ui,proc:hiddifyagent,proc:hide.meagent,proc:hotspotshieldagent,proc:hpsupportassistantagent,proc:hybridapp,proc:hyperxagent,proc:iclouddrive,proc:icloudservices,proc:icueagent,proc:iexplore,proc:inputoverlay,proc:ipvanishagent,proc:jucheck,proc:jusched,proc:kasperskyagent,proc:lamzu,proc:lantern,proc:lenovovantageagent,proc:lghubagent,proc:librewolf,proc:lightshot,proc:logi_agent,proc:logicaptureagent,proc:logildaagent,proc:logioptionsagent,proc:logipluginserviceagent,proc:logitechagent,proc:logituneagent,proc:malwarebytesagent,proc:mbam,proc:mbamtray,proc:mcafeeagent,proc:mcshield,proc:medalagent,proc:megasync,proc:mfeagent,proc:microsoftedgeupdate,proc:mihomoagent,proc:ms-teams,proc:msedge,proc:msi centeragent,proc:msiafterburner,proc:msicenter,proc:msteams,proc:mudfish,proc:mullvadagent,proc:myanti-cheatapp,proc:myanticheatapp,proc:myantivirusapp,proc:mysticlight,proc:myvpnapp,proc:nekoboxagent,proc:nekorayagent,proc:nextcloud,proc:ngenuityagent,proc:nordvpnagent,proc:nortonagent,proc:notesapp,proc:nprotectagent,proc:nvbackend,proc:nvcpl,proc:nvidia app,proc:nvidia broadcast,proc:nvidia geforce experience,proc:nvidia overlay,proc:nvidia share,proc:nvidia web helper,proc:nvidia-share,proc:nvspcap64,proc:nvsphelper,proc:nvsphelper64,proc:nvtray,proc:nzxt cam,proc:obfs4agent,proc:obs64,proc:omencommandcenteragent,proc:onedrive,proc:openrgb,proc:openvpnagent,proc:opera,proc:opera_gx,proc:origin,proc:originwebhelperservice,proc:outline,proc:overwolfagent,proc:pandaagent,proc:pccntagent,proc:pcloud,proc:phoneexperiencehost,proc:pia-agent,proc:playnite.desktopapp,proc:privateinternetaccessagent,proc:protonvpnagent,proc:proxifieragent,proc:psiphonagent,proc:pulsaragent,proc:randomtraything,proc:razeragent,proc:rgbfusion,proc:riotclientservices,proc:riotclientux,proc:riotclientuxrender,proc:rtss,proc:rtsshooksloader,proc:rzappengineagent,proc:rzmonitoragent,proc:rzsdkagent,proc:rzsynapseagent,proc:shadowsocksagent,proc:sharex,proc:signal,proc:signalrgb,proc:sing-box,proc:singboxagent,proc:skype,proc:slack,proc:sophosagent,proc:spoofdpiagent,proc:spotify,proc:steelseriesagent,proc:streamdeck,proc:streamlabs,proc:supportassistagent,proc:surfsharkagent,proc:synapse,proc:synapseagent,proc:syncagent9000,proc:syncthing,proc:tailscaleagent,proc:teams,proc:telegram,proc:tmbmsrvagent,proc:tor,proc:traywidget,proc:trendmicroagent,proc:tun2socksagent,proc:turtlebeachagent,proc:ubisoftconnect,proc:ubisoftgamelauncher,proc:ugenie,proc:ultrasurfagent,proc:upc,proc:uplay,proc:v2rayagent,proc:v2rayn,proc:vgc,proc:vgk,proc:vgtray,proc:viber,proc:vivaldi,proc:voicemeeter,proc:vpnagent,proc:vxe,proc:wallpaper32,proc:wallpaper64,proc:warp-svc,proc:waterfox,proc:webrootagent,proc:webwallpaper32,proc:whatsapp,proc:whatsapp.root,proc:whatsappdesktop,proc:widgets,proc:widgetservice,proc:windscribeagent,proc:wintunagent,proc:winws,proc:wireguardagent,proc:wootility,proc:wordlike,proc:wtfast,proc:xboxpcapp,proc:xboxpcappft,proc:xigncodeagent,proc:xrayagent,proc:yourphone,proc:yourphoneserver,proc:zapretagent,proc:zerotieragent,proc:zetadaemon,proc:zoom,proc:zowie
+stop: svc:bits,svc:diagtrack,svc:lfsvc,svc:mapsbroker,svc:spooler,svc:sysmain,svc:usosvc,svc:wsearch,svc:wuauserv,svc:xblauthmanager,svc:xblgamesave,svc:xboxnetapisvc
+## Safe base, all on + lists
+close: proc:adobe desktop service,proc:adobearm,proc:adobegcclient,proc:adobeipcbroker,proc:adobeupdateservice,proc:armourycrateagent,proc:armsvc,proc:astrocommandagent,proc:audeze hq,proc:avastagent,proc:avgagent,proc:aviraagent,proc:avp,proc:bandicam,proc:battle.net,proc:battleyeagent,proc:bdagentagent,proc:bdservicehostagent,proc:bedaisy,proc:beservice,proc:bitdefenderagent,proc:box,proc:boxsync,proc:brave,proc:byedpiagent,proc:cclibrary,proc:ccxprocess,proc:clash-verge,proc:clashagent,proc:clashverge,proc:claude,proc:cloudflare warpagent,proc:cloudflaredagent,proc:codeeditor,proc:comodoagent,proc:corsairagent,proc:cortana,proc:cyberghostagent,proc:dellsupportassistagent,proc:discordcanary,proc:discordptb,proc:dragoncenter,proc:dxtory,proc:eabackgroundservice,proc:eac_launcher,proc:eadesktop,proc:easyanticheatagent,proc:egui,proc:ekrn,proc:elgato,proc:endgamegear,proc:epicgameslauncher,proc:epicwebhelper,proc:eseaagent,proc:esetagent,proc:esportalagent,proc:exitlag,proc:expressvpnagent,proc:f-secureagent,proc:finalmouse,proc:firefox,proc:foobar,proc:fpsmonitor,proc:fraps,proc:galaxyclient,proc:galaxyclient helper,proc:gamebar,proc:gamebarftserver,proc:gamebarpresencewriter,proc:gameguardagent,proc:gamersclubagent,proc:gccontrolcenter,proc:gdataagent,proc:gloriousagent,proc:gloriouscore,proc:goodbyedpiagent,proc:googlecrashhandler,proc:googlecrashhandler64,proc:googledrive,proc:googledrivefs,proc:googledrivesync,proc:googleupdate,proc:greenshot,proc:hamachi,proc:hamachi-2-ui,proc:hiddifyagent,proc:hide.meagent,proc:hotspotshieldagent,proc:hpsupportassistantagent,proc:hybridapp,proc:hyperxagent,proc:iclouddrive,proc:icloudservices,proc:icueagent,proc:iexplore,proc:inputoverlay,proc:ipvanishagent,proc:jucheck,proc:jusched,proc:kasperskyagent,proc:lamzu,proc:lantern,proc:lenovovantageagent,proc:lghubagent,proc:librewolf,proc:lightshot,proc:logi_agent,proc:logicaptureagent,proc:logildaagent,proc:logioptionsagent,proc:logipluginserviceagent,proc:logitechagent,proc:logituneagent,proc:malwarebytesagent,proc:mbam,proc:mbamtray,proc:mcafeeagent,proc:mcshield,proc:medalagent,proc:megasync,proc:mfeagent,proc:microsoftedgeupdate,proc:mihomoagent,proc:ms-teams,proc:msedge,proc:msi centeragent,proc:msiafterburner,proc:msicenter,proc:msteams,proc:mudfish,proc:mullvadagent,proc:myanti-cheatapp,proc:myanticheatapp,proc:myantivirusapp,proc:mysticlight,proc:myvpnapp,proc:nekoboxagent,proc:nekorayagent,proc:nextcloud,proc:ngenuityagent,proc:nordvpnagent,proc:nortonagent,proc:notesapp,proc:nprotectagent,proc:nvbackend,proc:nvcpl,proc:nvidia app,proc:nvidia broadcast,proc:nvidia geforce experience,proc:nvidia overlay,proc:nvidia share,proc:nvidia web helper,proc:nvidia-share,proc:nvspcap64,proc:nvsphelper,proc:nvsphelper64,proc:nvtray,proc:nzxt cam,proc:obfs4agent,proc:obs64,proc:omencommandcenteragent,proc:onedrive,proc:openrgb,proc:openvpnagent,proc:opera,proc:opera_gx,proc:origin,proc:originwebhelperservice,proc:outline,proc:overwolfagent,proc:pandaagent,proc:pccntagent,proc:pcloud,proc:phoneexperiencehost,proc:pia-agent,proc:playnite.desktopapp,proc:privateinternetaccessagent,proc:protonvpnagent,proc:proxifieragent,proc:psiphonagent,proc:pulsaragent,proc:randomtraything,proc:razeragent,proc:rgbfusion,proc:riotclientservices,proc:riotclientux,proc:riotclientuxrender,proc:rtss,proc:rtsshooksloader,proc:rzappengineagent,proc:rzmonitoragent,proc:rzsdkagent,proc:rzsynapseagent,proc:shadowsocksagent,proc:sharex,proc:signal,proc:signalrgb,proc:sing-box,proc:singboxagent,proc:skype,proc:slack,proc:sophosagent,proc:spoofdpiagent,proc:steelseriesagent,proc:streamdeck,proc:streamlabs,proc:supportassistagent,proc:surfsharkagent,proc:synapse,proc:synapseagent,proc:syncagent9000,proc:syncthing,proc:tailscaleagent,proc:teams,proc:telegram,proc:tmbmsrvagent,proc:tor,proc:traywidget,proc:trendmicroagent,proc:tun2socksagent,proc:turtlebeachagent,proc:ubisoftconnect,proc:ubisoftgamelauncher,proc:ugenie,proc:ultrasurfagent,proc:upc,proc:uplay,proc:v2rayagent,proc:v2rayn,proc:vgc,proc:vgk,proc:vgtray,proc:viber,proc:vivaldi,proc:voicemeeter,proc:vpnagent,proc:vxe,proc:wallpaper32,proc:wallpaper64,proc:warp-svc,proc:waterfox,proc:webrootagent,proc:webwallpaper32,proc:whatsapp,proc:whatsapp.root,proc:whatsappdesktop,proc:widgets,proc:widgetservice,proc:windscribeagent,proc:wintunagent,proc:winws,proc:wireguardagent,proc:wootility,proc:wordlike,proc:wtfast,proc:xboxpcapp,proc:xboxpcappft,proc:xigncodeagent,proc:xrayagent,proc:yourphone,proc:yourphoneserver,proc:zapretagent,proc:zerotieragent,proc:zoom,proc:zowie
+stop: svc:bits,svc:diagtrack,svc:lfsvc,svc:mapsbroker,svc:someusersvc,svc:spooler,svc:sysmain,svc:usosvc,svc:wsearch,svc:wuauserv,svc:xblauthmanager,svc:xblgamesave,svc:xboxnetapisvc
+## Safe base, all off + lists
+close: 
+stop: 
+## preset Maximum
+close: proc:adobe desktop service,proc:adobearm,proc:adobegcclient,proc:adobeipcbroker,proc:adobeupdateservice,proc:armourycrateagent,proc:armsvc,proc:astrocommandagent,proc:audeze hq,proc:avastagent,proc:avgagent,proc:aviraagent,proc:avp,proc:bandicam,proc:battle.net,proc:battleyeagent,proc:bdagentagent,proc:bdservicehostagent,proc:bedaisy,proc:beservice,proc:bitdefenderagent,proc:box,proc:boxsync,proc:brave,proc:byedpiagent,proc:cclibrary,proc:ccxprocess,proc:chrome,proc:clash-verge,proc:clashagent,proc:clashverge,proc:claude,proc:cloudflare warpagent,proc:cloudflaredagent,proc:codeeditor,proc:comodoagent,proc:corsairagent,proc:cortana,proc:cyberghostagent,proc:dellsupportassistagent,proc:discord,proc:discordcanary,proc:discordptb,proc:dragoncenter,proc:dropbox,proc:dxtory,proc:eabackgroundservice,proc:eac_launcher,proc:eadesktop,proc:easyanticheatagent,proc:egui,proc:ekrn,proc:elgato,proc:endgamegear,proc:epicgameslauncher,proc:epicwebhelper,proc:eseaagent,proc:esetagent,proc:esportalagent,proc:exitlag,proc:expressvpnagent,proc:f-secureagent,proc:finalmouse,proc:firefox,proc:foobar,proc:fpsmonitor,proc:fraps,proc:galaxyclient,proc:galaxyclient helper,proc:gamebar,proc:gamebarftserver,proc:gamebarpresencewriter,proc:gameguardagent,proc:gamersclubagent,proc:gccontrolcenter,proc:gdataagent,proc:gloriousagent,proc:gloriouscore,proc:goodbyedpiagent,proc:googlecrashhandler,proc:googlecrashhandler64,proc:googledrive,proc:googledrivefs,proc:googledrivesync,proc:googleupdate,proc:greenshot,proc:hamachi,proc:hamachi-2-ui,proc:hiddifyagent,proc:hide.meagent,proc:hotspotshieldagent,proc:hpsupportassistantagent,proc:hybridapp,proc:hyperxagent,proc:iclouddrive,proc:icloudservices,proc:icueagent,proc:iexplore,proc:inputoverlay,proc:ipvanishagent,proc:jucheck,proc:jusched,proc:kasperskyagent,proc:lamzu,proc:lantern,proc:lenovovantageagent,proc:lghubagent,proc:librewolf,proc:lightshot,proc:logi_agent,proc:logicaptureagent,proc:logildaagent,proc:logioptionsagent,proc:logipluginserviceagent,proc:logitechagent,proc:logituneagent,proc:malwarebytesagent,proc:mbam,proc:mbamtray,proc:mcafeeagent,proc:mcshield,proc:medalagent,proc:megasync,proc:mfeagent,proc:microsoftedgeupdate,proc:mihomoagent,proc:ms-teams,proc:msedge,proc:msi centeragent,proc:msiafterburner,proc:msicenter,proc:msteams,proc:mudfish,proc:mullvadagent,proc:myanti-cheatapp,proc:myanticheatapp,proc:myantivirusapp,proc:mysticlight,proc:myvpnapp,proc:nekoboxagent,proc:nekorayagent,proc:nextcloud,proc:ngenuityagent,proc:nordvpnagent,proc:nortonagent,proc:notesapp,proc:nprotectagent,proc:nvbackend,proc:nvcpl,proc:nvidia app,proc:nvidia broadcast,proc:nvidia geforce experience,proc:nvidia overlay,proc:nvidia share,proc:nvidia web helper,proc:nvidia-share,proc:nvspcap64,proc:nvsphelper,proc:nvsphelper64,proc:nvtray,proc:nzxt cam,proc:obfs4agent,proc:obs64,proc:omencommandcenteragent,proc:onedrive,proc:openrgb,proc:openvpnagent,proc:opera,proc:opera_gx,proc:origin,proc:originwebhelperservice,proc:outline,proc:overwolfagent,proc:pandaagent,proc:pccntagent,proc:pcloud,proc:phoneexperiencehost,proc:pia-agent,proc:playnite.desktopapp,proc:privateinternetaccessagent,proc:protonvpnagent,proc:proxifieragent,proc:psiphonagent,proc:pulsaragent,proc:randomtraything,proc:razeragent,proc:rgbfusion,proc:riotclientservices,proc:riotclientux,proc:riotclientuxrender,proc:rtss,proc:rtsshooksloader,proc:rzappengineagent,proc:rzmonitoragent,proc:rzsdkagent,proc:rzsynapseagent,proc:shadowsocksagent,proc:sharex,proc:signal,proc:signalrgb,proc:sing-box,proc:singboxagent,proc:skype,proc:slack,proc:sophosagent,proc:spoofdpiagent,proc:spotify,proc:steelseriesagent,proc:streamdeck,proc:streamlabs,proc:supportassistagent,proc:surfsharkagent,proc:synapse,proc:synapseagent,proc:syncagent9000,proc:syncthing,proc:tailscaleagent,proc:teams,proc:telegram,proc:tmbmsrvagent,proc:tor,proc:traywidget,proc:trendmicroagent,proc:tun2socksagent,proc:turtlebeachagent,proc:ubisoftconnect,proc:ubisoftgamelauncher,proc:ugenie,proc:ultrasurfagent,proc:upc,proc:uplay,proc:v2rayagent,proc:v2rayn,proc:vgc,proc:vgk,proc:vgtray,proc:viber,proc:vivaldi,proc:voicemeeter,proc:vpnagent,proc:vxe,proc:wallpaper32,proc:wallpaper64,proc:warp-svc,proc:waterfox,proc:webrootagent,proc:webwallpaper32,proc:whatsapp,proc:whatsapp.root,proc:whatsappdesktop,proc:widgets,proc:widgetservice,proc:windscribeagent,proc:wintunagent,proc:winws,proc:wireguardagent,proc:wootility,proc:wordlike,proc:wtfast,proc:xboxpcapp,proc:xboxpcappft,proc:xigncodeagent,proc:xrayagent,proc:yourphone,proc:yourphoneserver,proc:zapretagent,proc:zerotieragent,proc:zetadaemon,proc:zoom,proc:zowie
+stop: svc:bits,svc:diagtrack,svc:lfsvc,svc:mapsbroker,svc:spooler,svc:sysmain,svc:usosvc,svc:wsearch,svc:wuauserv,svc:xblauthmanager,svc:xblgamesave,svc:xboxnetapisvc
+## preset Maximum + lists
+close: proc:adobe desktop service,proc:adobearm,proc:adobegcclient,proc:adobeipcbroker,proc:adobeupdateservice,proc:armourycrateagent,proc:armsvc,proc:astrocommandagent,proc:audeze hq,proc:avastagent,proc:avgagent,proc:aviraagent,proc:avp,proc:bandicam,proc:battle.net,proc:battleyeagent,proc:bdagentagent,proc:bdservicehostagent,proc:bedaisy,proc:beservice,proc:bitdefenderagent,proc:box,proc:boxsync,proc:brave,proc:byedpiagent,proc:cclibrary,proc:ccxprocess,proc:clash-verge,proc:clashagent,proc:clashverge,proc:claude,proc:cloudflare warpagent,proc:cloudflaredagent,proc:codeeditor,proc:comodoagent,proc:corsairagent,proc:cortana,proc:cyberghostagent,proc:dellsupportassistagent,proc:discordcanary,proc:discordptb,proc:dragoncenter,proc:dxtory,proc:eabackgroundservice,proc:eac_launcher,proc:eadesktop,proc:easyanticheatagent,proc:egui,proc:ekrn,proc:elgato,proc:endgamegear,proc:epicgameslauncher,proc:epicwebhelper,proc:eseaagent,proc:esetagent,proc:esportalagent,proc:exitlag,proc:expressvpnagent,proc:f-secureagent,proc:finalmouse,proc:firefox,proc:foobar,proc:fpsmonitor,proc:fraps,proc:galaxyclient,proc:galaxyclient helper,proc:gamebar,proc:gamebarftserver,proc:gamebarpresencewriter,proc:gameguardagent,proc:gamersclubagent,proc:gccontrolcenter,proc:gdataagent,proc:gloriousagent,proc:gloriouscore,proc:goodbyedpiagent,proc:googlecrashhandler,proc:googlecrashhandler64,proc:googledrive,proc:googledrivefs,proc:googledrivesync,proc:googleupdate,proc:greenshot,proc:hamachi,proc:hamachi-2-ui,proc:hiddifyagent,proc:hide.meagent,proc:hotspotshieldagent,proc:hpsupportassistantagent,proc:hybridapp,proc:hyperxagent,proc:iclouddrive,proc:icloudservices,proc:icueagent,proc:iexplore,proc:inputoverlay,proc:ipvanishagent,proc:jucheck,proc:jusched,proc:kasperskyagent,proc:lamzu,proc:lantern,proc:lenovovantageagent,proc:lghubagent,proc:librewolf,proc:lightshot,proc:logi_agent,proc:logicaptureagent,proc:logildaagent,proc:logioptionsagent,proc:logipluginserviceagent,proc:logitechagent,proc:logituneagent,proc:malwarebytesagent,proc:mbam,proc:mbamtray,proc:mcafeeagent,proc:mcshield,proc:medalagent,proc:megasync,proc:mfeagent,proc:microsoftedgeupdate,proc:mihomoagent,proc:ms-teams,proc:msedge,proc:msi centeragent,proc:msiafterburner,proc:msicenter,proc:msteams,proc:mudfish,proc:mullvadagent,proc:myanti-cheatapp,proc:myanticheatapp,proc:myantivirusapp,proc:mysticlight,proc:myvpnapp,proc:nekoboxagent,proc:nekorayagent,proc:nextcloud,proc:ngenuityagent,proc:nordvpnagent,proc:nortonagent,proc:notesapp,proc:nprotectagent,proc:nvbackend,proc:nvcpl,proc:nvidia app,proc:nvidia broadcast,proc:nvidia geforce experience,proc:nvidia overlay,proc:nvidia share,proc:nvidia web helper,proc:nvidia-share,proc:nvspcap64,proc:nvsphelper,proc:nvsphelper64,proc:nvtray,proc:nzxt cam,proc:obfs4agent,proc:obs64,proc:omencommandcenteragent,proc:onedrive,proc:openrgb,proc:openvpnagent,proc:opera,proc:opera_gx,proc:origin,proc:originwebhelperservice,proc:outline,proc:overwolfagent,proc:pandaagent,proc:pccntagent,proc:pcloud,proc:phoneexperiencehost,proc:pia-agent,proc:playnite.desktopapp,proc:privateinternetaccessagent,proc:protonvpnagent,proc:proxifieragent,proc:psiphonagent,proc:pulsaragent,proc:randomtraything,proc:razeragent,proc:rgbfusion,proc:riotclientservices,proc:riotclientux,proc:riotclientuxrender,proc:rtss,proc:rtsshooksloader,proc:rzappengineagent,proc:rzmonitoragent,proc:rzsdkagent,proc:rzsynapseagent,proc:shadowsocksagent,proc:sharex,proc:signal,proc:signalrgb,proc:sing-box,proc:singboxagent,proc:skype,proc:slack,proc:sophosagent,proc:spoofdpiagent,proc:steelseriesagent,proc:streamdeck,proc:streamlabs,proc:supportassistagent,proc:surfsharkagent,proc:synapse,proc:synapseagent,proc:syncagent9000,proc:syncthing,proc:tailscaleagent,proc:teams,proc:telegram,proc:tmbmsrvagent,proc:tor,proc:traywidget,proc:trendmicroagent,proc:tun2socksagent,proc:turtlebeachagent,proc:ubisoftconnect,proc:ubisoftgamelauncher,proc:ugenie,proc:ultrasurfagent,proc:upc,proc:uplay,proc:v2rayagent,proc:v2rayn,proc:vgc,proc:vgk,proc:vgtray,proc:viber,proc:vivaldi,proc:voicemeeter,proc:vpnagent,proc:vxe,proc:wallpaper32,proc:wallpaper64,proc:warp-svc,proc:waterfox,proc:webrootagent,proc:webwallpaper32,proc:whatsapp,proc:whatsapp.root,proc:whatsappdesktop,proc:widgets,proc:widgetservice,proc:windscribeagent,proc:wintunagent,proc:winws,proc:wireguardagent,proc:wootility,proc:wordlike,proc:wtfast,proc:xboxpcapp,proc:xboxpcappft,proc:xigncodeagent,proc:xrayagent,proc:yourphone,proc:yourphoneserver,proc:zapretagent,proc:zerotieragent,proc:zoom,proc:zowie
+stop: svc:bits,svc:diagtrack,svc:lfsvc,svc:mapsbroker,svc:someusersvc,svc:spooler,svc:sysmain,svc:usosvc,svc:wsearch,svc:wuauserv,svc:xblauthmanager,svc:xblgamesave,svc:xboxnetapisvc
+## Maximum base, all on
+close: proc:adobe desktop service,proc:adobearm,proc:adobegcclient,proc:adobeipcbroker,proc:adobeupdateservice,proc:armourycrateagent,proc:armsvc,proc:astrocommandagent,proc:audeze hq,proc:avastagent,proc:avgagent,proc:aviraagent,proc:avp,proc:bandicam,proc:battle.net,proc:battleyeagent,proc:bdagentagent,proc:bdservicehostagent,proc:bedaisy,proc:beservice,proc:bitdefenderagent,proc:box,proc:boxsync,proc:brave,proc:byedpiagent,proc:cclibrary,proc:ccxprocess,proc:chrome,proc:clash-verge,proc:clashagent,proc:clashverge,proc:claude,proc:cloudflare warpagent,proc:cloudflaredagent,proc:codeeditor,proc:comodoagent,proc:corsairagent,proc:cortana,proc:cyberghostagent,proc:dellsupportassistagent,proc:discord,proc:discordcanary,proc:discordptb,proc:dragoncenter,proc:dropbox,proc:dxtory,proc:eabackgroundservice,proc:eac_launcher,proc:eadesktop,proc:easyanticheatagent,proc:egui,proc:ekrn,proc:elgato,proc:endgamegear,proc:epicgameslauncher,proc:epicwebhelper,proc:eseaagent,proc:esetagent,proc:esportalagent,proc:exitlag,proc:expressvpnagent,proc:f-secureagent,proc:finalmouse,proc:firefox,proc:foobar,proc:fpsmonitor,proc:fraps,proc:galaxyclient,proc:galaxyclient helper,proc:gamebar,proc:gamebarftserver,proc:gamebarpresencewriter,proc:gameguardagent,proc:gamersclubagent,proc:gccontrolcenter,proc:gdataagent,proc:gloriousagent,proc:gloriouscore,proc:goodbyedpiagent,proc:googlecrashhandler,proc:googlecrashhandler64,proc:googledrive,proc:googledrivefs,proc:googledrivesync,proc:googleupdate,proc:greenshot,proc:hamachi,proc:hamachi-2-ui,proc:hiddifyagent,proc:hide.meagent,proc:hotspotshieldagent,proc:hpsupportassistantagent,proc:hybridapp,proc:hyperxagent,proc:iclouddrive,proc:icloudservices,proc:icueagent,proc:iexplore,proc:inputoverlay,proc:ipvanishagent,proc:jucheck,proc:jusched,proc:kasperskyagent,proc:lamzu,proc:lantern,proc:lenovovantageagent,proc:lghubagent,proc:librewolf,proc:lightshot,proc:logi_agent,proc:logicaptureagent,proc:logildaagent,proc:logioptionsagent,proc:logipluginserviceagent,proc:logitechagent,proc:logituneagent,proc:malwarebytesagent,proc:mbam,proc:mbamtray,proc:mcafeeagent,proc:mcshield,proc:medalagent,proc:megasync,proc:mfeagent,proc:microsoftedgeupdate,proc:mihomoagent,proc:ms-teams,proc:msedge,proc:msi centeragent,proc:msiafterburner,proc:msicenter,proc:msteams,proc:mudfish,proc:mullvadagent,proc:myanti-cheatapp,proc:myanticheatapp,proc:myantivirusapp,proc:mysticlight,proc:myvpnapp,proc:nekoboxagent,proc:nekorayagent,proc:nextcloud,proc:ngenuityagent,proc:nordvpnagent,proc:nortonagent,proc:notesapp,proc:nprotectagent,proc:nvbackend,proc:nvcpl,proc:nvidia app,proc:nvidia broadcast,proc:nvidia geforce experience,proc:nvidia overlay,proc:nvidia share,proc:nvidia web helper,proc:nvidia-share,proc:nvspcap64,proc:nvsphelper,proc:nvsphelper64,proc:nvtray,proc:nzxt cam,proc:obfs4agent,proc:obs64,proc:omencommandcenteragent,proc:onedrive,proc:openrgb,proc:openvpnagent,proc:opera,proc:opera_gx,proc:origin,proc:originwebhelperservice,proc:outline,proc:overwolfagent,proc:pandaagent,proc:pccntagent,proc:pcloud,proc:phoneexperiencehost,proc:pia-agent,proc:playnite.desktopapp,proc:privateinternetaccessagent,proc:protonvpnagent,proc:proxifieragent,proc:psiphonagent,proc:pulsaragent,proc:randomtraything,proc:razeragent,proc:rgbfusion,proc:riotclientservices,proc:riotclientux,proc:riotclientuxrender,proc:rtss,proc:rtsshooksloader,proc:rzappengineagent,proc:rzmonitoragent,proc:rzsdkagent,proc:rzsynapseagent,proc:shadowsocksagent,proc:sharex,proc:signal,proc:signalrgb,proc:sing-box,proc:singboxagent,proc:skype,proc:slack,proc:sophosagent,proc:spoofdpiagent,proc:spotify,proc:steelseriesagent,proc:streamdeck,proc:streamlabs,proc:supportassistagent,proc:surfsharkagent,proc:synapse,proc:synapseagent,proc:syncagent9000,proc:syncthing,proc:tailscaleagent,proc:teams,proc:telegram,proc:tmbmsrvagent,proc:tor,proc:traywidget,proc:trendmicroagent,proc:tun2socksagent,proc:turtlebeachagent,proc:ubisoftconnect,proc:ubisoftgamelauncher,proc:ugenie,proc:ultrasurfagent,proc:upc,proc:uplay,proc:v2rayagent,proc:v2rayn,proc:vgc,proc:vgk,proc:vgtray,proc:viber,proc:vivaldi,proc:voicemeeter,proc:vpnagent,proc:vxe,proc:wallpaper32,proc:wallpaper64,proc:warp-svc,proc:waterfox,proc:webrootagent,proc:webwallpaper32,proc:whatsapp,proc:whatsapp.root,proc:whatsappdesktop,proc:widgets,proc:widgetservice,proc:windscribeagent,proc:wintunagent,proc:winws,proc:wireguardagent,proc:wootility,proc:wordlike,proc:wtfast,proc:xboxpcapp,proc:xboxpcappft,proc:xigncodeagent,proc:xrayagent,proc:yourphone,proc:yourphoneserver,proc:zapretagent,proc:zerotieragent,proc:zetadaemon,proc:zoom,proc:zowie
+stop: svc:bits,svc:diagtrack,svc:lfsvc,svc:mapsbroker,svc:spooler,svc:sysmain,svc:usosvc,svc:wsearch,svc:wuauserv,svc:xblauthmanager,svc:xblgamesave,svc:xboxnetapisvc
+## Maximum base, all on + lists
+close: proc:adobe desktop service,proc:adobearm,proc:adobegcclient,proc:adobeipcbroker,proc:adobeupdateservice,proc:armourycrateagent,proc:armsvc,proc:astrocommandagent,proc:audeze hq,proc:avastagent,proc:avgagent,proc:aviraagent,proc:avp,proc:bandicam,proc:battle.net,proc:battleyeagent,proc:bdagentagent,proc:bdservicehostagent,proc:bedaisy,proc:beservice,proc:bitdefenderagent,proc:box,proc:boxsync,proc:brave,proc:byedpiagent,proc:cclibrary,proc:ccxprocess,proc:clash-verge,proc:clashagent,proc:clashverge,proc:claude,proc:cloudflare warpagent,proc:cloudflaredagent,proc:codeeditor,proc:comodoagent,proc:corsairagent,proc:cortana,proc:cyberghostagent,proc:dellsupportassistagent,proc:discordcanary,proc:discordptb,proc:dragoncenter,proc:dxtory,proc:eabackgroundservice,proc:eac_launcher,proc:eadesktop,proc:easyanticheatagent,proc:egui,proc:ekrn,proc:elgato,proc:endgamegear,proc:epicgameslauncher,proc:epicwebhelper,proc:eseaagent,proc:esetagent,proc:esportalagent,proc:exitlag,proc:expressvpnagent,proc:f-secureagent,proc:finalmouse,proc:firefox,proc:foobar,proc:fpsmonitor,proc:fraps,proc:galaxyclient,proc:galaxyclient helper,proc:gamebar,proc:gamebarftserver,proc:gamebarpresencewriter,proc:gameguardagent,proc:gamersclubagent,proc:gccontrolcenter,proc:gdataagent,proc:gloriousagent,proc:gloriouscore,proc:goodbyedpiagent,proc:googlecrashhandler,proc:googlecrashhandler64,proc:googledrive,proc:googledrivefs,proc:googledrivesync,proc:googleupdate,proc:greenshot,proc:hamachi,proc:hamachi-2-ui,proc:hiddifyagent,proc:hide.meagent,proc:hotspotshieldagent,proc:hpsupportassistantagent,proc:hybridapp,proc:hyperxagent,proc:iclouddrive,proc:icloudservices,proc:icueagent,proc:iexplore,proc:inputoverlay,proc:ipvanishagent,proc:jucheck,proc:jusched,proc:kasperskyagent,proc:lamzu,proc:lantern,proc:lenovovantageagent,proc:lghubagent,proc:librewolf,proc:lightshot,proc:logi_agent,proc:logicaptureagent,proc:logildaagent,proc:logioptionsagent,proc:logipluginserviceagent,proc:logitechagent,proc:logituneagent,proc:malwarebytesagent,proc:mbam,proc:mbamtray,proc:mcafeeagent,proc:mcshield,proc:medalagent,proc:megasync,proc:mfeagent,proc:microsoftedgeupdate,proc:mihomoagent,proc:ms-teams,proc:msedge,proc:msi centeragent,proc:msiafterburner,proc:msicenter,proc:msteams,proc:mudfish,proc:mullvadagent,proc:myanti-cheatapp,proc:myanticheatapp,proc:myantivirusapp,proc:mysticlight,proc:myvpnapp,proc:nekoboxagent,proc:nekorayagent,proc:nextcloud,proc:ngenuityagent,proc:nordvpnagent,proc:nortonagent,proc:notesapp,proc:nprotectagent,proc:nvbackend,proc:nvcpl,proc:nvidia app,proc:nvidia broadcast,proc:nvidia geforce experience,proc:nvidia overlay,proc:nvidia share,proc:nvidia web helper,proc:nvidia-share,proc:nvspcap64,proc:nvsphelper,proc:nvsphelper64,proc:nvtray,proc:nzxt cam,proc:obfs4agent,proc:obs64,proc:omencommandcenteragent,proc:onedrive,proc:openrgb,proc:openvpnagent,proc:opera,proc:opera_gx,proc:origin,proc:originwebhelperservice,proc:outline,proc:overwolfagent,proc:pandaagent,proc:pccntagent,proc:pcloud,proc:phoneexperiencehost,proc:pia-agent,proc:playnite.desktopapp,proc:privateinternetaccessagent,proc:protonvpnagent,proc:proxifieragent,proc:psiphonagent,proc:pulsaragent,proc:randomtraything,proc:razeragent,proc:rgbfusion,proc:riotclientservices,proc:riotclientux,proc:riotclientuxrender,proc:rtss,proc:rtsshooksloader,proc:rzappengineagent,proc:rzmonitoragent,proc:rzsdkagent,proc:rzsynapseagent,proc:shadowsocksagent,proc:sharex,proc:signal,proc:signalrgb,proc:sing-box,proc:singboxagent,proc:skype,proc:slack,proc:sophosagent,proc:spoofdpiagent,proc:steelseriesagent,proc:streamdeck,proc:streamlabs,proc:supportassistagent,proc:surfsharkagent,proc:synapse,proc:synapseagent,proc:syncagent9000,proc:syncthing,proc:tailscaleagent,proc:teams,proc:telegram,proc:tmbmsrvagent,proc:tor,proc:traywidget,proc:trendmicroagent,proc:tun2socksagent,proc:turtlebeachagent,proc:ubisoftconnect,proc:ubisoftgamelauncher,proc:ugenie,proc:ultrasurfagent,proc:upc,proc:uplay,proc:v2rayagent,proc:v2rayn,proc:vgc,proc:vgk,proc:vgtray,proc:viber,proc:vivaldi,proc:voicemeeter,proc:vpnagent,proc:vxe,proc:wallpaper32,proc:wallpaper64,proc:warp-svc,proc:waterfox,proc:webrootagent,proc:webwallpaper32,proc:whatsapp,proc:whatsapp.root,proc:whatsappdesktop,proc:widgets,proc:widgetservice,proc:windscribeagent,proc:wintunagent,proc:winws,proc:wireguardagent,proc:wootility,proc:wordlike,proc:wtfast,proc:xboxpcapp,proc:xboxpcappft,proc:xigncodeagent,proc:xrayagent,proc:yourphone,proc:yourphoneserver,proc:zapretagent,proc:zerotieragent,proc:zoom,proc:zowie
+stop: svc:bits,svc:diagtrack,svc:lfsvc,svc:mapsbroker,svc:someusersvc,svc:spooler,svc:sysmain,svc:usosvc,svc:wsearch,svc:wuauserv,svc:xblauthmanager,svc:xblgamesave,svc:xboxnetapisvc
+## Maximum base, all off + lists
+close: 
+stop: 
+## preset Stream
+close: proc:adobe desktop service,proc:adobearm,proc:adobegcclient,proc:adobeipcbroker,proc:adobeupdateservice,proc:armourycrateagent,proc:armsvc,proc:astrocommandagent,proc:audeze hq,proc:avastagent,proc:avgagent,proc:aviraagent,proc:avp,proc:bandicam,proc:battle.net,proc:battleyeagent,proc:bdagentagent,proc:bdservicehostagent,proc:bedaisy,proc:beservice,proc:bitdefenderagent,proc:box,proc:boxsync,proc:cclibrary,proc:ccxprocess,proc:claude,proc:codeeditor,proc:comodoagent,proc:corsairagent,proc:cortana,proc:dellsupportassistagent,proc:dragoncenter,proc:dropbox,proc:dxtory,proc:eabackgroundservice,proc:eac_launcher,proc:eadesktop,proc:easyanticheatagent,proc:egui,proc:ekrn,proc:endgamegear,proc:epicgameslauncher,proc:epicwebhelper,proc:eseaagent,proc:esetagent,proc:esportalagent,proc:f-secureagent,proc:finalmouse,proc:fpsmonitor,proc:fraps,proc:galaxyclient,proc:galaxyclient helper,proc:gamebar,proc:gamebarftserver,proc:gamebarpresencewriter,proc:gameguardagent,proc:gamersclubagent,proc:gccontrolcenter,proc:gdataagent,proc:gloriousagent,proc:gloriouscore,proc:googlecrashhandler,proc:googlecrashhandler64,proc:googledrive,proc:googledrivefs,proc:googledrivesync,proc:googleupdate,proc:greenshot,proc:hpsupportassistantagent,proc:hybridapp,proc:hyperxagent,proc:iclouddrive,proc:icloudservices,proc:icueagent,proc:jucheck,proc:jusched,proc:kasperskyagent,proc:lamzu,proc:lenovovantageagent,proc:lghubagent,proc:lightshot,proc:logi_agent,proc:logildaagent,proc:logioptionsagent,proc:logipluginserviceagent,proc:logitechagent,proc:logituneagent,proc:malwarebytesagent,proc:mbam,proc:mbamtray,proc:mcafeeagent,proc:mcshield,proc:medalagent,proc:megasync,proc:mfeagent,proc:microsoftedgeupdate,proc:ms-teams,proc:msi centeragent,proc:msiafterburner,proc:msicenter,proc:msteams,proc:myanti-cheatapp,proc:myanticheatapp,proc:myantivirusapp,proc:mysticlight,proc:nextcloud,proc:ngenuityagent,proc:nortonagent,proc:notesapp,proc:nprotectagent,proc:nvbackend,proc:nvcpl,proc:nvidia app,proc:nvidia geforce experience,proc:nvidia overlay,proc:nvidia share,proc:nvidia web helper,proc:nvidia-share,proc:nvspcap64,proc:nvsphelper,proc:nvsphelper64,proc:nvtray,proc:nzxt cam,proc:omencommandcenteragent,proc:onedrive,proc:openrgb,proc:origin,proc:originwebhelperservice,proc:overwolfagent,proc:pandaagent,proc:pccntagent,proc:pcloud,proc:phoneexperiencehost,proc:playnite.desktopapp,proc:pulsaragent,proc:razeragent,proc:rgbfusion,proc:riotclientservices,proc:riotclientux,proc:riotclientuxrender,proc:rtss,proc:rtsshooksloader,proc:rzappengineagent,proc:rzmonitoragent,proc:rzsdkagent,proc:rzsynapseagent,proc:sharex,proc:signal,proc:signalrgb,proc:skype,proc:slack,proc:sophosagent,proc:spotify,proc:steelseriesagent,proc:supportassistagent,proc:synapse,proc:synapseagent,proc:syncthing,proc:teams,proc:telegram,proc:tmbmsrvagent,proc:trendmicroagent,proc:turtlebeachagent,proc:ubisoftconnect,proc:ubisoftgamelauncher,proc:ugenie,proc:upc,proc:uplay,proc:vgc,proc:vgk,proc:vgtray,proc:viber,proc:vxe,proc:wallpaper32,proc:wallpaper64,proc:webrootagent,proc:webwallpaper32,proc:whatsapp,proc:whatsapp.root,proc:whatsappdesktop,proc:widgets,proc:widgetservice,proc:wootility,proc:wordlike,proc:xboxpcapp,proc:xboxpcappft,proc:xigncodeagent,proc:yourphone,proc:yourphoneserver,proc:zoom,proc:zowie
+stop: svc:bits,svc:diagtrack,svc:lfsvc,svc:mapsbroker,svc:spooler,svc:sysmain,svc:usosvc,svc:wsearch,svc:wuauserv,svc:xblauthmanager,svc:xblgamesave,svc:xboxnetapisvc
+## preset Stream + lists
+close: proc:adobe desktop service,proc:adobearm,proc:adobegcclient,proc:adobeipcbroker,proc:adobeupdateservice,proc:armourycrateagent,proc:armsvc,proc:astrocommandagent,proc:audeze hq,proc:avastagent,proc:avgagent,proc:aviraagent,proc:avp,proc:bandicam,proc:battle.net,proc:battleyeagent,proc:bdagentagent,proc:bdservicehostagent,proc:bedaisy,proc:beservice,proc:bitdefenderagent,proc:box,proc:boxsync,proc:cclibrary,proc:ccxprocess,proc:claude,proc:codeeditor,proc:comodoagent,proc:corsairagent,proc:cortana,proc:dellsupportassistagent,proc:dragoncenter,proc:dxtory,proc:eabackgroundservice,proc:eac_launcher,proc:eadesktop,proc:easyanticheatagent,proc:egui,proc:ekrn,proc:endgamegear,proc:epicgameslauncher,proc:epicwebhelper,proc:eseaagent,proc:esetagent,proc:esportalagent,proc:f-secureagent,proc:finalmouse,proc:foobar,proc:fpsmonitor,proc:fraps,proc:galaxyclient,proc:galaxyclient helper,proc:gamebar,proc:gamebarftserver,proc:gamebarpresencewriter,proc:gameguardagent,proc:gamersclubagent,proc:gccontrolcenter,proc:gdataagent,proc:gloriousagent,proc:gloriouscore,proc:googlecrashhandler,proc:googlecrashhandler64,proc:googledrive,proc:googledrivefs,proc:googledrivesync,proc:googleupdate,proc:greenshot,proc:hpsupportassistantagent,proc:hybridapp,proc:hyperxagent,proc:iclouddrive,proc:icloudservices,proc:icueagent,proc:jucheck,proc:jusched,proc:kasperskyagent,proc:lamzu,proc:lenovovantageagent,proc:lghubagent,proc:lightshot,proc:logi_agent,proc:logildaagent,proc:logioptionsagent,proc:logipluginserviceagent,proc:logitechagent,proc:logituneagent,proc:malwarebytesagent,proc:mbam,proc:mbamtray,proc:mcafeeagent,proc:mcshield,proc:medalagent,proc:megasync,proc:mfeagent,proc:microsoftedgeupdate,proc:ms-teams,proc:msi centeragent,proc:msiafterburner,proc:msicenter,proc:msteams,proc:myanti-cheatapp,proc:myanticheatapp,proc:myantivirusapp,proc:mysticlight,proc:nextcloud,proc:ngenuityagent,proc:nortonagent,proc:notesapp,proc:nprotectagent,proc:nvbackend,proc:nvcpl,proc:nvidia app,proc:nvidia geforce experience,proc:nvidia overlay,proc:nvidia share,proc:nvidia web helper,proc:nvidia-share,proc:nvspcap64,proc:nvsphelper,proc:nvsphelper64,proc:nvtray,proc:nzxt cam,proc:omencommandcenteragent,proc:onedrive,proc:openrgb,proc:origin,proc:originwebhelperservice,proc:overwolfagent,proc:pandaagent,proc:pccntagent,proc:pcloud,proc:phoneexperiencehost,proc:playnite.desktopapp,proc:pulsaragent,proc:razeragent,proc:rgbfusion,proc:riotclientservices,proc:riotclientux,proc:riotclientuxrender,proc:rtss,proc:rtsshooksloader,proc:rzappengineagent,proc:rzmonitoragent,proc:rzsdkagent,proc:rzsynapseagent,proc:sharex,proc:signal,proc:signalrgb,proc:skype,proc:slack,proc:sophosagent,proc:steelseriesagent,proc:supportassistagent,proc:synapse,proc:synapseagent,proc:syncthing,proc:teams,proc:telegram,proc:tmbmsrvagent,proc:traywidget,proc:trendmicroagent,proc:turtlebeachagent,proc:ubisoftconnect,proc:ubisoftgamelauncher,proc:ugenie,proc:upc,proc:uplay,proc:vgc,proc:vgk,proc:vgtray,proc:viber,proc:vxe,proc:wallpaper32,proc:wallpaper64,proc:webrootagent,proc:webwallpaper32,proc:whatsapp,proc:whatsapp.root,proc:whatsappdesktop,proc:widgets,proc:widgetservice,proc:wootility,proc:wordlike,proc:xboxpcapp,proc:xboxpcappft,proc:xigncodeagent,proc:yourphone,proc:yourphoneserver,proc:zoom,proc:zowie
+stop: svc:bits,svc:diagtrack,svc:lfsvc,svc:mapsbroker,svc:someusersvc,svc:spooler,svc:sysmain,svc:usosvc,svc:wsearch,svc:wuauserv,svc:xblauthmanager,svc:xblgamesave,svc:xboxnetapisvc
+## Stream base, all on
+close: proc:adobe desktop service,proc:adobearm,proc:adobegcclient,proc:adobeipcbroker,proc:adobeupdateservice,proc:armourycrateagent,proc:armsvc,proc:astrocommandagent,proc:audeze hq,proc:avastagent,proc:avgagent,proc:aviraagent,proc:avp,proc:bandicam,proc:battle.net,proc:battleyeagent,proc:bdagentagent,proc:bdservicehostagent,proc:bedaisy,proc:beservice,proc:bitdefenderagent,proc:box,proc:boxsync,proc:brave,proc:byedpiagent,proc:cclibrary,proc:ccxprocess,proc:chrome,proc:clash-verge,proc:clashagent,proc:clashverge,proc:claude,proc:cloudflare warpagent,proc:cloudflaredagent,proc:codeeditor,proc:comodoagent,proc:corsairagent,proc:cortana,proc:cyberghostagent,proc:dellsupportassistagent,proc:dragoncenter,proc:dropbox,proc:dxtory,proc:eabackgroundservice,proc:eac_launcher,proc:eadesktop,proc:easyanticheatagent,proc:egui,proc:ekrn,proc:endgamegear,proc:epicgameslauncher,proc:epicwebhelper,proc:eseaagent,proc:esetagent,proc:esportalagent,proc:exitlag,proc:expressvpnagent,proc:f-secureagent,proc:finalmouse,proc:firefox,proc:foobar,proc:fpsmonitor,proc:fraps,proc:galaxyclient,proc:galaxyclient helper,proc:gamebar,proc:gamebarftserver,proc:gamebarpresencewriter,proc:gameguardagent,proc:gamersclubagent,proc:gccontrolcenter,proc:gdataagent,proc:gloriousagent,proc:gloriouscore,proc:goodbyedpiagent,proc:googlecrashhandler,proc:googlecrashhandler64,proc:googledrive,proc:googledrivefs,proc:googledrivesync,proc:googleupdate,proc:greenshot,proc:hamachi,proc:hamachi-2-ui,proc:hiddifyagent,proc:hide.meagent,proc:hotspotshieldagent,proc:hpsupportassistantagent,proc:hybridapp,proc:hyperxagent,proc:iclouddrive,proc:icloudservices,proc:icueagent,proc:iexplore,proc:ipvanishagent,proc:jucheck,proc:jusched,proc:kasperskyagent,proc:lamzu,proc:lantern,proc:lenovovantageagent,proc:lghubagent,proc:librewolf,proc:lightshot,proc:logi_agent,proc:logildaagent,proc:logioptionsagent,proc:logipluginserviceagent,proc:logitechagent,proc:logituneagent,proc:malwarebytesagent,proc:mbam,proc:mbamtray,proc:mcafeeagent,proc:mcshield,proc:medalagent,proc:megasync,proc:mfeagent,proc:microsoftedgeupdate,proc:mihomoagent,proc:ms-teams,proc:msedge,proc:msi centeragent,proc:msiafterburner,proc:msicenter,proc:msteams,proc:mudfish,proc:mullvadagent,proc:myanti-cheatapp,proc:myanticheatapp,proc:myantivirusapp,proc:mysticlight,proc:myvpnapp,proc:nekoboxagent,proc:nekorayagent,proc:nextcloud,proc:ngenuityagent,proc:nordvpnagent,proc:nortonagent,proc:notesapp,proc:nprotectagent,proc:nvbackend,proc:nvcpl,proc:nvidia app,proc:nvidia geforce experience,proc:nvidia overlay,proc:nvidia share,proc:nvidia web helper,proc:nvidia-share,proc:nvspcap64,proc:nvsphelper,proc:nvsphelper64,proc:nvtray,proc:nzxt cam,proc:obfs4agent,proc:omencommandcenteragent,proc:onedrive,proc:openrgb,proc:openvpnagent,proc:opera,proc:opera_gx,proc:origin,proc:originwebhelperservice,proc:outline,proc:overwolfagent,proc:pandaagent,proc:pccntagent,proc:pcloud,proc:phoneexperiencehost,proc:pia-agent,proc:playnite.desktopapp,proc:privateinternetaccessagent,proc:protonvpnagent,proc:proxifieragent,proc:psiphonagent,proc:pulsaragent,proc:randomtraything,proc:razeragent,proc:rgbfusion,proc:riotclientservices,proc:riotclientux,proc:riotclientuxrender,proc:rtss,proc:rtsshooksloader,proc:rzappengineagent,proc:rzmonitoragent,proc:rzsdkagent,proc:rzsynapseagent,proc:shadowsocksagent,proc:sharex,proc:signal,proc:signalrgb,proc:sing-box,proc:singboxagent,proc:skype,proc:slack,proc:sophosagent,proc:spoofdpiagent,proc:spotify,proc:steelseriesagent,proc:supportassistagent,proc:surfsharkagent,proc:synapse,proc:synapseagent,proc:syncagent9000,proc:syncthing,proc:tailscaleagent,proc:teams,proc:telegram,proc:tmbmsrvagent,proc:tor,proc:traywidget,proc:trendmicroagent,proc:tun2socksagent,proc:turtlebeachagent,proc:ubisoftconnect,proc:ubisoftgamelauncher,proc:ugenie,proc:ultrasurfagent,proc:upc,proc:uplay,proc:v2rayagent,proc:v2rayn,proc:vgc,proc:vgk,proc:vgtray,proc:viber,proc:vivaldi,proc:vpnagent,proc:vxe,proc:wallpaper32,proc:wallpaper64,proc:warp-svc,proc:waterfox,proc:webrootagent,proc:webwallpaper32,proc:whatsapp,proc:whatsapp.root,proc:whatsappdesktop,proc:widgets,proc:widgetservice,proc:windscribeagent,proc:wintunagent,proc:winws,proc:wireguardagent,proc:wootility,proc:wordlike,proc:wtfast,proc:xboxpcapp,proc:xboxpcappft,proc:xigncodeagent,proc:xrayagent,proc:yourphone,proc:yourphoneserver,proc:zapretagent,proc:zerotieragent,proc:zetadaemon,proc:zoom,proc:zowie
+stop: svc:bits,svc:diagtrack,svc:lfsvc,svc:mapsbroker,svc:spooler,svc:sysmain,svc:usosvc,svc:wsearch,svc:wuauserv,svc:xblauthmanager,svc:xblgamesave,svc:xboxnetapisvc
+## Stream base, all on + lists
+close: proc:adobe desktop service,proc:adobearm,proc:adobegcclient,proc:adobeipcbroker,proc:adobeupdateservice,proc:armourycrateagent,proc:armsvc,proc:astrocommandagent,proc:audeze hq,proc:avastagent,proc:avgagent,proc:aviraagent,proc:avp,proc:bandicam,proc:battle.net,proc:battleyeagent,proc:bdagentagent,proc:bdservicehostagent,proc:bedaisy,proc:beservice,proc:bitdefenderagent,proc:box,proc:boxsync,proc:brave,proc:byedpiagent,proc:cclibrary,proc:ccxprocess,proc:clash-verge,proc:clashagent,proc:clashverge,proc:claude,proc:cloudflare warpagent,proc:cloudflaredagent,proc:codeeditor,proc:comodoagent,proc:corsairagent,proc:cortana,proc:cyberghostagent,proc:dellsupportassistagent,proc:dragoncenter,proc:dxtory,proc:eabackgroundservice,proc:eac_launcher,proc:eadesktop,proc:easyanticheatagent,proc:egui,proc:ekrn,proc:endgamegear,proc:epicgameslauncher,proc:epicwebhelper,proc:eseaagent,proc:esetagent,proc:esportalagent,proc:exitlag,proc:expressvpnagent,proc:f-secureagent,proc:finalmouse,proc:firefox,proc:foobar,proc:fpsmonitor,proc:fraps,proc:galaxyclient,proc:galaxyclient helper,proc:gamebar,proc:gamebarftserver,proc:gamebarpresencewriter,proc:gameguardagent,proc:gamersclubagent,proc:gccontrolcenter,proc:gdataagent,proc:gloriousagent,proc:gloriouscore,proc:goodbyedpiagent,proc:googlecrashhandler,proc:googlecrashhandler64,proc:googledrive,proc:googledrivefs,proc:googledrivesync,proc:googleupdate,proc:greenshot,proc:hamachi,proc:hamachi-2-ui,proc:hiddifyagent,proc:hide.meagent,proc:hotspotshieldagent,proc:hpsupportassistantagent,proc:hybridapp,proc:hyperxagent,proc:iclouddrive,proc:icloudservices,proc:icueagent,proc:iexplore,proc:ipvanishagent,proc:jucheck,proc:jusched,proc:kasperskyagent,proc:lamzu,proc:lantern,proc:lenovovantageagent,proc:lghubagent,proc:librewolf,proc:lightshot,proc:logi_agent,proc:logildaagent,proc:logioptionsagent,proc:logipluginserviceagent,proc:logitechagent,proc:logituneagent,proc:malwarebytesagent,proc:mbam,proc:mbamtray,proc:mcafeeagent,proc:mcshield,proc:medalagent,proc:megasync,proc:mfeagent,proc:microsoftedgeupdate,proc:mihomoagent,proc:ms-teams,proc:msedge,proc:msi centeragent,proc:msiafterburner,proc:msicenter,proc:msteams,proc:mudfish,proc:mullvadagent,proc:myanti-cheatapp,proc:myanticheatapp,proc:myantivirusapp,proc:mysticlight,proc:myvpnapp,proc:nekoboxagent,proc:nekorayagent,proc:nextcloud,proc:ngenuityagent,proc:nordvpnagent,proc:nortonagent,proc:notesapp,proc:nprotectagent,proc:nvbackend,proc:nvcpl,proc:nvidia app,proc:nvidia geforce experience,proc:nvidia overlay,proc:nvidia share,proc:nvidia web helper,proc:nvidia-share,proc:nvspcap64,proc:nvsphelper,proc:nvsphelper64,proc:nvtray,proc:nzxt cam,proc:obfs4agent,proc:omencommandcenteragent,proc:onedrive,proc:openrgb,proc:openvpnagent,proc:opera,proc:opera_gx,proc:origin,proc:originwebhelperservice,proc:outline,proc:overwolfagent,proc:pandaagent,proc:pccntagent,proc:pcloud,proc:phoneexperiencehost,proc:pia-agent,proc:playnite.desktopapp,proc:privateinternetaccessagent,proc:protonvpnagent,proc:proxifieragent,proc:psiphonagent,proc:pulsaragent,proc:randomtraything,proc:razeragent,proc:rgbfusion,proc:riotclientservices,proc:riotclientux,proc:riotclientuxrender,proc:rtss,proc:rtsshooksloader,proc:rzappengineagent,proc:rzmonitoragent,proc:rzsdkagent,proc:rzsynapseagent,proc:shadowsocksagent,proc:sharex,proc:signal,proc:signalrgb,proc:sing-box,proc:singboxagent,proc:skype,proc:slack,proc:sophosagent,proc:spoofdpiagent,proc:steelseriesagent,proc:supportassistagent,proc:surfsharkagent,proc:synapse,proc:synapseagent,proc:syncagent9000,proc:syncthing,proc:tailscaleagent,proc:teams,proc:telegram,proc:tmbmsrvagent,proc:tor,proc:traywidget,proc:trendmicroagent,proc:tun2socksagent,proc:turtlebeachagent,proc:ubisoftconnect,proc:ubisoftgamelauncher,proc:ugenie,proc:ultrasurfagent,proc:upc,proc:uplay,proc:v2rayagent,proc:v2rayn,proc:vgc,proc:vgk,proc:vgtray,proc:viber,proc:vivaldi,proc:vpnagent,proc:vxe,proc:wallpaper32,proc:wallpaper64,proc:warp-svc,proc:waterfox,proc:webrootagent,proc:webwallpaper32,proc:whatsapp,proc:whatsapp.root,proc:whatsappdesktop,proc:widgets,proc:widgetservice,proc:windscribeagent,proc:wintunagent,proc:winws,proc:wireguardagent,proc:wootility,proc:wordlike,proc:wtfast,proc:xboxpcapp,proc:xboxpcappft,proc:xigncodeagent,proc:xrayagent,proc:yourphone,proc:yourphoneserver,proc:zapretagent,proc:zerotieragent,proc:zoom,proc:zowie
+stop: svc:bits,svc:diagtrack,svc:lfsvc,svc:mapsbroker,svc:someusersvc,svc:spooler,svc:sysmain,svc:usosvc,svc:wsearch,svc:wuauserv,svc:xblauthmanager,svc:xblgamesave,svc:xboxnetapisvc
+## Stream base, all off + lists
+close: 
+stop: 
+## Maximum base, only proc.browsers
+close: proc:brave,proc:chrome,proc:firefox,proc:iexplore,proc:librewolf,proc:msedge,proc:opera,proc:opera_gx,proc:vivaldi,proc:waterfox
+stop: 
+## Maximum base, only proc.browsers + lists
+close: proc:brave,proc:firefox,proc:iexplore,proc:librewolf,proc:msedge,proc:opera,proc:opera_gx,proc:vivaldi,proc:waterfox
+stop: 
+## Maximum base, only proc.cloud
+close: proc:box,proc:boxsync,proc:dropbox,proc:googledrive,proc:googledrivefs,proc:googledrivesync,proc:iclouddrive,proc:icloudservices,proc:megasync,proc:nextcloud,proc:onedrive,proc:pcloud,proc:syncthing
+stop: 
+## Maximum base, only proc.cloud + lists
+close: proc:box,proc:boxsync,proc:googledrive,proc:googledrivefs,proc:googledrivesync,proc:iclouddrive,proc:icloudservices,proc:megasync,proc:nextcloud,proc:onedrive,proc:pcloud,proc:syncthing
+stop: 
+## Maximum base, only proc.launchers
+close: proc:battle.net,proc:eabackgroundservice,proc:eadesktop,proc:epicgameslauncher,proc:epicwebhelper,proc:galaxyclient,proc:galaxyclient helper,proc:origin,proc:originwebhelperservice,proc:playnite.desktopapp,proc:riotclientservices,proc:riotclientux,proc:riotclientuxrender,proc:ubisoftconnect,proc:ubisoftgamelauncher,proc:upc,proc:uplay
+stop: 
+## Maximum base, only proc.launchers + lists
+close: proc:battle.net,proc:eabackgroundservice,proc:eadesktop,proc:epicgameslauncher,proc:epicwebhelper,proc:galaxyclient,proc:galaxyclient helper,proc:origin,proc:originwebhelperservice,proc:playnite.desktopapp,proc:riotclientservices,proc:riotclientux,proc:riotclientuxrender,proc:ubisoftconnect,proc:ubisoftgamelauncher,proc:upc,proc:uplay
+stop: 
+## Maximum base, only proc.updaters
+close: proc:adobe desktop service,proc:adobearm,proc:adobegcclient,proc:adobeipcbroker,proc:adobeupdateservice,proc:armsvc,proc:cclibrary,proc:ccxprocess,proc:googlecrashhandler,proc:googlecrashhandler64,proc:googleupdate,proc:jucheck,proc:jusched,proc:microsoftedgeupdate
+stop: 
+## Maximum base, only proc.updaters + lists
+close: proc:adobe desktop service,proc:adobearm,proc:adobegcclient,proc:adobeipcbroker,proc:adobeupdateservice,proc:armsvc,proc:cclibrary,proc:ccxprocess,proc:googlecrashhandler,proc:googlecrashhandler64,proc:googleupdate,proc:jucheck,proc:jusched,proc:microsoftedgeupdate
+stop: 
+## Maximum base, only proc.oem
+close: proc:armourycrateagent,proc:dellsupportassistagent,proc:dragoncenter,proc:gccontrolcenter,proc:hpsupportassistantagent,proc:lenovovantageagent,proc:msi centeragent,proc:msicenter,proc:mysticlight,proc:nzxt cam,proc:omencommandcenteragent,proc:openrgb,proc:rgbfusion,proc:signalrgb,proc:supportassistagent,proc:wallpaper32,proc:wallpaper64,proc:webwallpaper32
+stop: 
+## Maximum base, only proc.oem + lists
+close: proc:armourycrateagent,proc:dellsupportassistagent,proc:dragoncenter,proc:gccontrolcenter,proc:hpsupportassistantagent,proc:lenovovantageagent,proc:msi centeragent,proc:msicenter,proc:mysticlight,proc:nzxt cam,proc:omencommandcenteragent,proc:openrgb,proc:rgbfusion,proc:signalrgb,proc:supportassistagent,proc:wallpaper32,proc:wallpaper64,proc:webwallpaper32
+stop: 
+## Maximum base, only proc.peripherals
+close: proc:astrocommandagent,proc:audeze hq,proc:corsairagent,proc:endgamegear,proc:finalmouse,proc:gloriousagent,proc:gloriouscore,proc:hyperxagent,proc:icueagent,proc:lamzu,proc:lghubagent,proc:logi_agent,proc:logicaptureagent,proc:logildaagent,proc:logioptionsagent,proc:logipluginserviceagent,proc:logitechagent,proc:logituneagent,proc:ngenuityagent,proc:pulsaragent,proc:razeragent,proc:rzappengineagent,proc:rzmonitoragent,proc:rzsdkagent,proc:rzsynapseagent,proc:steelseriesagent,proc:synapse,proc:synapseagent,proc:turtlebeachagent,proc:ugenie,proc:vxe,proc:wootility,proc:zowie
+stop: 
+## Maximum base, only proc.peripherals + lists
+close: proc:astrocommandagent,proc:audeze hq,proc:corsairagent,proc:endgamegear,proc:finalmouse,proc:gloriousagent,proc:gloriouscore,proc:hyperxagent,proc:icueagent,proc:lamzu,proc:lghubagent,proc:logi_agent,proc:logicaptureagent,proc:logildaagent,proc:logioptionsagent,proc:logipluginserviceagent,proc:logitechagent,proc:logituneagent,proc:ngenuityagent,proc:pulsaragent,proc:razeragent,proc:rzappengineagent,proc:rzmonitoragent,proc:rzsdkagent,proc:rzsynapseagent,proc:steelseriesagent,proc:synapse,proc:synapseagent,proc:turtlebeachagent,proc:ugenie,proc:vxe,proc:wootility,proc:zowie
+stop: 
+## Maximum base, only proc.overlay
+close: proc:bandicam,proc:cortana,proc:dxtory,proc:fpsmonitor,proc:fraps,proc:gamebar,proc:gamebarftserver,proc:gamebarpresencewriter,proc:greenshot,proc:lightshot,proc:medalagent,proc:msiafterburner,proc:nvbackend,proc:nvcpl,proc:nvidia app,proc:nvidia broadcast,proc:nvidia geforce experience,proc:nvidia overlay,proc:nvidia share,proc:nvidia web helper,proc:nvidia-share,proc:nvspcap64,proc:nvsphelper,proc:nvsphelper64,proc:nvtray,proc:overwolfagent,proc:phoneexperiencehost,proc:rtss,proc:rtsshooksloader,proc:sharex,proc:widgets,proc:widgetservice,proc:xboxpcapp,proc:xboxpcappft,proc:yourphone,proc:yourphoneserver
+stop: 
+## Maximum base, only proc.overlay + lists
+close: proc:bandicam,proc:cortana,proc:dxtory,proc:fpsmonitor,proc:fraps,proc:gamebar,proc:gamebarftserver,proc:gamebarpresencewriter,proc:greenshot,proc:lightshot,proc:medalagent,proc:msiafterburner,proc:nvbackend,proc:nvcpl,proc:nvidia app,proc:nvidia broadcast,proc:nvidia geforce experience,proc:nvidia overlay,proc:nvidia share,proc:nvidia web helper,proc:nvidia-share,proc:nvspcap64,proc:nvsphelper,proc:nvsphelper64,proc:nvtray,proc:overwolfagent,proc:phoneexperiencehost,proc:rtss,proc:rtsshooksloader,proc:sharex,proc:widgets,proc:widgetservice,proc:xboxpcapp,proc:xboxpcappft,proc:yourphone,proc:yourphoneserver
+stop: 
+## Maximum base, only proc.vpn
+close: proc:cloudflare warpagent,proc:cyberghostagent,proc:exitlag,proc:expressvpnagent,proc:hamachi,proc:hamachi-2-ui,proc:hide.meagent,proc:hotspotshieldagent,proc:ipvanishagent,proc:mudfish,proc:mullvadagent,proc:myvpnapp,proc:nordvpnagent,proc:openvpnagent,proc:pia-agent,proc:privateinternetaccessagent,proc:protonvpnagent,proc:surfsharkagent,proc:tailscaleagent,proc:vpnagent,proc:warp-svc,proc:windscribeagent,proc:wireguardagent,proc:wtfast,proc:zerotieragent
+stop: 
+## Maximum base, only proc.vpn + lists
+close: proc:cloudflare warpagent,proc:cyberghostagent,proc:exitlag,proc:expressvpnagent,proc:hamachi,proc:hamachi-2-ui,proc:hide.meagent,proc:hotspotshieldagent,proc:ipvanishagent,proc:mudfish,proc:mullvadagent,proc:myvpnapp,proc:nordvpnagent,proc:openvpnagent,proc:pia-agent,proc:privateinternetaccessagent,proc:protonvpnagent,proc:surfsharkagent,proc:tailscaleagent,proc:vpnagent,proc:warp-svc,proc:windscribeagent,proc:wireguardagent,proc:wtfast,proc:zerotieragent
+stop: 
+## Maximum base, only proc.antivirus
+close: proc:avastagent,proc:avgagent,proc:aviraagent,proc:avp,proc:bdagentagent,proc:bdservicehostagent,proc:bitdefenderagent,proc:comodoagent,proc:egui,proc:ekrn,proc:esetagent,proc:f-secureagent,proc:gdataagent,proc:kasperskyagent,proc:malwarebytesagent,proc:mbam,proc:mbamtray,proc:mcafeeagent,proc:mcshield,proc:mfeagent,proc:myantivirusapp,proc:nortonagent,proc:pandaagent,proc:pccntagent,proc:sophosagent,proc:tmbmsrvagent,proc:trendmicroagent,proc:webrootagent
+stop: 
+## Maximum base, only proc.antivirus + lists
+close: proc:avastagent,proc:avgagent,proc:aviraagent,proc:avp,proc:bdagentagent,proc:bdservicehostagent,proc:bitdefenderagent,proc:comodoagent,proc:egui,proc:ekrn,proc:esetagent,proc:f-secureagent,proc:gdataagent,proc:kasperskyagent,proc:malwarebytesagent,proc:mbam,proc:mbamtray,proc:mcafeeagent,proc:mcshield,proc:mfeagent,proc:myantivirusapp,proc:nortonagent,proc:pandaagent,proc:pccntagent,proc:sophosagent,proc:tmbmsrvagent,proc:trendmicroagent,proc:webrootagent
+stop: 
+## Maximum base, only proc.anticheat
+close: proc:battleyeagent,proc:bedaisy,proc:beservice,proc:eac_launcher,proc:easyanticheatagent,proc:eseaagent,proc:esportalagent,proc:gameguardagent,proc:gamersclubagent,proc:myanti-cheatapp,proc:myanticheatapp,proc:nprotectagent,proc:vgc,proc:vgk,proc:vgtray,proc:xigncodeagent
+stop: 
+## Maximum base, only proc.anticheat + lists
+close: proc:battleyeagent,proc:bedaisy,proc:beservice,proc:eac_launcher,proc:easyanticheatagent,proc:eseaagent,proc:esportalagent,proc:gameguardagent,proc:gamersclubagent,proc:myanti-cheatapp,proc:myanticheatapp,proc:nprotectagent,proc:vgc,proc:vgk,proc:vgtray,proc:xigncodeagent
+stop: 
+## Maximum base, only proc.dpi
+close: proc:byedpiagent,proc:clash-verge,proc:clashagent,proc:clashverge,proc:cloudflaredagent,proc:discord,proc:discordcanary,proc:discordptb,proc:goodbyedpiagent,proc:hiddifyagent,proc:lantern,proc:mihomoagent,proc:nekoboxagent,proc:nekorayagent,proc:obfs4agent,proc:outline,proc:proxifieragent,proc:psiphonagent,proc:shadowsocksagent,proc:sing-box,proc:singboxagent,proc:spoofdpiagent,proc:tor,proc:tun2socksagent,proc:ultrasurfagent,proc:v2rayagent,proc:v2rayn,proc:wintunagent,proc:winws,proc:xrayagent,proc:zapretagent
+stop: 
+## Maximum base, only proc.dpi + lists
+close: proc:byedpiagent,proc:clash-verge,proc:clashagent,proc:clashverge,proc:cloudflaredagent,proc:discordcanary,proc:discordptb,proc:goodbyedpiagent,proc:hiddifyagent,proc:lantern,proc:mihomoagent,proc:nekoboxagent,proc:nekorayagent,proc:obfs4agent,proc:outline,proc:proxifieragent,proc:psiphonagent,proc:shadowsocksagent,proc:sing-box,proc:singboxagent,proc:spoofdpiagent,proc:tor,proc:tun2socksagent,proc:ultrasurfagent,proc:v2rayagent,proc:v2rayn,proc:wintunagent,proc:winws,proc:xrayagent,proc:zapretagent
+stop: 
+## Maximum base, only proc.windowed
+close: proc:codeeditor,proc:elgato,proc:hybridapp,proc:inputoverlay,proc:notesapp,proc:obs64,proc:streamdeck,proc:streamlabs,proc:voicemeeter,proc:wordlike
+stop: 
+## Maximum base, only proc.windowed + lists
+close: proc:codeeditor,proc:elgato,proc:hybridapp,proc:inputoverlay,proc:notesapp,proc:obs64,proc:streamdeck,proc:streamlabs,proc:voicemeeter,proc:wordlike
+stop: 
+## Maximum base, only proc.claude
+close: proc:claude
+stop: 
+## Maximum base, only proc.claude + lists
+close: proc:claude
+stop: 
+## Maximum base, only proc.chat
+close: proc:ms-teams,proc:msteams,proc:signal,proc:skype,proc:slack,proc:spotify,proc:teams,proc:telegram,proc:viber,proc:whatsapp,proc:whatsapp.root,proc:whatsappdesktop,proc:zoom
+stop: 
+## Maximum base, only proc.chat + lists
+close: proc:ms-teams,proc:msteams,proc:signal,proc:skype,proc:slack,proc:teams,proc:telegram,proc:viber,proc:whatsapp,proc:whatsapp.root,proc:whatsappdesktop,proc:zoom
+stop: 
+## Maximum base, only proc.trayauto
+close: proc:foobar,proc:randomtraything,proc:syncagent9000,proc:traywidget,proc:zetadaemon
+stop: 
+## Maximum base, only proc.trayauto + lists
+close: proc:foobar,proc:randomtraything,proc:syncagent9000,proc:traywidget
+stop: 
+## Maximum base, only proc.tray
+close: 
+stop: 
+## Maximum base, only proc.tray + lists
+close: 
+stop: 
+## Maximum base, only proc.extra
+close: 
+stop: 
+## Maximum base, only proc.extra + lists
+close: proc:foobar,proc:obs64,proc:onedrive,proc:traywidget
+stop: 
+## Maximum base, only svc.update
+close: 
+stop: svc:bits,svc:usosvc,svc:wuauserv
+## Maximum base, only svc.update + lists
+close: 
+stop: svc:bits,svc:usosvc,svc:wuauserv
+## Maximum base, only svc.other
+close: 
+stop: svc:diagtrack,svc:lfsvc,svc:mapsbroker,svc:spooler,svc:sysmain,svc:wsearch,svc:xblauthmanager,svc:xblgamesave,svc:xboxnetapisvc
+## Maximum base, only svc.other + lists
+close: 
+stop: svc:diagtrack,svc:lfsvc,svc:mapsbroker,svc:someusersvc,svc:spooler,svc:sysmain,svc:wsearch,svc:xblauthmanager,svc:xblgamesave,svc:xboxnetapisvc
+## Maximum base, only pwr.plan
+close: 
+stop: 
+## Maximum base, only pwr.plan + lists
+close: 
+stop: 
+## Maximum base, only sys.gamemode
+close: 
+stop: 
+## Maximum base, only sys.gamemode + lists
+close: 
+stop: 
+## Maximum base, only sys.gamedvr
+close: 
+stop: 
+## Maximum base, only sys.gamedvr + lists
+close: 
+stop: 
+## Maximum base, only sys.notifications
+close: 
+stop: 
+## Maximum base, only sys.notifications + lists
+close: 
+stop: 
+## Maximum base, only sys.gpupref
+close: 
+stop: 
+## Maximum base, only sys.gpupref + lists
+close: 
+stop: 
+## Maximum base, only sys.fso
+close: 
+stop: 
+## Maximum base, only sys.fso + lists
+close: 
+stop: 
+## Maximum base, only sys.mouseaccel
+close: 
+stop: 
+## Maximum base, only sys.mouseaccel + lists
+close: 
+stop: 
+## Maximum base, only sys.hotkeys
+close: 
+stop: 
+## Maximum base, only sys.hotkeys + lists
+close: 
+stop: 
+## Maximum base, only net.flushdns
+close: 
+stop: 
+## Maximum base, only net.flushdns + lists
+close: 
+stop: 
+## Maximum base, only net.nicpower
+close: 
+stop: 
+## Maximum base, only net.nicpower + lists
+close: 
+stop: 
+## Maximum base, only mem.standby
+close: 
+stop: 
+## Maximum base, only mem.standby + lists
+close: 
+stop: 
+## Maximum base, only misc.temp
+close: 
+stop: 
+## Maximum base, only misc.temp + lists
+close: 
+stop: 
+## Maximum base, only net.nagle
+close: 
+stop: 
+## Maximum base, only net.nagle + lists
+close: 
+stop: 
+## Stream base, only proc.browsers
+close: proc:brave,proc:chrome,proc:firefox,proc:iexplore,proc:librewolf,proc:msedge,proc:opera,proc:opera_gx,proc:vivaldi,proc:waterfox
+stop: 
+## Stream base, only proc.browsers + lists
+close: proc:brave,proc:firefox,proc:iexplore,proc:librewolf,proc:msedge,proc:opera,proc:opera_gx,proc:vivaldi,proc:waterfox
+stop: 
+## Stream base, only proc.cloud
+close: proc:box,proc:boxsync,proc:dropbox,proc:googledrive,proc:googledrivefs,proc:googledrivesync,proc:iclouddrive,proc:icloudservices,proc:megasync,proc:nextcloud,proc:onedrive,proc:pcloud,proc:syncthing
+stop: 
+## Stream base, only proc.cloud + lists
+close: proc:box,proc:boxsync,proc:googledrive,proc:googledrivefs,proc:googledrivesync,proc:iclouddrive,proc:icloudservices,proc:megasync,proc:nextcloud,proc:onedrive,proc:pcloud,proc:syncthing
+stop: 
+## Stream base, only proc.launchers
+close: proc:battle.net,proc:eabackgroundservice,proc:eadesktop,proc:epicgameslauncher,proc:epicwebhelper,proc:galaxyclient,proc:galaxyclient helper,proc:origin,proc:originwebhelperservice,proc:playnite.desktopapp,proc:riotclientservices,proc:riotclientux,proc:riotclientuxrender,proc:ubisoftconnect,proc:ubisoftgamelauncher,proc:upc,proc:uplay
+stop: 
+## Stream base, only proc.launchers + lists
+close: proc:battle.net,proc:eabackgroundservice,proc:eadesktop,proc:epicgameslauncher,proc:epicwebhelper,proc:galaxyclient,proc:galaxyclient helper,proc:origin,proc:originwebhelperservice,proc:playnite.desktopapp,proc:riotclientservices,proc:riotclientux,proc:riotclientuxrender,proc:ubisoftconnect,proc:ubisoftgamelauncher,proc:upc,proc:uplay
+stop: 
+## Stream base, only proc.updaters
+close: proc:adobe desktop service,proc:adobearm,proc:adobegcclient,proc:adobeipcbroker,proc:adobeupdateservice,proc:armsvc,proc:cclibrary,proc:ccxprocess,proc:googlecrashhandler,proc:googlecrashhandler64,proc:googleupdate,proc:jucheck,proc:jusched,proc:microsoftedgeupdate
+stop: 
+## Stream base, only proc.updaters + lists
+close: proc:adobe desktop service,proc:adobearm,proc:adobegcclient,proc:adobeipcbroker,proc:adobeupdateservice,proc:armsvc,proc:cclibrary,proc:ccxprocess,proc:googlecrashhandler,proc:googlecrashhandler64,proc:googleupdate,proc:jucheck,proc:jusched,proc:microsoftedgeupdate
+stop: 
+## Stream base, only proc.oem
+close: proc:armourycrateagent,proc:dellsupportassistagent,proc:dragoncenter,proc:gccontrolcenter,proc:hpsupportassistantagent,proc:lenovovantageagent,proc:msi centeragent,proc:msicenter,proc:mysticlight,proc:nzxt cam,proc:omencommandcenteragent,proc:openrgb,proc:rgbfusion,proc:signalrgb,proc:supportassistagent,proc:wallpaper32,proc:wallpaper64,proc:webwallpaper32
+stop: 
+## Stream base, only proc.oem + lists
+close: proc:armourycrateagent,proc:dellsupportassistagent,proc:dragoncenter,proc:gccontrolcenter,proc:hpsupportassistantagent,proc:lenovovantageagent,proc:msi centeragent,proc:msicenter,proc:mysticlight,proc:nzxt cam,proc:omencommandcenteragent,proc:openrgb,proc:rgbfusion,proc:signalrgb,proc:supportassistagent,proc:wallpaper32,proc:wallpaper64,proc:webwallpaper32
+stop: 
+## Stream base, only proc.peripherals
+close: proc:astrocommandagent,proc:audeze hq,proc:corsairagent,proc:endgamegear,proc:finalmouse,proc:gloriousagent,proc:gloriouscore,proc:hyperxagent,proc:icueagent,proc:lamzu,proc:lghubagent,proc:logi_agent,proc:logildaagent,proc:logioptionsagent,proc:logipluginserviceagent,proc:logitechagent,proc:logituneagent,proc:ngenuityagent,proc:pulsaragent,proc:razeragent,proc:rzappengineagent,proc:rzmonitoragent,proc:rzsdkagent,proc:rzsynapseagent,proc:steelseriesagent,proc:synapse,proc:synapseagent,proc:turtlebeachagent,proc:ugenie,proc:vxe,proc:wootility,proc:zowie
+stop: 
+## Stream base, only proc.peripherals + lists
+close: proc:astrocommandagent,proc:audeze hq,proc:corsairagent,proc:endgamegear,proc:finalmouse,proc:gloriousagent,proc:gloriouscore,proc:hyperxagent,proc:icueagent,proc:lamzu,proc:lghubagent,proc:logi_agent,proc:logildaagent,proc:logioptionsagent,proc:logipluginserviceagent,proc:logitechagent,proc:logituneagent,proc:ngenuityagent,proc:pulsaragent,proc:razeragent,proc:rzappengineagent,proc:rzmonitoragent,proc:rzsdkagent,proc:rzsynapseagent,proc:steelseriesagent,proc:synapse,proc:synapseagent,proc:turtlebeachagent,proc:ugenie,proc:vxe,proc:wootility,proc:zowie
+stop: 
+## Stream base, only proc.overlay
+close: proc:bandicam,proc:cortana,proc:dxtory,proc:fpsmonitor,proc:fraps,proc:gamebar,proc:gamebarftserver,proc:gamebarpresencewriter,proc:greenshot,proc:lightshot,proc:medalagent,proc:msiafterburner,proc:nvbackend,proc:nvcpl,proc:nvidia app,proc:nvidia geforce experience,proc:nvidia overlay,proc:nvidia share,proc:nvidia web helper,proc:nvidia-share,proc:nvspcap64,proc:nvsphelper,proc:nvsphelper64,proc:nvtray,proc:overwolfagent,proc:phoneexperiencehost,proc:rtss,proc:rtsshooksloader,proc:sharex,proc:widgets,proc:widgetservice,proc:xboxpcapp,proc:xboxpcappft,proc:yourphone,proc:yourphoneserver
+stop: 
+## Stream base, only proc.overlay + lists
+close: proc:bandicam,proc:cortana,proc:dxtory,proc:fpsmonitor,proc:fraps,proc:gamebar,proc:gamebarftserver,proc:gamebarpresencewriter,proc:greenshot,proc:lightshot,proc:medalagent,proc:msiafterburner,proc:nvbackend,proc:nvcpl,proc:nvidia app,proc:nvidia geforce experience,proc:nvidia overlay,proc:nvidia share,proc:nvidia web helper,proc:nvidia-share,proc:nvspcap64,proc:nvsphelper,proc:nvsphelper64,proc:nvtray,proc:overwolfagent,proc:phoneexperiencehost,proc:rtss,proc:rtsshooksloader,proc:sharex,proc:widgets,proc:widgetservice,proc:xboxpcapp,proc:xboxpcappft,proc:yourphone,proc:yourphoneserver
+stop: 
+## Stream base, only proc.vpn
+close: proc:cloudflare warpagent,proc:cyberghostagent,proc:exitlag,proc:expressvpnagent,proc:hamachi,proc:hamachi-2-ui,proc:hide.meagent,proc:hotspotshieldagent,proc:ipvanishagent,proc:mudfish,proc:mullvadagent,proc:myvpnapp,proc:nordvpnagent,proc:openvpnagent,proc:pia-agent,proc:privateinternetaccessagent,proc:protonvpnagent,proc:surfsharkagent,proc:tailscaleagent,proc:vpnagent,proc:warp-svc,proc:windscribeagent,proc:wireguardagent,proc:wtfast,proc:zerotieragent
+stop: 
+## Stream base, only proc.vpn + lists
+close: proc:cloudflare warpagent,proc:cyberghostagent,proc:exitlag,proc:expressvpnagent,proc:hamachi,proc:hamachi-2-ui,proc:hide.meagent,proc:hotspotshieldagent,proc:ipvanishagent,proc:mudfish,proc:mullvadagent,proc:myvpnapp,proc:nordvpnagent,proc:openvpnagent,proc:pia-agent,proc:privateinternetaccessagent,proc:protonvpnagent,proc:surfsharkagent,proc:tailscaleagent,proc:vpnagent,proc:warp-svc,proc:windscribeagent,proc:wireguardagent,proc:wtfast,proc:zerotieragent
+stop: 
+## Stream base, only proc.antivirus
+close: proc:avastagent,proc:avgagent,proc:aviraagent,proc:avp,proc:bdagentagent,proc:bdservicehostagent,proc:bitdefenderagent,proc:comodoagent,proc:egui,proc:ekrn,proc:esetagent,proc:f-secureagent,proc:gdataagent,proc:kasperskyagent,proc:malwarebytesagent,proc:mbam,proc:mbamtray,proc:mcafeeagent,proc:mcshield,proc:mfeagent,proc:myantivirusapp,proc:nortonagent,proc:pandaagent,proc:pccntagent,proc:sophosagent,proc:tmbmsrvagent,proc:trendmicroagent,proc:webrootagent
+stop: 
+## Stream base, only proc.antivirus + lists
+close: proc:avastagent,proc:avgagent,proc:aviraagent,proc:avp,proc:bdagentagent,proc:bdservicehostagent,proc:bitdefenderagent,proc:comodoagent,proc:egui,proc:ekrn,proc:esetagent,proc:f-secureagent,proc:gdataagent,proc:kasperskyagent,proc:malwarebytesagent,proc:mbam,proc:mbamtray,proc:mcafeeagent,proc:mcshield,proc:mfeagent,proc:myantivirusapp,proc:nortonagent,proc:pandaagent,proc:pccntagent,proc:sophosagent,proc:tmbmsrvagent,proc:trendmicroagent,proc:webrootagent
+stop: 
+## Stream base, only proc.anticheat
+close: proc:battleyeagent,proc:bedaisy,proc:beservice,proc:eac_launcher,proc:easyanticheatagent,proc:eseaagent,proc:esportalagent,proc:gameguardagent,proc:gamersclubagent,proc:myanti-cheatapp,proc:myanticheatapp,proc:nprotectagent,proc:vgc,proc:vgk,proc:vgtray,proc:xigncodeagent
+stop: 
+## Stream base, only proc.anticheat + lists
+close: proc:battleyeagent,proc:bedaisy,proc:beservice,proc:eac_launcher,proc:easyanticheatagent,proc:eseaagent,proc:esportalagent,proc:gameguardagent,proc:gamersclubagent,proc:myanti-cheatapp,proc:myanticheatapp,proc:nprotectagent,proc:vgc,proc:vgk,proc:vgtray,proc:xigncodeagent
+stop: 
+## Stream base, only proc.dpi
+close: proc:byedpiagent,proc:clash-verge,proc:clashagent,proc:clashverge,proc:cloudflaredagent,proc:goodbyedpiagent,proc:hiddifyagent,proc:lantern,proc:mihomoagent,proc:nekoboxagent,proc:nekorayagent,proc:obfs4agent,proc:outline,proc:proxifieragent,proc:psiphonagent,proc:shadowsocksagent,proc:sing-box,proc:singboxagent,proc:spoofdpiagent,proc:tor,proc:tun2socksagent,proc:ultrasurfagent,proc:v2rayagent,proc:v2rayn,proc:wintunagent,proc:winws,proc:xrayagent,proc:zapretagent
+stop: 
+## Stream base, only proc.dpi + lists
+close: proc:byedpiagent,proc:clash-verge,proc:clashagent,proc:clashverge,proc:cloudflaredagent,proc:goodbyedpiagent,proc:hiddifyagent,proc:lantern,proc:mihomoagent,proc:nekoboxagent,proc:nekorayagent,proc:obfs4agent,proc:outline,proc:proxifieragent,proc:psiphonagent,proc:shadowsocksagent,proc:sing-box,proc:singboxagent,proc:spoofdpiagent,proc:tor,proc:tun2socksagent,proc:ultrasurfagent,proc:v2rayagent,proc:v2rayn,proc:wintunagent,proc:winws,proc:xrayagent,proc:zapretagent
+stop: 
+## Stream base, only proc.windowed
+close: proc:codeeditor,proc:hybridapp,proc:notesapp,proc:wordlike
+stop: 
+## Stream base, only proc.windowed + lists
+close: proc:codeeditor,proc:hybridapp,proc:notesapp,proc:wordlike
+stop: 
+## Stream base, only proc.claude
+close: proc:claude
+stop: 
+## Stream base, only proc.claude + lists
+close: proc:claude
+stop: 
+## Stream base, only proc.chat
+close: proc:ms-teams,proc:msteams,proc:signal,proc:skype,proc:slack,proc:spotify,proc:teams,proc:telegram,proc:viber,proc:whatsapp,proc:whatsapp.root,proc:whatsappdesktop,proc:zoom
+stop: 
+## Stream base, only proc.chat + lists
+close: proc:ms-teams,proc:msteams,proc:signal,proc:skype,proc:slack,proc:teams,proc:telegram,proc:viber,proc:whatsapp,proc:whatsapp.root,proc:whatsappdesktop,proc:zoom
+stop: 
+## Stream base, only proc.trayauto
+close: proc:foobar,proc:randomtraything,proc:syncagent9000,proc:traywidget,proc:zetadaemon
+stop: 
+## Stream base, only proc.trayauto + lists
+close: proc:foobar,proc:randomtraything,proc:syncagent9000,proc:traywidget
+stop: 
+## Stream base, only proc.tray
+close: 
+stop: 
+## Stream base, only proc.tray + lists
+close: 
+stop: 
+## Stream base, only proc.extra
+close: 
+stop: 
+## Stream base, only proc.extra + lists
+close: proc:foobar,proc:onedrive,proc:traywidget
+stop: 
+## Stream base, only svc.update
+close: 
+stop: svc:bits,svc:usosvc,svc:wuauserv
+## Stream base, only svc.update + lists
+close: 
+stop: svc:bits,svc:usosvc,svc:wuauserv
+## Stream base, only svc.other
+close: 
+stop: svc:diagtrack,svc:lfsvc,svc:mapsbroker,svc:spooler,svc:sysmain,svc:wsearch,svc:xblauthmanager,svc:xblgamesave,svc:xboxnetapisvc
+## Stream base, only svc.other + lists
+close: 
+stop: svc:diagtrack,svc:lfsvc,svc:mapsbroker,svc:someusersvc,svc:spooler,svc:sysmain,svc:wsearch,svc:xblauthmanager,svc:xblgamesave,svc:xboxnetapisvc
+## Stream base, only pwr.plan
+close: 
+stop: 
+## Stream base, only pwr.plan + lists
+close: 
+stop: 
+## Stream base, only sys.gamemode
+close: 
+stop: 
+## Stream base, only sys.gamemode + lists
+close: 
+stop: 
+## Stream base, only sys.gamedvr
+close: 
+stop: 
+## Stream base, only sys.gamedvr + lists
+close: 
+stop: 
+## Stream base, only sys.notifications
+close: 
+stop: 
+## Stream base, only sys.notifications + lists
+close: 
+stop: 
+## Stream base, only sys.gpupref
+close: 
+stop: 
+## Stream base, only sys.gpupref + lists
+close: 
+stop: 
+## Stream base, only sys.fso
+close: 
+stop: 
+## Stream base, only sys.fso + lists
+close: 
+stop: 
+## Stream base, only sys.mouseaccel
+close: 
+stop: 
+## Stream base, only sys.mouseaccel + lists
+close: 
+stop: 
+## Stream base, only sys.hotkeys
+close: 
+stop: 
+## Stream base, only sys.hotkeys + lists
+close: 
+stop: 
+## Stream base, only net.flushdns
+close: 
+stop: 
+## Stream base, only net.flushdns + lists
+close: 
+stop: 
+## Stream base, only net.nicpower
+close: 
+stop: 
+## Stream base, only net.nicpower + lists
+close: 
+stop: 
+## Stream base, only mem.standby
+close: 
+stop: 
+## Stream base, only mem.standby + lists
+close: 
+stop: 
+## Stream base, only misc.temp
+close: 
+stop: 
+## Stream base, only misc.temp + lists
+close: 
+stop: 
+## Stream base, only net.nagle
+close: 
+stop: 
+## Stream base, only net.nagle + lists
+close: 
+stop: 
+## Maximum base, only proc.trayauto + proc.windowed
+close: proc:codeeditor,proc:elgato,proc:foobar,proc:hybridapp,proc:inputoverlay,proc:notesapp,proc:obs64,proc:randomtraything,proc:streamdeck,proc:streamlabs,proc:syncagent9000,proc:traywidget,proc:voicemeeter,proc:wordlike,proc:zetadaemon
+stop: 
+## Maximum base, only proc.tray + proc.trayauto
+close: proc:foobar,proc:randomtraything,proc:syncagent9000,proc:traywidget,proc:zetadaemon
+stop: 
+## Maximum base, only proc.tray + proc.windowed
+close: proc:codeeditor,proc:elgato,proc:hybridapp,proc:inputoverlay,proc:notesapp,proc:obs64,proc:streamdeck,proc:streamlabs,proc:voicemeeter,proc:wordlike
+stop: 
+## Maximum base, only proc.dpi + proc.vpn
+close: proc:byedpiagent,proc:clash-verge,proc:clashagent,proc:clashverge,proc:cloudflare warpagent,proc:cloudflaredagent,proc:cyberghostagent,proc:discord,proc:discordcanary,proc:discordptb,proc:exitlag,proc:expressvpnagent,proc:goodbyedpiagent,proc:hamachi,proc:hamachi-2-ui,proc:hiddifyagent,proc:hide.meagent,proc:hotspotshieldagent,proc:ipvanishagent,proc:lantern,proc:mihomoagent,proc:mudfish,proc:mullvadagent,proc:myvpnapp,proc:nekoboxagent,proc:nekorayagent,proc:nordvpnagent,proc:obfs4agent,proc:openvpnagent,proc:outline,proc:pia-agent,proc:privateinternetaccessagent,proc:protonvpnagent,proc:proxifieragent,proc:psiphonagent,proc:shadowsocksagent,proc:sing-box,proc:singboxagent,proc:spoofdpiagent,proc:surfsharkagent,proc:tailscaleagent,proc:tor,proc:tun2socksagent,proc:ultrasurfagent,proc:v2rayagent,proc:v2rayn,proc:vpnagent,proc:warp-svc,proc:windscribeagent,proc:wintunagent,proc:winws,proc:wireguardagent,proc:wtfast,proc:xrayagent,proc:zapretagent,proc:zerotieragent
+stop: 

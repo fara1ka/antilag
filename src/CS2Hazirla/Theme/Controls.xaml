@@ -1,0 +1,816 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- =====================================================================================
+         Denetimler. Her denetimin tıklanabilir alanı, gördüğün kutunun tamamıdır: şablon kökleri Background="Transparent" taşır
+         (arkası boş bir şablon yalnızca yazının pikselinde tıklanır). En küçük hedef ~36-40 px yükseklik.
+         Hareket: üstüne gelince / basınca kısa geçişler (Opacity + dönüşüm), süreler MotionDictionary'den gelir
+         (Windows'ta animasyonlar kapalıysa hepsi 0). Gölge/Blur efekti yok: ışık ve kenar degradelerle verilir.
+         ===================================================================================== -->
+
+    <!-- ===================================== yazı ===================================== -->
+    <!-- Foreground bilerek yok: yazı, içinde durduğu denetimin rengini alır -->
+    <Style TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource UiFont}"/>
+        <Setter Property="TextWrapping" Value="NoWrap"/>
+    </Style>
+
+    <!-- açıklayıcı küçük yazı: satır uzunluğu en çok ~80 karakter -->
+    <Style x:Key="Hint" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{StaticResource Text3Brush}"/>
+        <Setter Property="FontSize" Value="12.5"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+        <Setter Property="LineHeight" Value="17"/>
+        <Setter Property="MaxWidth" Value="560"/>
+        <Setter Property="HorizontalAlignment" Value="Left"/>
+    </Style>
+
+    <Style x:Key="Body2" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{StaticResource Text2Brush}"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+        <Setter Property="LineHeight" Value="21"/>
+    </Style>
+
+    <Style x:Key="Heading" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+        <Setter Property="FontFamily" Value="Segoe UI Variable Display, Segoe UI Semibold, Segoe UI"/>
+        <Setter Property="FontSize" Value="20"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+    </Style>
+
+    <Style x:Key="GroupTitle" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{StaticResource Text3Brush}"/>
+        <Setter Property="FontSize" Value="12.5"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+    </Style>
+
+    <Style x:Key="StateWord" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource DisplayFont}"/>
+        <Setter Property="FontSize" Value="30"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="TextAlignment" Value="Center"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+    </Style>
+
+    <Style x:Key="Hairline" TargetType="Rectangle">
+        <Setter Property="Height" Value="1"/>
+        <Setter Property="Fill" Value="{StaticResource HairlineBrush}"/>
+        <Setter Property="IsHitTestVisible" Value="False"/>
+    </Style>
+
+    <Style x:Key="Chip" TargetType="Border">
+        <Setter Property="CornerRadius" Value="6"/>
+        <Setter Property="Padding" Value="8,2"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Background" Value="{StaticResource RaisedBrush}"/>
+    </Style>
+
+    <!-- ===================================== cam yüzeyler ===================================== -->
+    <!-- kart: degrade yüzey + 1 px cam kenarı + üstte ince ışık çizgisi ve yumuşak ışık lekesi. Efekt yok, her şey donuk fırça -->
+    <Style x:Key="GlassCard" TargetType="ContentControl">
+        <Setter Property="Padding" Value="20,16"/>
+        <Setter Property="IsTabStop" Value="False"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ContentControl">
+                    <Border CornerRadius="16" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource RimBrush}" BorderThickness="1" SnapsToDevicePixels="True">
+                        <Grid>
+                            <Rectangle RadiusX="15" RadiusY="15" Fill="{StaticResource CardWashBrush}" IsHitTestVisible="False"/>
+                            <Rectangle Height="1" Margin="18,0" VerticalAlignment="Top" Fill="{StaticResource TopLightBrush}" IsHitTestVisible="False"/>
+                            <ContentPresenter Margin="{TemplateBinding Padding}"/>
+                        </Grid>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- hazır ayar şeridi gibi küçük kaplar: yarı saydam cam hap -->
+    <Style x:Key="GlassPill" TargetType="Border">
+        <Setter Property="Background" Value="#10FFFFFF"/>
+        <Setter Property="BorderBrush" Value="{StaticResource RimBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="16"/>
+        <Setter Property="Padding" Value="3"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+
+    <!-- klavyeyle gezerken görünen odak çerçevesi -->
+    <Style x:Key="FocusRing">
+        <Setter Property="Control.Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <Rectangle Margin="-3" RadiusX="11" RadiusY="11" Stroke="{StaticResource AccentBrush}" StrokeThickness="2" SnapsToDevicePixels="True"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style x:Key="FocusRingSmall">
+        <Setter Property="Control.Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <Rectangle Margin="1" RadiusX="7" RadiusY="7" Stroke="{StaticResource AccentBrush}" StrokeThickness="2" SnapsToDevicePixels="True"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style x:Key="FocusRingRound">
+        <Setter Property="Control.Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <Ellipse Margin="-4" Stroke="{StaticResource AccentBrush}" StrokeThickness="2"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ===================================== düğmeler ===================================== -->
+    <!-- ikincil düğme: degrade yüzey + cam kenarı; üstüne gelince kenar parlar, basınca hafifçe küçülür -->
+    <Style TargetType="Button">
+        <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+        <Setter Property="Background" Value="{StaticResource RaisedBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource RimBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding" Value="16,9"/>
+        <Setter Property="MinHeight" Value="38"/>
+        <Setter Property="FontFamily" Value="{StaticResource UiFont}"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FocusVisualStyle" Value="{StaticResource FocusRing}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Grid x:Name="Root" SnapsToDevicePixels="True" Background="Transparent" RenderTransformOrigin="0.5,0.5">
+                        <Grid.RenderTransform><ScaleTransform x:Name="Sc" ScaleX="1" ScaleY="1"/></Grid.RenderTransform>
+                        <Border x:Name="Bd" CornerRadius="11" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"/>
+                        <Border x:Name="RimHot" CornerRadius="11" BorderBrush="{StaticResource RimHoverBrush}" BorderThickness="1" Opacity="0" IsHitTestVisible="False"/>
+                        <Border x:Name="Veil" CornerRadius="11" Background="White" Opacity="0" IsHitTestVisible="False"/>
+                        <ContentPresenter Margin="{TemplateBinding Padding}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                          VerticalAlignment="Center" RecognizesAccessKey="True" TextElement.Foreground="{TemplateBinding Foreground}"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <!-- üstüne gelme geçişi yalnızca etkin düğmede (devre dışı düğmede IsMouseOver yine de true olur) -->
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsMouseOver" Value="True"/>
+                                <Condition Property="IsEnabled" Value="True"/>
+                            </MultiTrigger.Conditions>
+                            <MultiTrigger.EnterActions>
+                                <BeginStoryboard><Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="Veil" Storyboard.TargetProperty="Opacity" To="0.07" Duration="{StaticResource D14}"/>
+                                    <DoubleAnimation Storyboard.TargetName="RimHot" Storyboard.TargetProperty="Opacity" To="1" Duration="{StaticResource D14}"/>
+                                </Storyboard></BeginStoryboard>
+                            </MultiTrigger.EnterActions>
+                            <MultiTrigger.ExitActions>
+                                <BeginStoryboard><Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="Veil" Storyboard.TargetProperty="Opacity" To="0" Duration="{StaticResource D16}"/>
+                                    <DoubleAnimation Storyboard.TargetName="RimHot" Storyboard.TargetProperty="Opacity" To="0" Duration="{StaticResource D16}"/>
+                                </Storyboard></BeginStoryboard>
+                            </MultiTrigger.ExitActions>
+                        </MultiTrigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Trigger.EnterActions>
+                                <BeginStoryboard><Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="Sc" Storyboard.TargetProperty="ScaleX" To="0.98" Duration="{StaticResource D07}"/>
+                                    <DoubleAnimation Storyboard.TargetName="Sc" Storyboard.TargetProperty="ScaleY" To="0.98" Duration="{StaticResource D07}"/>
+                                </Storyboard></BeginStoryboard>
+                            </Trigger.EnterActions>
+                            <Trigger.ExitActions>
+                                <BeginStoryboard><Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="Sc" Storyboard.TargetProperty="ScaleX" To="1" Duration="{StaticResource D14}"/>
+                                    <DoubleAnimation Storyboard.TargetName="Sc" Storyboard.TargetProperty="ScaleY" To="1" Duration="{StaticResource D14}"/>
+                                </Storyboard></BeginStoryboard>
+                            </Trigger.ExitActions>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Root" Property="Opacity" Value="0.45"/>
+                            <Setter Property="Cursor" Value="Arrow"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ana eylem: lavanta degrade, üstte ince ışık; üstüne gelince açılır ve çevresi parlar -->
+    <Style x:Key="PrimaryButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+        <Setter Property="Foreground" Value="{StaticResource OnAccentBrush}"/>
+        <Setter Property="Background" Value="{StaticResource AccentFillBrush}"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Padding" Value="22,11"/>
+        <Setter Property="MinHeight" Value="40"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Grid x:Name="Root" SnapsToDevicePixels="True" Background="Transparent" RenderTransformOrigin="0.5,0.5">
+                        <Grid.RenderTransform><ScaleTransform x:Name="Sc" ScaleX="1" ScaleY="1"/></Grid.RenderTransform>
+                        <Border x:Name="Glow" CornerRadius="14" Margin="-4" BorderBrush="#33A9B3FF" BorderThickness="4" Opacity="0" IsHitTestVisible="False"/>
+                        <Border x:Name="Bd" CornerRadius="11" Background="{TemplateBinding Background}"/>
+                        <Border x:Name="BdHot" CornerRadius="11" Background="{StaticResource AccentFillHoverBrush}" Opacity="0" IsHitTestVisible="False"/>
+                        <Border CornerRadius="11" BorderBrush="{StaticResource OrbRimBrush}" BorderThickness="1" IsHitTestVisible="False"/>
+                        <ContentPresenter Margin="{TemplateBinding Padding}" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                          RecognizesAccessKey="True" TextElement.Foreground="{TemplateBinding Foreground}"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsMouseOver" Value="True"/>
+                                <Condition Property="IsEnabled" Value="True"/>
+                            </MultiTrigger.Conditions>
+                            <MultiTrigger.EnterActions>
+                                <BeginStoryboard><Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="BdHot" Storyboard.TargetProperty="Opacity" To="1" Duration="{StaticResource D14}"/>
+                                    <DoubleAnimation Storyboard.TargetName="Glow" Storyboard.TargetProperty="Opacity" To="1" Duration="{StaticResource D18}"/>
+                                </Storyboard></BeginStoryboard>
+                            </MultiTrigger.EnterActions>
+                            <MultiTrigger.ExitActions>
+                                <BeginStoryboard><Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="BdHot" Storyboard.TargetProperty="Opacity" To="0" Duration="{StaticResource D16}"/>
+                                    <DoubleAnimation Storyboard.TargetName="Glow" Storyboard.TargetProperty="Opacity" To="0" Duration="{StaticResource D16}"/>
+                                </Storyboard></BeginStoryboard>
+                            </MultiTrigger.ExitActions>
+                        </MultiTrigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{StaticResource AccentFillPressBrush}"/>
+                            <Trigger.EnterActions>
+                                <BeginStoryboard><Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="Sc" Storyboard.TargetProperty="ScaleX" To="0.98" Duration="{StaticResource D07}"/>
+                                    <DoubleAnimation Storyboard.TargetName="Sc" Storyboard.TargetProperty="ScaleY" To="0.98" Duration="{StaticResource D07}"/>
+                                </Storyboard></BeginStoryboard>
+                            </Trigger.EnterActions>
+                            <Trigger.ExitActions>
+                                <BeginStoryboard><Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="Sc" Storyboard.TargetProperty="ScaleX" To="1" Duration="{StaticResource D14}"/>
+                                    <DoubleAnimation Storyboard.TargetName="Sc" Storyboard.TargetProperty="ScaleY" To="1" Duration="{StaticResource D14}"/>
+                                </Storyboard></BeginStoryboard>
+                            </Trigger.ExitActions>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Root" Property="Opacity" Value="0.4"/>
+                            <Setter Property="Cursor" Value="Arrow"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- yazı düğmesi: dolgu yok, üzerine gelince yumuşak perde. Kökün Background="Transparent" olması, düğmenin tüm kutusunu tıklanabilir yapar -->
+    <Style x:Key="TextButton" TargetType="Button">
+        <Setter Property="Foreground" Value="{StaticResource Text2Brush}"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Padding" Value="14,9"/>
+        <Setter Property="MinHeight" Value="40"/>
+        <Setter Property="FontFamily" Value="{StaticResource UiFont}"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="FontWeight" Value="Medium"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FocusVisualStyle" Value="{StaticResource FocusRing}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Grid x:Name="Root" SnapsToDevicePixels="True" Background="Transparent" RenderTransformOrigin="0.5,0.5">
+                        <Grid.RenderTransform><ScaleTransform x:Name="Sc" ScaleX="1" ScaleY="1"/></Grid.RenderTransform>
+                        <Border x:Name="Veil" CornerRadius="10" Background="White" Opacity="0" IsHitTestVisible="False"/>
+                        <ContentPresenter Margin="{TemplateBinding Padding}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="Center"
+                                          RecognizesAccessKey="True" TextElement.Foreground="{TemplateBinding Foreground}"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsMouseOver" Value="True"/>
+                                <Condition Property="IsEnabled" Value="True"/>
+                            </MultiTrigger.Conditions>
+                            <MultiTrigger.EnterActions>
+                                <BeginStoryboard><Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="Veil" Storyboard.TargetProperty="Opacity" To="0.07" Duration="{StaticResource D14}"/>
+                                </Storyboard></BeginStoryboard>
+                            </MultiTrigger.EnterActions>
+                            <MultiTrigger.ExitActions>
+                                <BeginStoryboard><Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="Veil" Storyboard.TargetProperty="Opacity" To="0" Duration="{StaticResource D18}"/>
+                                </Storyboard></BeginStoryboard>
+                            </MultiTrigger.ExitActions>
+                        </MultiTrigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Trigger.EnterActions>
+                                <BeginStoryboard><Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="Sc" Storyboard.TargetProperty="ScaleX" To="0.97" Duration="{StaticResource D07}"/>
+                                    <DoubleAnimation Storyboard.TargetName="Sc" Storyboard.TargetProperty="ScaleY" To="0.97" Duration="{StaticResource D07}"/>
+                                </Storyboard></BeginStoryboard>
+                            </Trigger.EnterActions>
+                            <Trigger.ExitActions>
+                                <BeginStoryboard><Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="Sc" Storyboard.TargetProperty="ScaleX" To="1" Duration="{StaticResource D14}"/>
+                                    <DoubleAnimation Storyboard.TargetName="Sc" Storyboard.TargetProperty="ScaleY" To="1" Duration="{StaticResource D14}"/>
+                                </Storyboard></BeginStoryboard>
+                            </Trigger.ExitActions>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Root" Property="Opacity" Value="0.4"/>
+                            <Setter Property="Cursor" Value="Arrow"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True"><Setter Property="Foreground" Value="{StaticResource TextBrush}"/></Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- küçük bağlantı gibi düğme (liste satırlarında: Çıkar, Hep açık kalsın) -->
+    <Style x:Key="LinkButton" TargetType="Button" BasedOn="{StaticResource TextButton}">
+        <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="Padding" Value="12,8"/>
+        <Setter Property="MinHeight" Value="36"/>
+        <Setter Property="MinWidth" Value="44"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True"><Setter Property="Foreground" Value="{StaticResource AccentHoverBrush}"/></Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- simge düğmesi (kapat, aramayı temizle): 40 x 40 kutunun tamamı tıklanır, simge ortada -->
+    <Style x:Key="IconButton" TargetType="Button" BasedOn="{StaticResource TextButton}">
+        <Setter Property="Width" Value="40"/>
+        <Setter Property="Height" Value="40"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+    </Style>
+
+    <!-- sayfanın tek büyük düğmesi: halkanın ortasındaki küre. Sol üstten ışık, sağ altta çivit, ince cam kenar ve parlama.
+         Üstüne gelince çevresi parlar ve büyür, basınca küçülür. Işıma bir efekt değil, radyal degrade bir elips. -->
+    <Style x:Key="HeroButton" TargetType="Button">
+        <Setter Property="Foreground" Value="{StaticResource OnAccentBrush}"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Width" Value="156"/>
+        <Setter Property="Height" Value="156"/>
+        <Setter Property="FontFamily" Value="{StaticResource DisplayFont}"/>
+        <Setter Property="FocusVisualStyle" Value="{StaticResource FocusRingRound}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <!-- Background bilerek yok ({x:Null}): tıklanabilir alan kare değil, yalnızca küre (köşelerdeki boşluk Başlat'a basmasın) -->
+                    <Grid x:Name="Root" Background="{x:Null}" RenderTransformOrigin="0.5,0.5" SnapsToDevicePixels="False">
+                        <Grid.RenderTransform><ScaleTransform x:Name="Sc" ScaleX="1" ScaleY="1"/></Grid.RenderTransform>
+                        <Ellipse x:Name="Halo" Margin="-30" Fill="{StaticResource HaloAccent}" Opacity="0" IsHitTestVisible="False"/>
+                        <Ellipse x:Name="Face" Fill="{StaticResource OrbBrush}"/>
+                        <Ellipse x:Name="FaceHot" Fill="{StaticResource OrbHoverBrush}" Opacity="0" IsHitTestVisible="False"/>
+                        <Ellipse x:Name="Rim" Margin="0.75" Stroke="{StaticResource OrbRimBrush}" StrokeThickness="1.5" IsHitTestVisible="False"/>
+                        <Ellipse x:Name="Spec" Width="104" Height="58" VerticalAlignment="Top" Margin="0,9,0,0" Fill="{StaticResource OrbSpecularBrush}" IsHitTestVisible="False"/>
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" TextElement.Foreground="{TemplateBinding Foreground}"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsMouseOver" Value="True"/>
+                                <Condition Property="IsEnabled" Value="True"/>
+                            </MultiTrigger.Conditions>
+                            <MultiTrigger.EnterActions>
+                                <BeginStoryboard><Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="FaceHot" Storyboard.TargetProperty="Opacity" To="1" Duration="{StaticResource D14}"/>
+                                    <DoubleAnimation Storyboard.TargetName="Halo" Storyboard.TargetProperty="Opacity" To="1" Duration="{StaticResource D20}"/>
+                                    <DoubleAnimation Storyboard.TargetName="Sc" Storyboard.TargetProperty="ScaleX" To="1.03" Duration="{StaticResource D14}"/>
+                                    <DoubleAnimation Storyboard.TargetName="Sc" Storyboard.TargetProperty="ScaleY" To="1.03" Duration="{StaticResource D14}"/>
+                                </Storyboard></BeginStoryboard>
+                            </MultiTrigger.EnterActions>
+                            <MultiTrigger.ExitActions>
+                                <BeginStoryboard><Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="FaceHot" Storyboard.TargetProperty="Opacity" To="0" Duration="{StaticResource D20}"/>
+                                    <DoubleAnimation Storyboard.TargetName="Halo" Storyboard.TargetProperty="Opacity" To="0" Duration="{StaticResource D25}"/>
+                                    <DoubleAnimation Storyboard.TargetName="Sc" Storyboard.TargetProperty="ScaleX" To="1" Duration="{StaticResource D20}"/>
+                                    <DoubleAnimation Storyboard.TargetName="Sc" Storyboard.TargetProperty="ScaleY" To="1" Duration="{StaticResource D20}"/>
+                                </Storyboard></BeginStoryboard>
+                            </MultiTrigger.ExitActions>
+                        </MultiTrigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Face" Property="Fill" Value="{StaticResource OrbPressBrush}"/>
+                            <Trigger.EnterActions>
+                                <BeginStoryboard><Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="Sc" Storyboard.TargetProperty="ScaleX" To="0.97" Duration="{StaticResource D07}"/>
+                                    <DoubleAnimation Storyboard.TargetName="Sc" Storyboard.TargetProperty="ScaleY" To="0.97" Duration="{StaticResource D07}"/>
+                                </Storyboard></BeginStoryboard>
+                            </Trigger.EnterActions>
+                            <!-- bırakınca normal boya döner (diğer düğmelerle aynı; yoksa 0.97'de takılı kalırdı). İmleç hâlâ küredeyse üstüne gelme boyu bir sonraki girişte yeniden uygulanır -->
+                            <Trigger.ExitActions>
+                                <BeginStoryboard><Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="Sc" Storyboard.TargetProperty="ScaleX" To="1" Duration="{StaticResource D14}"/>
+                                    <DoubleAnimation Storyboard.TargetName="Sc" Storyboard.TargetProperty="ScaleY" To="1" Duration="{StaticResource D14}"/>
+                                </Storyboard></BeginStoryboard>
+                            </Trigger.ExitActions>
+                        </Trigger>
+                        <!-- çalışırken: yüzey sönük, yazı soluk (düğme boşuna basılmasın) -->
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Face" Property="Fill" Value="{StaticResource RaisedBrush}"/>
+                            <Setter TargetName="Rim" Property="Stroke" Value="{StaticResource RimBrush}"/>
+                            <Setter TargetName="Spec" Property="Opacity" Value="0"/>
+                            <Setter TargetName="FaceHot" Property="Visibility" Value="Collapsed"/>
+                            <Setter TargetName="Halo" Property="Visibility" Value="Collapsed"/>
+                            <Setter Property="Foreground" Value="{StaticResource Text2Brush}"/>
+                            <Setter Property="Cursor" Value="Arrow"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ===================================== gezinti çubuğu ve sekmeler ===================================== -->
+    <Style x:Key="RailItem" TargetType="RadioButton">
+        <Setter Property="Foreground" Value="{StaticResource Text3Brush}"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="FontWeight" Value="Medium"/>
+        <Setter Property="Padding" Value="16,0"/>
+        <Setter Property="Height" Value="44"/>
+        <Setter Property="FocusVisualStyle" Value="{StaticResource FocusRing}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RadioButton">
+                    <Grid x:Name="Root" SnapsToDevicePixels="True" Background="Transparent">
+                        <Border x:Name="Sel" CornerRadius="12" Background="{StaticResource SelectedFillBrush}" BorderBrush="#33A9B3FF" BorderThickness="1" Opacity="0"/>
+                        <Border x:Name="Veil" CornerRadius="12" Background="White" Opacity="0" IsHitTestVisible="False"/>
+                        <Rectangle x:Name="Ind" Width="3" Height="18" RadiusX="1.5" RadiusY="1.5" Fill="{StaticResource AccentFillBrush}" HorizontalAlignment="Left" Margin="0,0,0,0" Opacity="0" IsHitTestVisible="False"/>
+                        <ContentPresenter Margin="{TemplateBinding Padding}" VerticalAlignment="Center" TextElement.Foreground="{TemplateBinding Foreground}"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Trigger.EnterActions>
+                                <BeginStoryboard><Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="Sel" Storyboard.TargetProperty="Opacity" To="1" Duration="{StaticResource D18}"/>
+                                    <DoubleAnimation Storyboard.TargetName="Ind" Storyboard.TargetProperty="Opacity" To="1" Duration="{StaticResource D18}"/>
+                                </Storyboard></BeginStoryboard>
+                            </Trigger.EnterActions>
+                            <Trigger.ExitActions>
+                                <BeginStoryboard><Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="Sel" Storyboard.TargetProperty="Opacity" To="0" Duration="{StaticResource D16}"/>
+                                    <DoubleAnimation Storyboard.TargetName="Ind" Storyboard.TargetProperty="Opacity" To="0" Duration="{StaticResource D16}"/>
+                                </Storyboard></BeginStoryboard>
+                            </Trigger.ExitActions>
+                            <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Trigger.EnterActions>
+                                <BeginStoryboard><Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="Veil" Storyboard.TargetProperty="Opacity" To="0.06" Duration="{StaticResource D14}"/>
+                                </Storyboard></BeginStoryboard>
+                            </Trigger.EnterActions>
+                            <Trigger.ExitActions>
+                                <BeginStoryboard><Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="Veil" Storyboard.TargetProperty="Opacity" To="0" Duration="{StaticResource D18}"/>
+                                </Storyboard></BeginStoryboard>
+                            </Trigger.ExitActions>
+                            <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Root" Property="Opacity" Value="0.45"/>
+                            <Setter Property="Cursor" Value="Arrow"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- hazır ayar seçici (Hafif / Tam temizlik / Yayıncı / kendi profillerin): cam hap içinde bölmeler. Seçili bölme: soluk lavanta cam + alt ışık.
+         Dış 2 px kenar boşluğu görsellerde (Sel, Veil), kökte değil: böylece bölmeler arası tıklanamayan boşluk kalmaz -->
+    <Style x:Key="Segment" TargetType="RadioButton">
+        <Setter Property="Foreground" Value="{StaticResource Text3Brush}"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="FontWeight" Value="Medium"/>
+        <Setter Property="Padding" Value="20,11"/>
+        <Setter Property="FocusVisualStyle" Value="{StaticResource FocusRingSmall}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RadioButton">
+                    <Grid x:Name="Root" SnapsToDevicePixels="True" Background="Transparent">
+                        <Border x:Name="Sel" Margin="2" CornerRadius="13" Background="{StaticResource SelectedFillBrush}" BorderBrush="{StaticResource SelectedRimBrush}" BorderThickness="1" Opacity="0">
+                            <Rectangle Height="14" Margin="8,0,8,1" VerticalAlignment="Bottom" RadiusX="6" RadiusY="6" Fill="{StaticResource SelectedGlowBrush}" IsHitTestVisible="False"/>
+                        </Border>
+                        <Border x:Name="Veil" Margin="2" CornerRadius="13" Background="White" Opacity="0" IsHitTestVisible="False"/>
+                        <!-- uzun profil adı bölmeyi taşırmaz: sondan kısaltılır -->
+                        <ContentPresenter Margin="{TemplateBinding Padding}" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                          TextElement.Foreground="{TemplateBinding Foreground}">
+                            <ContentPresenter.Resources>
+                                <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
+                                    <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+                                </Style>
+                            </ContentPresenter.Resources>
+                        </ContentPresenter>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Trigger.EnterActions>
+                                <BeginStoryboard><Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="Sel" Storyboard.TargetProperty="Opacity" To="1" Duration="{StaticResource D20}"/>
+                                </Storyboard></BeginStoryboard>
+                            </Trigger.EnterActions>
+                            <Trigger.ExitActions>
+                                <BeginStoryboard><Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="Sel" Storyboard.TargetProperty="Opacity" To="0" Duration="{StaticResource D16}"/>
+                                </Storyboard></BeginStoryboard>
+                            </Trigger.ExitActions>
+                            <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+                        </Trigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsMouseOver" Value="True"/>
+                                <Condition Property="IsEnabled" Value="True"/>
+                            </MultiTrigger.Conditions>
+                            <MultiTrigger.EnterActions>
+                                <BeginStoryboard><Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="Veil" Storyboard.TargetProperty="Opacity" To="0.06" Duration="{StaticResource D14}"/>
+                                </Storyboard></BeginStoryboard>
+                            </MultiTrigger.EnterActions>
+                            <MultiTrigger.ExitActions>
+                                <BeginStoryboard><Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="Veil" Storyboard.TargetProperty="Opacity" To="0" Duration="{StaticResource D18}"/>
+                                </Storyboard></BeginStoryboard>
+                            </MultiTrigger.ExitActions>
+                            <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+                        </MultiTrigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.45"/>
+                            <Setter Property="Cursor" Value="Arrow"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- panel sekmesi: yazı + altında lavanta çizgi. Kutunun tamamı (yazının çevresi dahil) tıklanır -->
+    <Style x:Key="PanelTab" TargetType="RadioButton">
+        <Setter Property="Foreground" Value="{StaticResource Text3Brush}"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="FontWeight" Value="Medium"/>
+        <Setter Property="Padding" Value="12,10"/>
+        <Setter Property="MinHeight" Value="40"/>
+        <Setter Property="Margin" Value="0,0,2,0"/>
+        <Setter Property="FocusVisualStyle" Value="{StaticResource FocusRingSmall}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RadioButton">
+                    <Grid x:Name="Root" SnapsToDevicePixels="True" Background="Transparent">
+                        <ContentPresenter Margin="{TemplateBinding Padding}" VerticalAlignment="Center" TextElement.Foreground="{TemplateBinding Foreground}"/>
+                        <Rectangle x:Name="Line" Height="2" Margin="12,0" VerticalAlignment="Bottom" RadiusX="1" RadiusY="1" Fill="{StaticResource AccentFillBrush}" Opacity="0" IsHitTestVisible="False"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Trigger.EnterActions>
+                                <BeginStoryboard><Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="Line" Storyboard.TargetProperty="Opacity" To="1" Duration="{StaticResource D18}"/>
+                                </Storyboard></BeginStoryboard>
+                            </Trigger.EnterActions>
+                            <Trigger.ExitActions>
+                                <BeginStoryboard><Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="Line" Storyboard.TargetProperty="Opacity" To="0" Duration="{StaticResource D14}"/>
+                                </Storyboard></BeginStoryboard>
+                            </Trigger.ExitActions>
+                            <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True"><Setter Property="Foreground" Value="{StaticResource TextBrush}"/></Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ===================================== anahtar satırı ve onay kutusu ===================================== -->
+    <!-- satırın tamamı tıklanır; anahtar kayar, satır perdelenir. Yükseklik en az 48 px.
+         Açık anahtar: lavanta degrade yol + ışık; thumb kayar. (30 satır olduğundan başka efekt yok) -->
+    <Style x:Key="SwitchRow" TargetType="CheckBox">
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Padding" Value="20,10"/>
+        <Setter Property="MinHeight" Value="48"/>
+        <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+        <Setter Property="FocusVisualStyle" Value="{StaticResource FocusRingSmall}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="CheckBox">
+                    <Grid x:Name="Root" Background="Transparent" SnapsToDevicePixels="True">
+                        <Border x:Name="Veil" Background="White" Opacity="0" IsHitTestVisible="False"/>
+                        <Grid Margin="{TemplateBinding Padding}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <ContentPresenter Margin="0,0,16,0" VerticalAlignment="Center" TextElement.Foreground="{TemplateBinding Foreground}"/>
+                            <Grid Grid.Column="1" Width="42" Height="24" VerticalAlignment="Center">
+                                <Border x:Name="Track" CornerRadius="12" Background="#1AFFFFFF" BorderBrush="{StaticResource ControlEdgeBrush}" BorderThickness="1.2"/>
+                                <Border x:Name="TrackOn" CornerRadius="12" Background="{StaticResource AccentFillBrush}" Opacity="0"/>
+                                <Ellipse x:Name="Thumb" Width="12" Height="12" Fill="{StaticResource Text3Brush}" HorizontalAlignment="Left" Margin="6,0,0,0">
+                                    <Ellipse.RenderTransform><TranslateTransform x:Name="ThumbTr" X="0"/></Ellipse.RenderTransform>
+                                </Ellipse>
+                            </Grid>
+                        </Grid>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Trigger.EnterActions>
+                                <BeginStoryboard><Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="ThumbTr" Storyboard.TargetProperty="X" To="18" Duration="{StaticResource D18}">
+                                        <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
+                                    </DoubleAnimation>
+                                    <DoubleAnimation Storyboard.TargetName="TrackOn" Storyboard.TargetProperty="Opacity" To="1" Duration="{StaticResource D16}"/>
+                                </Storyboard></BeginStoryboard>
+                            </Trigger.EnterActions>
+                            <Trigger.ExitActions>
+                                <BeginStoryboard><Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="ThumbTr" Storyboard.TargetProperty="X" To="0" Duration="{StaticResource D18}">
+                                        <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
+                                    </DoubleAnimation>
+                                    <DoubleAnimation Storyboard.TargetName="TrackOn" Storyboard.TargetProperty="Opacity" To="0" Duration="{StaticResource D16}"/>
+                                </Storyboard></BeginStoryboard>
+                            </Trigger.ExitActions>
+                            <Setter TargetName="Thumb" Property="Fill" Value="{StaticResource OnAccentBrush}"/>
+                            <Setter TargetName="Thumb" Property="Width" Value="16"/>
+                            <Setter TargetName="Thumb" Property="Height" Value="16"/>
+                            <Setter TargetName="Thumb" Property="Margin" Value="4,0,0,0"/>
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Trigger.EnterActions>
+                                <BeginStoryboard><Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="Veil" Storyboard.TargetProperty="Opacity" To="0.045" Duration="{StaticResource D14}"/>
+                                </Storyboard></BeginStoryboard>
+                            </Trigger.EnterActions>
+                            <Trigger.ExitActions>
+                                <BeginStoryboard><Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="Veil" Storyboard.TargetProperty="Opacity" To="0" Duration="{StaticResource D18}"/>
+                                </Storyboard></BeginStoryboard>
+                            </Trigger.ExitActions>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Root" Property="Opacity" Value="0.45"/>
+                            <Setter Property="Cursor" Value="Arrow"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- onay kutusu (önizleme, seçici, hizmet listesi): kutu + yazı, kutunun tamamı en az 36 px yükseklikte tıklanır -->
+    <Style TargetType="CheckBox">
+        <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="MinHeight" Value="36"/>
+        <Setter Property="FocusVisualStyle" Value="{StaticResource FocusRingSmall}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="CheckBox">
+                    <!-- dış Padding kutunun İÇİNDE: satır aralarında tıklanamayan şerit kalmaz -->
+                    <Border Background="Transparent" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
+                      <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid Width="22" Height="22" VerticalAlignment="Center" Margin="0,0,0,0">
+                            <Border x:Name="Box" CornerRadius="7" Background="#14FFFFFF" BorderBrush="{StaticResource ControlEdgeBrush}" BorderThickness="1.3"/>
+                            <Border x:Name="Fill" CornerRadius="7" Background="{StaticResource AccentFillBrush}" Opacity="0"/>
+                            <Path x:Name="Tick" Data="{StaticResource IconCheck}" Stretch="Uniform" Width="12" Height="12" Stroke="{StaticResource OnAccentBrush}"
+                                  StrokeThickness="2.4" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Opacity="0"/>
+                        </Grid>
+                        <ContentPresenter Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center" TextElement.Foreground="{TemplateBinding Foreground}"/>
+                      </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Trigger.EnterActions>
+                                <BeginStoryboard><Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="Fill" Storyboard.TargetProperty="Opacity" To="1" Duration="{StaticResource D14}"/>
+                                    <DoubleAnimation Storyboard.TargetName="Tick" Storyboard.TargetProperty="Opacity" To="1" Duration="{StaticResource D16}"/>
+                                </Storyboard></BeginStoryboard>
+                            </Trigger.EnterActions>
+                            <Trigger.ExitActions>
+                                <BeginStoryboard><Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="Fill" Storyboard.TargetProperty="Opacity" To="0" Duration="{StaticResource D14}"/>
+                                    <DoubleAnimation Storyboard.TargetName="Tick" Storyboard.TargetProperty="Opacity" To="0" Duration="{StaticResource D10}"/>
+                                </Storyboard></BeginStoryboard>
+                            </Trigger.ExitActions>
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Box" Property="BorderBrush" Value="{StaticResource AccentBrush}"/></Trigger>
+                        <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.4"/></Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ===================================== yazı kutusu (liste arama) ===================================== -->
+    <Style TargetType="TextBox">
+        <Setter Property="Background" Value="{StaticResource InputBrush}"/>
+        <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+        <Setter Property="CaretBrush" Value="{StaticResource AccentBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource RimBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding" Value="12,9"/>
+        <Setter Property="FontFamily" Value="{StaticResource UiFont}"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="SelectionBrush" Value="{StaticResource AccentBrush}"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TextBox">
+                    <Grid>
+                        <!-- odaklanınca dışta yumuşak lavanta halka -->
+                        <Border x:Name="Glow" CornerRadius="13" Margin="-3" BorderBrush="#2EA9B3FF" BorderThickness="3" Opacity="0" IsHitTestVisible="False"/>
+                        <Border x:Name="Bd" CornerRadius="10" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}">
+                            <!-- Padding'i TextBox'ın kendisi uygular: burada ikinci kez eklenirse kutu iki kat dolgulu olur ve imleç ipucunun içine düşer -->
+                            <ScrollViewer x:Name="PART_ContentHost" Focusable="False" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden"/>
+                        </Border>
+                        <!-- Tag, kutu boşken görünen ipucudur ("Listede ara…"): kenar çizgisi + dolgu + 2 px iç boşluk kadar içeriden başlar, imleçle aynı hizada -->
+                        <TextBlock x:Name="Hint" Text="{TemplateBinding Tag}" Foreground="{StaticResource Text3Brush}" IsHitTestVisible="False"
+                                   Margin="{TemplateBinding Padding}" Padding="3,0,0,0" VerticalAlignment="Center" Visibility="Collapsed"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="Text" Value=""><Setter TargetName="Hint" Property="Visibility" Value="Visible"/></Trigger>
+                        <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource RimHoverBrush}"/></Trigger>
+                        <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.5"/></Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+                            <Trigger.EnterActions>
+                                <BeginStoryboard><Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="Glow" Storyboard.TargetProperty="Opacity" To="1" Duration="{StaticResource D16}"/>
+                                </Storyboard></BeginStoryboard>
+                            </Trigger.EnterActions>
+                            <Trigger.ExitActions>
+                                <BeginStoryboard><Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="Glow" Storyboard.TargetProperty="Opacity" To="0" Duration="{StaticResource D16}"/>
+                                </Storyboard></BeginStoryboard>
+                            </Trigger.ExitActions>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ===================================== ince kaydırma çubuğu ===================================== -->
+    <!-- çubuk 14 px (tutulacak alan), görünen kulp 6 px -->
+    <Style x:Key="ThumbStyle" TargetType="Thumb">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Thumb">
+                    <Grid Background="Transparent">
+                        <Border x:Name="T" Background="#3A4050" CornerRadius="3" Margin="4,0"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="T" Property="Background" Value="#566078"/></Trigger>
+                        <Trigger Property="IsDragging" Value="True"><Setter TargetName="T" Property="Background" Value="{StaticResource AccentBrush}"/></Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="ScrollBar">
+        <Setter Property="Width" Value="14"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ScrollBar">
+                    <Grid Background="Transparent">
+                        <Track x:Name="PART_Track" IsDirectionReversed="True">
+                            <Track.DecreaseRepeatButton><RepeatButton Command="ScrollBar.PageUpCommand" Opacity="0" Focusable="False"/></Track.DecreaseRepeatButton>
+                            <Track.Thumb><Thumb Style="{StaticResource ThumbStyle}"/></Track.Thumb>
+                            <Track.IncreaseRepeatButton><RepeatButton Command="ScrollBar.PageDownCommand" Opacity="0" Focusable="False"/></Track.IncreaseRepeatButton>
+                        </Track>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ===================================== ipucu balonu ===================================== -->
+    <Style TargetType="ToolTip">
+        <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+        <Setter Property="FontFamily" Value="{StaticResource UiFont}"/>
+        <Setter Property="FontSize" Value="12.5"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ToolTip">
+                    <Border Background="{StaticResource RaisedBrush}" BorderBrush="{StaticResource RimBrush}" BorderThickness="1" CornerRadius="10" Padding="12,9" MaxWidth="340">
+                        <ContentPresenter>
+                            <ContentPresenter.Resources>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="TextWrapping" Value="Wrap"/>
+                                    <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+                                </Style>
+                            </ContentPresenter.Resources>
+                        </ContentPresenter>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>

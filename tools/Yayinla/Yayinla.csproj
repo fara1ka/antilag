@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Yayın aracı: anahtar üretir, kurulum dosyasını imzalar, yayını kontrol eder. Uygulamanın parçası değildir; çözümde (sln) yoktur. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <AssemblyName>Yayinla</AssemblyName>
+    <RootNamespace>Yayinla</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\CS2Hazirla.Core\CS2Hazirla.Core.csproj" />
+  </ItemGroup>
+
+</Project>

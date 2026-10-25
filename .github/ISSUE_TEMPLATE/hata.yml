@@ -1,0 +1,37 @@
+name: Hata bildirimi
+description: Antilag beklediğin gibi çalışmadı
+labels: ["hata"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Güvenlik açığı mı buldun? Burada paylaşma; [SECURITY.md](https://github.com/fara1ka/antilag/blob/main/SECURITY.md) dosyasındaki özel bildirim yolunu kullan.
+  - type: input
+    id: surum
+    attributes:
+      label: Antilag sürümü
+      description: Antilag > Ayarlar sayfasının altında yazar.
+    validations:
+      required: true
+  - type: input
+    id: windows
+    attributes:
+      label: Windows sürümü
+      placeholder: Windows 11 23H2
+  - type: textarea
+    id: ne
+    attributes:
+      label: Ne yaptın, ne oldu, ne olmasını bekledin?
+    validations:
+      required: true
+  - type: textarea
+    id: gunluk
+    attributes:
+      label: Günlük (isteğe bağlı)
+      description: "%APPDATA%\\CS2Hazirla\\logs altındaki dosyadan ilgili satırlar. Paylaşmadan önce Windows kullanıcı adın gibi kişisel bilgileri sil."
+  - type: checkboxes
+    id: oyun
+    attributes:
+      label: Oyun
+      options:
+        - label: CS2 ya da FACEIT açıkken bir sorun yaşadım

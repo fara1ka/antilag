@@ -1,0 +1,62 @@
+<Window x:Class="CS2Hazirla.PickerWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Listeden seç" Width="620" Height="660" MinWidth="480" MinHeight="440"
+        Background="{StaticResource BgBrush}" Foreground="{StaticResource TextBrush}" FontFamily="{StaticResource UiFont}" FontSize="14" TextOptions.TextFormattingMode="Display"
+        xml:lang="tr-TR" WindowStartupLocation="CenterOwner" UseLayoutRounding="True" ShowInTaskbar="False">
+    <Grid Margin="28,24,28,22">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel>
+            <TextBlock x:Name="TitleText" Style="{StaticResource Heading}" TextWrapping="Wrap"/>
+            <TextBlock x:Name="HintText" Style="{StaticResource Hint}" Margin="0,6,0,0"/>
+        </StackPanel>
+
+        <!-- kutu yalnızca listeyi süzer; yazarak hiçbir şey eklenmez -->
+        <TextBox x:Name="SearchBox" Grid.Row="1" Margin="0,16,0,10" TextChanged="Search_Changed" Tag="Listede ara…" AutomationProperties.Name="Listede ara"
+                 ToolTip="Listeyi süzmek için yazabilirsin"/>
+
+        <Border Grid.Row="2" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource RimBrush}" BorderThickness="1" CornerRadius="16">
+            <Grid>
+                <TextBlock x:Name="EmptyText" Style="{StaticResource Hint}" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center" Visibility="Collapsed"/>
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="6">
+                    <ItemsControl x:Name="ItemList">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border x:Name="Row" Padding="12,9" CornerRadius="8" Background="Transparent" Cursor="Hand" MouseLeftButtonUp="Row_Click">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <CheckBox IsChecked="{Binding IsChecked, Mode=TwoWay}" VerticalAlignment="Center" AutomationProperties.Name="{Binding Title}"/>
+                                        <StackPanel Grid.Column="1" Margin="12,0,0,0">
+                                            <TextBlock Text="{Binding Title}" FontWeight="Medium" TextWrapping="Wrap"/>
+                                            <TextBlock Text="{Binding Subtitle}" Style="{StaticResource Hint}"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                                <DataTemplate.Triggers>
+                                    <Trigger SourceName="Row" Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="Row" Property="Background" Value="{StaticResource HoverVeilBrush}"/>
+                                    </Trigger>
+                                </DataTemplate.Triggers>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Grid>
+        </Border>
+
+        <DockPanel Grid.Row="3" Margin="0,16,0,0" LastChildFill="False">
+            <TextBlock x:Name="CountText" DockPanel.Dock="Left" VerticalAlignment="Center" Style="{StaticResource Hint}"/>
+            <Button x:Name="OkButton" DockPanel.Dock="Right" IsDefault="True" Click="Ok_Click" Style="{StaticResource PrimaryButton}" Padding="26,10"/>
+            <Button DockPanel.Dock="Right" Content="Vazgeç" Padding="22,10" Margin="0,0,10,0" IsCancel="True" Click="Cancel_Click"/>
+        </DockPanel>
+    </Grid>
+</Window>

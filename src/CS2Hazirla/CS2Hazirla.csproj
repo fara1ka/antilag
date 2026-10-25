@@ -1,0 +1,49 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <UseWPF>true</UseWPF>
+    <RootNamespace>CS2Hazirla</RootNamespace>
+    <AssemblyName>Antilag</AssemblyName>
+    <Product>Antilag</Product>
+    <AssemblyTitle>Antilag</AssemblyTitle>
+    <Description>Antilag: CS2 öncesi gereksiz programları kapatır</Description>
+    <Authors>fara1ka</Authors>
+    <Company>fara1ka</Company>
+    <Copyright>Copyright (C) 2026 fara1ka. GNU GPL v3 or later.</Copyright>
+    <RepositoryUrl>https://github.com/fara1ka/antilag</RepositoryUrl>
+    <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
+    <ApplicationIcon>Assets\app.ico</ApplicationIcon>
+    <Version>3.4.0</Version>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <SatelliteResourceLanguages>tr;en</SatelliteResourceLanguages>
+  </PropertyGroup>
+
+  <!-- Release = requireAdministrator (services, power plan, HKLM). Debug = asInvoker so the UI can be run/inspected without UAC. -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' != 'Release'">
+    <ApplicationManifest>app.debug.manifest</ApplicationManifest>
+  </PropertyGroup>
+
+  <!-- dotnet publish -c Release -r win-x64 → one self-contained .exe -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <SelfContained>true</SelfContained>
+    <PublishSingleFile>true</PublishSingleFile>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+    <DebugType>none</DebugType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CS2Hazirla.Core\CS2Hazirla.Core.csproj" />
+    <Resource Include="Assets\app.ico" />
+  </ItemGroup>
+
+</Project>

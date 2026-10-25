@@ -1,0 +1,19 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - name: Test
+        run: dotnet test tests/CS2Hazirla.Tests --nologo --filter "FullyQualifiedName!~Live"
+      - name: Build the whole app (the test project only references the core)
+        run: dotnet build CS2Hazirla.sln -c Release --nologo

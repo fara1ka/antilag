@@ -141,7 +141,9 @@ if ($Yayinla -ne '') {
     }
     Step 'Etiket' {
         if (-not (git rev-parse -q --verify "refs/tags/$tag")) { git tag -a $tag -m "Antilag $version (Antilag-Setup.exe bu kaynaktan üretildi)" }
-        git push origin $tag
+        # git ilerleme satırlarını hata çıkışına yazar; -Stop kipinde bu başarılı bir gönderimi bile düşürür: --quiet ile sessiz, sonucu çıkış koduna bakarak anlarız
+        git push --quiet origin $tag
+        if ($LASTEXITCODE -ne 0) { throw "$tag etiketi GitHub'a gönderilemedi." }
     }
     Step 'Yayınla' {
         gh release edit $tag --repo $repo --draft=false --latest

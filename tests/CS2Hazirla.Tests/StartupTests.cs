@@ -335,10 +335,12 @@ public class StartupTests : IDisposable
     {
         var script = _sb.Exe("arka plan.vbs");
         File.WriteAllText(script, "");
-        StartupSandbox.MakeShortcut(Path.Combine(_sb.UserFolder, "Örnek Çalışma.lnk"), Path.Combine(Environment.SystemDirectory, "wscript.exe"), StartupSandbox.Quoted(script));
+        // (only letters of the Western code page: WScript.Shell writes the file name through the ANSI code page of the machine, and a runner with a
+        // non-Turkish code page turns ş, ı, ğ into s, i, g: that would test the runner and not the engine)
+        StartupSandbox.MakeShortcut(Path.Combine(_sb.UserFolder, "Örnek Üç Ay.lnk"), Path.Combine(Environment.SystemDirectory, "wscript.exe"), StartupSandbox.Quoted(script));
         var e = _sb.Store().List().Single();
-        Assert.Equal("Örnek Çalışma.lnk", e.Name);                         // (a name with Turkish letters survives the whole way)
-        Assert.Equal("Örnek Çalışma", e.DisplayName);
+        Assert.Equal("Örnek Üç Ay.lnk", e.Name);                           // (a name with non-ASCII letters survives the whole way)
+        Assert.Equal("Örnek Üç Ay", e.DisplayName);
         Assert.NotNull(e.ExePath);
         Assert.Equal("arka plan.vbs", Path.GetFileName(e.ExePath!), ignoreCase: true);
         Assert.False(e.Locked);                                                                               // wscript.exe is Windows', the script is the person's

@@ -613,7 +613,7 @@ public class Orchestrator
         foreach (var pr in state.Processes.Where(x => !x.Reverted).Reverse().ToList())
         {
             if (forgetPrograms) continue;          // a new Başlat: nothing is reopened here; when the undo succeeds the whole journal is dropped below, when it fails the records stay for the restore button
-            if (!s.RestartClosedApps) { pr.Reverted = true; continue; }   // reopening switched off in Ayarlar
+            if (!s.RestartClosedApps) { pr.Reverted = true; continue; }   // reopening switched off (Ayarlar has no such switch any more: only settings built in code, e.g. by a test, can have it off)
             if (!seen.Add(pr.Name)) { pr.Reverted = true; continue; }     // closed in several sessions: one entry is enough
             if (!restartApps)
             {

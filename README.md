@@ -1,8 +1,8 @@
 ﻿# Antilag
 
 CS2'ye girmeden önce çalıştır: arka plandaki gereksiz programları kapatır, birkaç Windows ayarını oyun için düzeltir. Bitince
-**Uygulamayı kapat**'a basarsın ve CS2'yi açarsın. Oyun açıkken Antilag hiçbir değişiklik yapmaz ve hiçbir şeyi izlemez. İnternete yalnızca iki iş için
-çıkar: ping ölçümü ve yeni sürüm denetimi ([Gizlilik](#gizlilik)). Windows 10/11 (64 bit), tek `.exe`, yalnızca yönetici olarak çalışır.
+**Uygulamayı kapat**'a basarsın ve CS2'yi açarsın. Oyun açıkken Antilag hiçbir değişiklik yapmaz ve hiçbir şeyi izlemez. İnternete yalnızca üç iş için
+çıkar: ping ölçümü, Kontrol sayfasındaki internet kontrolü ve yeni sürüm denetimi ([Gizlilik](#gizlilik)). Windows 10/11 (64 bit), tek `.exe`, yalnızca yönetici olarak çalışır.
 Açık kaynaktır ([Lisans](#lisans)). Arayüz **Türkçe** ve **English**: dili Ayarlar'ın en üstündeki "Dil / Language" kartından seçersin (seçmediysen Windows Türkçeyse Türkçe, değilse English açılır).
 
 > **Dürüst beklenti:** Antilag ping'i düşürmez ve sihirli bir FPS artışı vermez; bir kazanç garantisi de vermez, sonuçlar bilgisayarına göre değişir.
@@ -14,7 +14,7 @@ Açık kaynaktır ([Lisans](#lisans)). Arayüz **Türkçe** ve **English**: dili
 
 [Sürümler](https://github.com/fara1ka/antilag/releases/latest) sayfasından `Antilag-Setup.exe`'yi indir (yaklaşık 62 MB; içinde .NET çalışma zamanı vardır),
 çalıştır ve **Kur**'a bas (yönetici izni gerekmez). Masaüstüne ve Başlat menüsüne **Antilag** kısayolu konur. Açılışta çalışan hiçbir şey eklenmez.
-Kaldırmak için Windows Ayarlar > Uygulamalar'dan "Antilag"ı kaldır; ayarlarını silip silmeyeceğini sorar.
+Kaldırmak için Windows Ayarlar > Uygulamalar'dan "Antilag"ı kaldır; ayarlarını silip silmeyeceğini sorar. Açılış sayfasında kapattığın programlar kaldırınca da kapalı kalır ([Açılış ve Kontrol sayfaları](#açılış-ve-kontrol-sayfaları)).
 
 Kurulum dosyası henüz Windows'un dijital imzasıyla (Authenticode) imzalı değildir, bu yüzden Windows "Bilinmeyen yayıncı" ya da "Windows bilgisayarınızı
 korudu" uyarısı gösterebilir: **Daha fazla bilgi > Yine de çalıştır**. Dosyayı yalnızca bu sayfadan indir; sürüm notundaki SHA-256 değerini kontrol edebilirsin
@@ -72,6 +72,19 @@ değişikliğin durur. Bu **yalnızca Antilag açıkken** geçerlidir: kapatıp 
 Windows Update, Güncelleme Orkestratörü, BITS ve Teslim İyileştirme (Hafif dahil hepsinde); Windows Arama, Yazıcı hizmeti (**yazdıracaksan kapalı tut**), DiagTrack, SysMain,
 İndirilmiş haritalar, Konum hizmeti, Hata raporlama ve üç Xbox hizmeti (Tam temizlik ve Yayıncı). Bunlar gizlilik özelliği değildir: yeniden başlatınca geri gelirler.
 
+## Açılış ve Kontrol sayfaları
+
+Sol çubukta Ana ekran ve Profiller'in yanında iki sayfa daha vardır. İkisi de oyunu hazırlamaktan bağımsızdır; **CS2 açıkken hiçbir şey okumaz, göndermez ya da değiştirmez** ve bir çalıştırma, önizleme ya da güncelleme sürerken de beklerler (ölçümü bozmasınlar diye).
+
+**Açılış** Windows açılırken kendiliğinden başlayan programları gösterir: Çalıştır kayıt anahtarları ve iki Başlangıç klasörü (zamanlanmış görevler, hizmetler ve Mağaza uygulamaları yok). Her programın yanında bir anahtar vardır.
+- Anahtarı kapatmak programı silmez, çalışıyorsa kapatmaz, kısayoluna ya da kaydına dokunmaz: yalnızca Windows'un kendi "başlangıç uygulamaları" bayrağını (`...\Explorer\StartupApproved`) yazar. Görev Yöneticisi'nin Başlangıç sekmesi ve Windows Ayarlar > Uygulamalar > Başlangıç aynı ayarı kullanır; istediğin zaman oralardan ya da aynı anahtardan geri açarsın.
+- Senin hesabın için kurulu programların bayrağı kullanıcı kaydına (HKCU), bu bilgisayardaki herkes için kurulu olanların bayrağı makine kaydına (HKLM) yazılır; ikincisi yönetici izni ister (Antilag zaten yönetici olarak çalışır). Bir hesaptan öbürüne geçilmez: Antilag'ı başka bir yönetici hesabının parolasıyla açarsan sayfa o hesabın listesini gösterir ve değiştirir.
+- Antilag'ın kendisi, güvenlik programları ve bilgisayarın çalışması için gerekli olabilecek programlar (Windows, ekran kartı, ses) kilitlidir. Bu anahtarlar geri yükleme kaydına girmez: **Geri yükle** onlara dokunmaz ve Antilag'ı kaldırsan da olduğu gibi kalırlar.
+
+**Kontrol** yalnızca bakan iki kısa inceleme yapar; bilgisayarında hiçbir şeyi değiştirmez.
+- **Bilgisayarın durumu**: disk boş yeri, Windows'un kaç gündür yeniden başlatılmadığı, bekleyen yeniden başlatma, pil, ekran kartı sürücüsünün tarihi, bozulabileceği düşünülen disk ve oyunun HDD'de olması gibi birkaç bilgi. Söyleyecek bir şey olmayan ya da okunamayan konu hiç gösterilmez. Sayfa açılınca ve pencere öne gelince bakar; ilgili Windows ayar sayfasını açan bir düğme dışında bir şey yapmaz.
+- **İnternet kontrolü**: yalnızca **Kontrol et**'e basınca çalışır. Modeme, iki bilinen internet adresine ve (`settings.json` içine yazdıysan) kendi ping hedefine birkaç saniye ping atar, bir de adres çözme süresine bakar ve sorunun evde mi (Wi-Fi, modem), internet sağlayıcısında mı olduğunu söyler. Ping ile ölçtüğü için oyun sunucusuna giden yolu birebir göstermez ve ping'i engelleyen bir ağda yanıltabilir; sonuç bunu söyler.
+
 ## Neyi kapatmaz
 
 CS2, Steam (kütüphane klasörleri dahil), FACEIT, Windows'un kendi parçaları, Windows Defender, ekran kartı ve ses sürücüsü bileşenleri ve Windows'un web bileşeni (WebView2).
@@ -87,6 +100,7 @@ yalnızca pencereyi ve tepsi simgesini kapatır; hizmetin kendisi çalışmaya d
 - **Getiremez:** kaydedilmemiş iş, tarayıcıda açık sekmeler (tarayıcı kendisi sorarsa kurtarır; yoksa Ctrl+Shift+T), kendini güncelleyen programlar,
   arka plan yardımcı parçaları, engel aşma programları (GoodbyeDPI, Zapret), diğer oyunların hile koruma parçaları ve Microsoft Store uygulamaları. Bunların hangileri açılamadıysa
   geri yükleme bittiğinde adlarıyla yazılır.
+- **Dokunmaz:** Açılış sayfasındaki anahtarlar (Windows'un kendi ayarıdır; geri açmak için aynı anahtarı ya da Görev Yöneticisi'ni kullan).
 - Antilag'ı açınca **hiçbir şey kendiliğinden geri yüklenmez**; kapattığın programlar kapalı kalır. Yeni bir Başlat da önce önceki çalıştırmanın ayarlarını sessizce eski haline getirir.
 - Windows'u yeniden başlatınca yalnızca durdurulan hizmetler, fare ivmesi ve Yapışkan Tuşlar ayarı kendiliğinden düzelir; güç planı, kayıt defteri
   ve ağ kartı ayarı **geri yükleyene kadar** kalır.
@@ -118,7 +132,7 @@ Antilag riski yapısal olarak azaltacak şekilde yazıldı:
   Ayrıntılar'dan bu anahtarı kapat. Valorant için bilgisayarı yeniden başlatman gerekebilir. FACEIT'in kendi parçaları her zaman korunur.
 - Kayıt defterine yalnızca Windows'un kendi ayarları yazılır. CS2'nin yolunu içeren en fazla iki değer vardır: ekran kartı tercihi (hazır ayarlarda
   açık) ve tam ekran iyileştirmesinin kapatılması (Tam temizlik ve Yayıncı'da açık, Hafif'te kapalı). Bunları Windows oyun açılırken okur;
-  Antilag'dan oyuna hiçbir kod girmez.
+  Antilag'dan oyuna hiçbir kod girmez. Açılış sayfasındaki bir anahtar ayrıca yalnızca Windows'un kendi başlangıç bayrağını yazar (`...\Explorer\StartupApproved`), oyunla ilgisi yoktur.
 
 Bizim kontrolümüz dışında kalan belirsizlik: Valve'ın ve FACEIT'in üçüncü taraf yazılımlara bakışı ve FACEIT'in çekirdek düzeyindeki anti-cheat'inin engelleme listesi zamanla değişebilir.
 İlk kullanımda FACEIT'in "desteklenmeyen yazılım" uyarısı vermediğini kontrol et; verirse Antilag'ı kullanma ve [bildir](#sorun-bildirme-ve-güvenlik).
@@ -128,8 +142,9 @@ Bizim kontrolümüz dışında kalan belirsizlik: Valve'ın ve FACEIT'in üçün
 Veriler `%APPDATA%\CS2Hazirla\` altında durur (`settings.json`, `state.json` = geri yükleme kaydı, `logs\` = son 14 günün günlüğü). Klasör adı projenin ilk adından kalmıştır;
 adı değiştirmek bekleyen bir geri yükleme kaydını kaybettirirdi. Telemetri ve hesap yoktur.
 
-İnternete yalnızca iki iş için çıkılır; ikisinde de hesap, kullanıcı adı, program listesi ya da dosya bilgisi gönderilmez. Yalnızca her internet isteğinde olduğu gibi IP adresin ve "Antilag/sürüm" bilgisi karşı tarafın sunucusuna görünür:
+İnternete yalnızca üç iş için çıkılır; hiçbirinde hesap, kullanıcı adı, program listesi ya da dosya bilgisi gönderilmez. Yalnızca her internet isteğinde olduğu gibi IP adresin ve (sürüm denetiminde) "Antilag/sürüm" bilgisi karşı tarafın sunucusuna görünür:
 - **Ping ölçümü:** Başlat'a bastığında, değişiklikten önce ve sonra olmak üzere en çok 20'şer ICMP yankı isteği `1.1.1.1`'e (Cloudflare) gider. Hedef `settings.json` içindeki `PingTarget` ile değişir. Hedef senin IP adresini görür.
+- **İnternet kontrolü (Kontrol sayfası):** yalnızca **Kontrol et**'e basınca, birkaç saniye boyunca modemine (ev ağında kalır), `1.1.1.1` (Cloudflare), `8.8.8.8` (Google) ve `PingTarget` bunlardan farklıysa ona en çok 50'şer ICMP yankı isteği gider; ayrıca `steampowered.com` adı için bilgisayarının adres sunucusuna (DNS) bir ad çözme isteği yapılır. Hiçbir şey kaydedilmez; bu adresler ve DNS sunucun senin IP adresini görür. CS2 açıkken ve bir çalıştırma, önizleme ya da güncelleme sürerken yapılmaz.
 - **Yeni sürüm denetimi:** Antilag açılırken `github.com/fara1ka/antilag/releases` adresinden (dosyalar `githubusercontent.com` üzerinden gelir) yalnızca küçük bir sürüm bilgisi dosyası istenir. Ayarlar'da kapatılabilir: kapalıyken kendiliğinden istek yapılmaz, yalnızca **Şimdi denetle**'ye basınca yapılır. Kurulum dosyası, "Yeni sürümü kendiliğinden kur" açıksa (varsayılan) yeni sürüm bulununca kendiliğinden, kapalıysa yalnızca sen Güncelle'ye basınca `%LOCALAPPDATA%\Antilag\update` altına iner ve bir sonraki açılışta silinir. Ayrıca kurulum, yanına bir günlük (`kurulum.log`) yazar; bu günlük dosya yollarını (Windows kullanıcı adın dahil) içerir ve internete gönderilmez; bir sorun bildirirken paylaşmadan önce kontrol et.
 
 Günlük ve geri yükleme kaydı kapattığın programların adlarını ve dosya yollarını (Windows kullanıcı adın dahil) içerebilir; bir hata bildirirken paylaşmadan önce kontrol et.

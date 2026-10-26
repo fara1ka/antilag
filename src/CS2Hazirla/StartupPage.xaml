@@ -1,0 +1,69 @@
+<UserControl x:Class="CS2Hazirla.StartupPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:CS2Hazirla">
+    <!-- Açılış: Windows'la birlikte açılan programlar, her birinin yanında bir anahtar. DataContext = StartupPageVM -->
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Focusable="False">
+        <StackPanel MaxWidth="720" HorizontalAlignment="Left" Margin="40,32,32,40">
+            <TextBlock Text="{local:T 'Açılış'}" Style="{StaticResource Heading}" FontSize="26"/>
+            <TextBlock Style="{StaticResource Hint}" Margin="0,8,0,0"
+                       Text="{local:T 'Windows açılırken kendiliğinden başlayan programlar. Bilgisayarın daha çabuk hazır olmasını istiyorsan, her gün ihtiyacın olmayanları kapatabilirsin.'}"/>
+            <TextBlock Style="{StaticResource Hint}" Margin="0,6,0,0"
+                       Text="{local:T 'Anahtarı kapatınca program silinmez; yalnızca bir sonraki Windows açılışında kendiliğinden başlamaz. İstediğin zaman geri açabilirsin. Görev Yöneticisi\'nin Başlangıç sekmesindeki ayarla aynıdır.'}"/>
+            <TextBlock Style="{StaticResource Hint}" Margin="0,6,0,0"
+                       Text="{local:T 'Burada Çalıştır kayıtları ve Başlangıç klasörleri listelenir; zamanlanmış görev, hizmet ya da Mağaza uygulaması olarak başlayan programlar yoktur.'}"/>
+
+            <!-- CS2 çalışırken liste okunmaz ve hiçbir şey değişmez; bu satır nedenini söyler -->
+            <Border Background="{StaticResource BadSoftBrush}" CornerRadius="10" Padding="14,10" Margin="0,14,0,0" HorizontalAlignment="Left"
+                    Visibility="{Binding GameBlocked, Converter={StaticResource B2V}}">
+                <TextBlock Text="{local:T 'CS2 çalışıyor: oyun açıkken Antilag bu listeye bakmaz ve hiçbir şeyi değiştirmez. Oyunu kapatınca liste burada görünür.'}"
+                           Foreground="{StaticResource BadBrush}" TextWrapping="Wrap" FontSize="13"/>
+            </Border>
+
+            <TextBlock Text="{Binding Summary}" Style="{StaticResource Body2}" Margin="0,18,0,0" Visibility="{Binding HasRows, Converter={StaticResource B2V}}"/>
+
+            <TextBlock Text="{local:T 'Bir çalıştırma, önizleme ya da güncelleme sürerken bakılmaz; bitince burada görünür.'}" Style="{StaticResource Hint}" Margin="0,14,0,0"
+                       Visibility="{Binding ShowWaiting, Converter={StaticResource B2V}}"/>
+            <TextBlock Text="{local:T 'Liste okunamadı.'}" Style="{StaticResource Hint}" Margin="0,14,0,0" Visibility="{Binding Failed, Converter={StaticResource B2V}}"/>
+            <TextBlock Text="{local:T 'Windows\'la birlikte kendiliğinden açılan bir program bulunamadı.'}" Style="{StaticResource Hint}" Margin="0,14,0,0"
+                       Visibility="{Binding ShowEmpty, Converter={StaticResource B2V}}"/>
+
+            <!-- bir çalıştırma, önizleme ya da güncelleme sürerken satırlar kilitlenir (Ayarlar gibi); sayfa yine kaydırılır -->
+            <ItemsControl ItemsSource="{Binding Rows}" Margin="0,10,0,0"
+                          IsEnabled="{Binding DataContext.IsIdle, RelativeSource={RelativeSource AncestorType=Window}}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel>
+                            <Rectangle x:Name="Sep" Style="{StaticResource Hairline}"/>
+                            <!-- satırın tamamı tıklanır; korumalı satırın anahtarı kilitli görünür, nedeni anahtarın altında soluk olmadan yazar -->
+                            <CheckBox Style="{StaticResource SwitchRow}" Padding="0,10,0,4" IsChecked="{Binding IsOn, Mode=TwoWay}" IsEnabled="{Binding CanSwitch}"
+                                      AutomationProperties.Name="{Binding Title}" AutomationProperties.HelpText="{Binding Help}">
+                                <StackPanel>
+                                    <TextBlock Text="{Binding Title}" FontSize="14.5" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" ToolTip="{Binding Title}"/>
+                                    <TextBlock Text="{Binding Where}" Style="{StaticResource Hint}" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" MaxWidth="640"
+                                               Margin="0,2,0,0" ToolTip="{Binding Where}"/>
+                                    <TextBlock Text="{Binding Scope}" Style="{StaticResource Hint}" Margin="0,1,0,0" Visibility="{Binding HasScope, Converter={StaticResource B2V}}"/>
+                                </StackPanel>
+                            </CheckBox>
+                            <TextBlock Text="{Binding LockedReason}" Style="{StaticResource Hint}" Margin="0,0,0,8" Visibility="{Binding Locked, Converter={StaticResource B2V}}"/>
+                            <TextBlock Text="{Binding Note}" Foreground="{StaticResource AccentBrush}" FontSize="12.5" TextWrapping="Wrap" Margin="0,0,0,8"
+                                       Visibility="{Binding HasNote, Converter={StaticResource B2V}}" AutomationProperties.LiveSetting="Polite"/>
+                            <Rectangle Height="6" Visibility="{Binding Locked, Converter={StaticResource NotB2V}}"/>
+                        </StackPanel>
+                        <DataTemplate.Triggers>
+                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource PreviousData}}" Value="{x:Null}">
+                                <Setter TargetName="Sep" Property="Visibility" Value="Collapsed"/>
+                            </DataTrigger>
+                        </DataTemplate.Triggers>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <Rectangle Style="{StaticResource Hairline}" Margin="0,0,0,0" Visibility="{Binding HasRows, Converter={StaticResource B2V}}"/>
+            <Button Style="{StaticResource TextButton}" Command="{Binding OpenWindowsPageCommand}" HorizontalAlignment="Left" Margin="-12,10,0,0"
+                    ToolTip="{local:T 'Windows\'un Ayarlar &gt; Uygulamalar &gt; Başlangıç sayfasını açar.'}">
+                <TextBlock Text="{local:T 'Windows\'un kendi sayfasını aç'}"/>
+            </Button>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

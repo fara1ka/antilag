@@ -159,7 +159,7 @@ public class StorageTests
         Assert.Equal(new[] { "keepme" }, s.NeverClose);
         Assert.Equal(new[] { "closeme" }, s.ExtraProcesses);
         Assert.Equal("8.8.8.8", s.PingTarget);
-        Assert.False(s.RestartClosedApps);
+        Assert.True(s.RestartClosedApps);                                      // the switch is gone: what an older file says is ignored
         Assert.Empty(Directory.GetFiles(AppPaths.Root, "settings.bozuk-*.json"));
     }
 

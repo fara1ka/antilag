@@ -50,7 +50,7 @@ public partial class MainWindow : Window
         // looks: the fine grain over the background glow, the entrance of the home page, the breathing light behind the dial, the bar on the mode card
         Grain.Fill = MakeGrain();
         _breathing = new Breathing(HeroHalo, HaloScale);
-        Activated += (_, _) => { UpdateBreathing(); vm.RescanIfStale(); vm.RefreshScreenNote(); };
+        Activated += (_, _) => { UpdateBreathing(); vm.RescanIfStale(); vm.RefreshScreenNote(); vm.RefreshVisiblePage(); };
         Deactivated += (_, _) => UpdateBreathing();
         StateChanged += (_, _) => UpdateBreathing();
         IsVisibleChanged += (_, _) => UpdateBreathing();
@@ -240,7 +240,7 @@ public partial class MainWindow : Window
     }
 
 #if DEBUG
-    /// <summary>Developer aid: render the window to a PNG (--screenshot file.png [--demo idle|busy|done|warn] [--no-init] [--noapps] [--drawer] [--full] [--search text] [--hafif] [--stream] [--metrics] [--memory] [--profiles] [--settings] [--preview] [--picker] [--dialog] [--narrow] [--chips]).</summary>
+    /// <summary>Developer aid: render the window to a PNG (--screenshot file.png [--demo idle|busy|done|warn] [--no-init] [--noapps] [--drawer] [--full] [--search text] [--hafif] [--stream] [--metrics] [--memory] [--profiles] [--settings] [--startup] [--check] [--preview] [--picker] [--dialog] [--narrow] [--chips]).</summary>
     private async Task DebugHooks()
     {
         var i = Array.IndexOf(_args, "--screenshot");
@@ -273,6 +273,8 @@ public partial class MainWindow : Window
         if (Has("--chips")) { _vm.LoadDemoProfiles(); _vm.UseDemoProfile(); }
         if (Has("--profiles")) { _vm.LoadDemoProfiles(); _vm.GoTo(Page.Profiles); }
         if (Has("--settings")) _vm.GoTo(Page.Settings);
+        if (Has("--startup")) { _vm.LoadDemoStartup(); _vm.GoTo(Page.Startup); }
+        if (Has("--check")) { _vm.LoadDemoCheck(); _vm.GoTo(Page.Check); }
         if (Has("--hafif")) _vm.SelectProfile(Core.ProfileKind.Safe);
         if (Has("--stream")) _vm.SelectProfile(Core.ProfileKind.Stream);
         if (Has("--full")) _vm.SetTab(DrawerTab.Full);
@@ -286,6 +288,7 @@ public partial class MainWindow : Window
         if (sc >= 0 && sc + 1 < _args.Length && double.TryParse(_args[sc + 1], out var scrollTo)) { SettingsPage.ScrollToVerticalOffset(scrollTo); await Task.Delay(400); }
         if (Has("--end")) { SelectionScroll.ScrollToEnd(); SettingsPage.ScrollToEnd(); await Task.Delay(400); }       // the list of the drawer (Öneriler) and the Ayarlar page, scrolled to their end
         if (Has("--narrow")) { Width = 940; Height = 620; UpdateLayout(); }   // smallest supported size
+        if (Has("--tall")) { Height = 1250; UpdateLayout(); await Task.Delay(300); }        // a page that scrolls, shown whole
         if (Has("--info")) await _vm.RefreshInfoAsync();
         var path = _args[i + 1];
 

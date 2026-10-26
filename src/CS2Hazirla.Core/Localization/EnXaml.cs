@@ -65,9 +65,6 @@ public static class EnXaml
         ("English", "English"),
         ("CS2 çalışıyor: oyun açıkken Antilag hiçbir şey yapmaz; bu sayfadaki liste düğmeleri oyun kapanınca çalışır.", "CS2 is running: Antilag does nothing while the game is open; the list buttons on this page work once the game is closed."),
         ("Her şey listeden seçilir; bir şey yazman gerekmez. Değişiklikler kendiliğinden kaydedilir.", "Everything is chosen from lists; you never have to type anything. Changes are saved automatically."),
-        ("Kapattığım programları geri açsın", "Reopen the programs I closed"),
-        ("Kapalıyken geri yükleme yalnızca ayarları ve hizmetleri eski haline getirir. Kendini güncelleyen programlar, arka plan yardımcıları, engel aşma programları ve Mağaza uygulamaları açılamaz; hangileri açılmadıysa sonunda adlarıyla yazılır.",
-         "When this is off, restoring only puts the settings and services back as they were. Self-updating programs, background helpers, block-bypass programs and Store apps can't be reopened; any that weren't reopened are listed by name at the end."),
         ("Yeni sürüm olunca haber ver", "Notify me about new versions"),
         ("Antilag açılırken GitHub'dan yalnızca en yeni sürüm numarasına bakar; hesap, program listesi ya da dosya bilgisi göndermez (GitHub, her internet isteğinde olduğu gibi IP adresini görür). Kapalıyken kendiliğinden istek yapılmaz; Şimdi denetle yine çalışır.",
          "When Antilag starts, it only looks up the newest version number on GitHub; it sends no account, program list or file information (as with every internet request, GitHub sees your IP address). While this is off, no request is sent automatically; Check now still works."),
@@ -125,5 +122,38 @@ public static class EnXaml
 
         // ------------------------------------------------------------------ the small buttons of a list row
         ("Çıkar", "Remove"),
+
+        // ------------------------------------------------------------------ the Açılış page (programs that start with Windows)
+        ("Açılış", "Startup"),
+        ("Windows açılırken kendiliğinden başlayan programlar. Bilgisayarın daha çabuk hazır olmasını istiyorsan, her gün ihtiyacın olmayanları kapatabilirsin.",
+         "Programs that start by themselves when Windows starts. If you want your computer to be ready sooner, you can switch off the ones you don't need every day."),
+        ("Anahtarı kapatınca program silinmez; yalnızca bir sonraki Windows açılışında kendiliğinden başlamaz. İstediğin zaman geri açabilirsin. Görev Yöneticisi'nin Başlangıç sekmesindeki ayarla aynıdır.",
+         "Switching a program off doesn't delete it; it just won't start by itself the next time Windows starts. You can switch it back on whenever you like. It's the same setting as the Startup apps tab of Task Manager."),
+        ("Burada Çalıştır kayıtları ve Başlangıç klasörleri listelenir; zamanlanmış görev, hizmet ya da Mağaza uygulaması olarak başlayan programlar yoktur.",
+         "This lists the Run entries and the Startup folders; programs that start as a scheduled task, a service or a Store app aren't included."),
+        ("CS2 çalışıyor: oyun açıkken Antilag bu listeye bakmaz ve hiçbir şeyi değiştirmez. Oyunu kapatınca liste burada görünür.",
+         "CS2 is running: while the game is open, Antilag doesn't look at this list and doesn't change anything. When you close the game, the list appears here."),
+        ("Liste okunamadı.", "The list couldn't be read."),
+        ("Windows'la birlikte kendiliğinden açılan bir program bulunamadı.", "No program that starts by itself with Windows was found."),
+        ("Windows'un Ayarlar > Uygulamalar > Başlangıç sayfasını açar.", "Opens the Settings > Apps > Startup page of Windows."),
+        ("Windows'un kendi sayfasını aç", "Open Windows' own page"),
+
+        // ------------------------------------------------------------------ the Kontrol page (computer and internet check)
+        ("Kontrol", "Check-up"),
+        ("Oyundan önce işine yarayacak iki kısa bakış. İkisi de yalnızca bakar; bilgisayarında hiçbir şeyi değiştirmez.",
+         "Two quick looks that help before a game. Both only look; they don't change anything on your computer."),
+        ("CS2 çalışıyor: oyun açıkken Antilag bilgisayara bakmaz ve internete hiçbir şey göndermez. Oyunu kapatınca bu sayfa çalışır.",
+         "CS2 is running: while the game is open, Antilag doesn't look at your computer and sends nothing to the internet. This page works again when you close the game."),
+        ("Bilgisayarın durumu", "Your computer's state"),
+        ("Yeniden bak", "Look again"),
+        ("Disk alanı, yeniden başlatma, pil, ekran kartı sürücüsü gibi birkaç bilgi. Söyleyecek bir şey olmayan ya da okunamayan konu listede görünmez.",
+         "A few facts such as disk space, restarts, the battery and the graphics driver. A topic with nothing to say, or one that can't be read, isn't in the list."),
+        ("Bakılıyor…", "Looking…"),
+        ("Şu an söylenecek bir şey bulunamadı.", "There's nothing to report right now."),
+        ("İnternet kontrolü", "Internet check"),
+        ("Modemine, iki bilinen internet adresine ve (dosyada yazdıysan) kendi ping hedefine birkaç saniye ping atar, bir de adres çözme süresine bakar; sorunun evde mi, internet sağlayıcında mı olduğunu söyler. Başka hiçbir şey gönderilmez ve kaydedilmez.",
+         "Pings your modem, two well-known internet addresses and (if you wrote one in the settings file) your own ping target for a few seconds and looks at how long a name lookup takes; then tells you whether a problem is at home or with your internet provider. Nothing else is sent or saved."),
+        ("Bir çalıştırma, önizleme ya da güncelleme sürerken bakılmaz; bitince burada görünür.", "Nothing is checked while a run, a preview or an update is going on; it appears here when that ends."),
+        ("Kontrol et", "Check"),
     };
 }

@@ -129,7 +129,11 @@ public class AppSettings
     /// <summary>Readable names of programs/services the user picked ("onedrive" → "Microsoft OneDrive", "svc:xyz" → service title), so the lists stay readable after a restart.</summary>
     public Dictionary<string, string> DisplayNames { get; set; } = new();
     public string PingTarget { get; set; } = "1.1.1.1";
-    public bool RestartClosedApps { get; set; } = true;
+    /// <summary>
+    /// Always on in the app: Geri yükle reopens the programs that were closed. (The switch in Ayarlar was removed in 3.7: nobody understood it. A value that an older
+    /// settings.json carries is ignored, so nobody is left with a setting that cannot be changed any more. The Orchestrator still honours the value; the tests use it.)
+    /// </summary>
+    [JsonIgnore] public bool RestartClosedApps { get; set; } = true;
     /// <summary>Once when the app opens, one small request asks GitHub for the newest version number. Nothing about the user is sent.</summary>
     public bool CheckForUpdates { get; set; } = true;
     /// <summary>

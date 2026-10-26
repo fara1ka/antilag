@@ -228,7 +228,7 @@ public class HomeAppVM : ObservableObject
 
 public enum Phase { Idle, Preparing, Reverting }
 
-public enum Page { Home, Profiles, Settings }
+public enum Page { Home, Profiles, Startup, Check, Settings }
 
 public enum DrawerTab { Summary, Full, Metrics, Memory }
 
@@ -347,6 +347,25 @@ public partial class MainViewModel : ObservableObject
         Update = new UpdateVM(new UpdateFlow(new UpdateClient(UpdateVM.Current), _sys, _log, () => ui.CheckAccess() ? GameRunningNow() : ui.Invoke(GameRunningNow)), ui, Settings,
                               () => IsIdle, () => ExitRequested?.Invoke(), () => SaveSettings(), UpdateBusyChanged, FlushProfileEdits);
         Update.AutomaticInstallAllowed = carry == null;        // a window opened anew (the language was changed) only shows the card
+        // the Açılış and Kontrol pages: they read the machine only while on screen and never while the game runs (a look from any thread goes through the window's thread)
+        Func<bool> gameCheck = () => ui.CheckAccess() ? GameRunningNow() : ui.Invoke(GameRunningNow);
+        Startup = new StartupPageVM(ui, new WindowsStartupStore { GameRunning = gameCheck }, gameCheck, () => !IsIdleExceptCheck);
+        Check = new CheckPageVM(new WindowsHealthProbe(), new NetCheck(_sys, gameCheck), gameCheck,
+                                () => SteamLocator.ResolveCs2() is { } exe ? System.IO.Path.GetDirectoryName(exe) : null,
+                                () => Settings.PingTarget, () => !IsIdleExceptCheck, UpdateBusyChanged);
+        PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName != nameof(IsIdle)) return;
+            Check.OtherWorkChanged();
+            Startup.OtherWorkChanged();
+            // a page that had to wait for a run, a preview or an update fills itself when that is over (only the one on screen). Looked at once more a moment
+            // later: a run passes through "idle" for an instant between undoing the previous run and starting (no read may begin inside a run)
+            if (IsIdle && !_pageRefreshQueued)
+            {
+                _pageRefreshQueued = true;
+                ui.BeginInvoke(DispatcherPriority.Background, () => { _pageRefreshQueued = false; if (IsIdle) RefreshVisiblePage(); });
+            }
+        };
         OpenDisplaySettingsCommand = new RelayCommand(() => { if (!GameRunningNow()) UpdateVM.ShellOpen("ms-settings:display-advanced"); });
         InitProfiles();
     }
@@ -356,17 +375,38 @@ public partial class MainViewModel : ObservableObject
     private Page _page = Page.Home;
     public bool PageHome { get => _page == Page.Home; set { if (value) GoTo(Page.Home); } }
     public bool PageProfiles { get => _page == Page.Profiles; set { if (value) GoTo(Page.Profiles); } }
+    public bool PageStartup { get => _page == Page.Startup; set { if (value) GoTo(Page.Startup); } }
+    public bool PageCheck { get => _page == Page.Check; set { if (value) GoTo(Page.Check); } }
     public bool PageSettings { get => _page == Page.Settings; set { if (value) GoTo(Page.Settings); } }
+
+    /// <summary>The Açılış page (programs that start with Windows) and the Kontrol page (computer and internet check).</summary>
+    public StartupPageVM Startup { get; }
+    public CheckPageVM Check { get; }
+
+    private bool _pageRefreshQueued;
 
     public void GoTo(Page page)
     {
         if (_page == page) return;
         if (_page == Page.Profiles) FlushProfileEdits();      // edits of a profile are kept, never dropped silently
+        if (_page == Page.Check) Check.ClearNetResult();      // the verdict of an internet check is only true for the moment it was made
         _page = page;
         if (page != Page.Home) DrawerOpen = false;
         else RescanIfStale();
-        Raise(nameof(PageHome)); Raise(nameof(PageProfiles)); Raise(nameof(PageSettings));
+        Raise(nameof(PageHome)); Raise(nameof(PageProfiles)); Raise(nameof(PageStartup)); Raise(nameof(PageCheck)); Raise(nameof(PageSettings));
         SaveSettings();
+        RefreshVisiblePage(clearStatus: true);
+    }
+
+    /// <summary>
+    /// The Açılış and Kontrol pages look at the machine only while they are on screen (when they open, and when the window is used again: the person
+    /// may have been in Windows' own pages meanwhile). Never while CS2 runs (the pages then say so).
+    /// </summary>
+    public void RefreshVisiblePage(bool clearStatus = false)
+    {
+        if (App.OffScreenRender) return;           // a screenshot run shows its own sample content and never looks at the computer
+        if (_page == Page.Startup) _ = Startup.RefreshAsync(clearStatus);
+        else if (_page == Page.Check) _ = Check.RefreshHealthAsync();
     }
 
     private bool _drawerOpen;
@@ -469,12 +509,6 @@ public partial class MainViewModel : ObservableObject
     }
 
     // ---------------------------------------------------------------- settings page
-
-    public bool RestartClosedApps
-    {
-        get => Settings.RestartClosedApps;
-        set { Settings.RestartClosedApps = value; Raise(); Raise(nameof(RestoreTip)); }
-    }
 
     private void AddKnown(AppListVM list, string key, string? display = null)
     {
@@ -624,7 +658,10 @@ public partial class MainViewModel : ObservableObject
     }
 
     /// <summary>Nothing is running and no preview is being built: the switches, presets and profiles may be changed.</summary>
-    public bool IsIdle => Phase == Phase.Idle && !_previewing && !_manualClosing && Update?.IsWorking != true;
+    public bool IsIdle => IsIdleExceptCheck && Check?.IsWorking != true;
+
+    /// <summary>Everything but the two looks of the Kontrol page: those wait for this (their pings would disturb a run's before/after readings).</summary>
+    private bool IsIdleExceptCheck => Phase == Phase.Idle && !_previewing && !_manualClosing && Update?.IsWorking != true;
 
     // an update is downloading or starting its installer: like a preview or a manual close, nothing else may start meanwhile
     private void UpdateBusyChanged()
@@ -671,8 +708,7 @@ public partial class MainViewModel : ObservableObject
     public string HeroTitle => Phase == Phase.Reverting && _quietRevert ? Loc.T("Hazırlanıyor") : CurrentStatus().Title;
     public string HeroHint => Phase == Phase.Reverting
         ? (_quietRevert ? Loc.T("Önceki çalıştırmanın ayarları geri yükleniyor; hemen ardından yeniden başlayacak.")
-           : Settings.RestartClosedApps ? Loc.T("Kapatılan programlar açılıyor, ayarlar ve hizmetler eski haline getiriliyor.")
-           : Loc.T("Ayarlar ve hizmetler eski haline getiriliyor."))
+           : Loc.T("Kapatılan programlar açılıyor, ayarlar ve hizmetler eski haline getiriliyor."))
         : CurrentStatus().Hint;
     // the plain "ready" headline is white fading to lavender; green / amber / red stay solid because they are status words
     /// <summary>The sentence under the headline is empty while choosing (the home screen stays plain); it only speaks about a result.</summary>
@@ -681,8 +717,8 @@ public partial class MainViewModel : ObservableObject
     public bool ShowLog => View.ShowLog;
     /// <summary>The restore button: there is something to restore and nothing is running.</summary>
     public bool ShowRestore => View.ShowRestore;
-    /// <summary>"Kapatılan uygulamaları geri aç" when programs were closed (and Ayarlar lets Geri yükle reopen them); otherwise the button only undoes settings and says so.</summary>
-    public string RestoreLabel => PendingPrograms() > 0 && Settings.RestartClosedApps ? Loc.T("Kapatılan uygulamaları geri aç") : Loc.T("Ayarları geri yükle");
+    /// <summary>"Kapatılan uygulamaları geri aç" when programs were closed; otherwise the button only undoes settings and says so.</summary>
+    public string RestoreLabel => PendingPrograms() > 0 ? Loc.T("Kapatılan uygulamaları geri aç") : Loc.T("Ayarları geri yükle");
 
     private int _pendingPrograms = -1;      // -1: look at the journal again
     private int PendingPrograms() => _pendingPrograms >= 0 ? _pendingPrograms : (_pendingPrograms = _demoSession ? 3 : _orc.SessionActive ? _orc.PendingPrograms() : 0);
@@ -713,10 +749,8 @@ public partial class MainViewModel : ObservableObject
 
     public string RestoreTip => !HasSession
         ? Loc.T("Henüz geri yüklenecek bir şey yok. Başlat'a bastıktan sonra buradan ayarları eski haline getirebilirsin.")
-        : Settings.RestartClosedApps
-            ? Loc.T("Kapatılan programları yeniden açar, değiştirilen ayarları ve durdurulan hizmetleri eski haline getirir. " +
-                    "Kendini güncelleyen programlar, arka plan yardımcıları, engel aşma programları ve Mağaza uygulamaları açılamaz; hangileri açılmadıysa sonunda söylenir.")
-            : Loc.T("Değiştirilen ayarları ve durdurulan hizmetleri eski haline getirir. Programları açmaz: Ayarlar'da 'Kapattığım programları geri açsın' kapalı.");
+        : Loc.T("Kapatılan programları yeniden açar, değiştirilen ayarları ve durdurulan hizmetleri eski haline getirir. " +
+                "Kendini güncelleyen programlar, arka plan yardımcıları, engel aşma programları ve Mağaza uygulamaları açılamaz; hangileri açılmadıysa sonunda söylenir.");
 
     private void RaiseStatus()
     {

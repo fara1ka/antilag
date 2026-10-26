@@ -1,0 +1,158 @@
+<UserControl x:Class="CS2Hazirla.CheckPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:CS2Hazirla">
+    <!-- Kontrol: iki kısa, yalnızca bakan inceleme. DataContext = CheckPageVM -->
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Focusable="False">
+        <StackPanel MaxWidth="720" HorizontalAlignment="Left" Margin="40,32,32,40">
+            <TextBlock Text="{local:T 'Kontrol'}" Style="{StaticResource Heading}" FontSize="26"/>
+            <TextBlock Style="{StaticResource Hint}" Margin="0,8,0,0"
+                       Text="{local:T 'Oyundan önce işine yarayacak iki kısa bakış. İkisi de yalnızca bakar; bilgisayarında hiçbir şeyi değiştirmez.'}"/>
+
+            <!-- CS2 çalışırken hiçbir şey okunmaz ve hiçbir paket gönderilmez; bu satır nedenini söyler -->
+            <Border Background="{StaticResource BadSoftBrush}" CornerRadius="10" Padding="14,10" Margin="0,14,0,0" HorizontalAlignment="Left"
+                    Visibility="{Binding GameBlocked, Converter={StaticResource B2V}}">
+                <TextBlock Text="{local:T 'CS2 çalışıyor: oyun açıkken Antilag bilgisayara bakmaz ve internete hiçbir şey göndermez. Oyunu kapatınca bu sayfa çalışır.'}"
+                           Foreground="{StaticResource BadBrush}" TextWrapping="Wrap" FontSize="13"/>
+            </Border>
+
+            <!-- ============ bilgisayarın durumu ============ -->
+            <ContentControl Style="{StaticResource GlassCard}" Margin="0,22,0,0" Padding="22,18">
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="{local:T 'Bilgisayarın durumu'}" Style="{StaticResource Heading}" FontSize="18" VerticalAlignment="Center"/>
+                        <Button Grid.Column="1" Style="{StaticResource TextButton}" Command="{Binding RefreshHealthCommand}" Padding="12,7" MinHeight="36">
+                            <StackPanel Orientation="Horizontal">
+                                <Path Style="{StaticResource Icon}" Data="{StaticResource IconRefresh}" Margin="0,0,8,0"/>
+                                <TextBlock Text="{local:T 'Yeniden bak'}"/>
+                            </StackPanel>
+                        </Button>
+                    </Grid>
+                    <TextBlock Style="{StaticResource Hint}" Margin="0,4,0,8"
+                               Text="{local:T 'Disk alanı, yeniden başlatma, pil, ekran kartı sürücüsü gibi birkaç bilgi. Söyleyecek bir şey olmayan ya da okunamayan konu listede görünmez.'}"/>
+                    <TextBlock Text="{local:T 'Bakılıyor…'}" Style="{StaticResource Hint}" Visibility="{Binding HealthLoading, Converter={StaticResource B2V}}"
+                               AutomationProperties.LiveSetting="Polite"/>
+                    <TextBlock Text="{local:T 'Bir çalıştırma, önizleme ya da güncelleme sürerken bakılmaz; bitince burada görünür.'}" Style="{StaticResource Hint}"
+                               Visibility="{Binding ShowWaiting, Converter={StaticResource B2V}}"/>
+                    <TextBlock Text="{Binding HealthSummary}" Style="{StaticResource Body2}" Margin="0,0,0,4" Visibility="{Binding HasHealth, Converter={StaticResource B2V}}"/>
+                    <TextBlock Text="{local:T 'Şu an söylenecek bir şey bulunamadı.'}" Style="{StaticResource Hint}" Visibility="{Binding ShowHealthEmpty, Converter={StaticResource B2V}}"/>
+
+                    <ItemsControl ItemsSource="{Binding HealthRows}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel>
+                                    <Rectangle x:Name="Sep" Style="{StaticResource Hairline}"/>
+                                    <Grid Margin="0,10">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <!-- durum, renkten başka bir sözcükle de yazılır -->
+                                        <Border x:Name="Mark" Style="{StaticResource Chip}" MinWidth="86" VerticalAlignment="Top" Margin="0,1,14,0">
+                                            <TextBlock x:Name="MarkText" Text="{Binding LevelWord}" FontSize="12" HorizontalAlignment="Center" Foreground="{StaticResource GoodBrush}"/>
+                                        </Border>
+                                        <StackPanel Grid.Column="1">
+                                            <TextBlock Text="{Binding Title}" FontSize="14.5" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                            <TextBlock Text="{Binding Text}" Style="{StaticResource Hint}" Margin="0,2,0,0"/>
+                                            <Button Content="{Binding ActionText}" Style="{StaticResource LinkButton}" Command="{Binding ActionCommand}" HorizontalAlignment="Left" Margin="-10,2,0,0"
+                                                    Visibility="{Binding HasAction, Converter={StaticResource B2V}}"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </StackPanel>
+                                <DataTemplate.Triggers>
+                                    <DataTrigger Binding="{Binding IsNote}" Value="True">
+                                        <Setter TargetName="Mark" Property="Background" Value="{StaticResource WarnSoftBrush}"/>
+                                        <Setter TargetName="MarkText" Property="Foreground" Value="{StaticResource WarnBrush}"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsWarn}" Value="True">
+                                        <Setter TargetName="Mark" Property="Background" Value="{StaticResource BadSoftBrush}"/>
+                                        <Setter TargetName="MarkText" Property="Foreground" Value="{StaticResource BadBrush}"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource PreviousData}}" Value="{x:Null}">
+                                        <Setter TargetName="Sep" Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </DataTemplate.Triggers>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </ContentControl>
+
+            <!-- ============ internet kontrolü ============ -->
+            <ContentControl Style="{StaticResource GlassCard}" Margin="0,18,0,0" Padding="22,18">
+                <StackPanel>
+                    <TextBlock Text="{local:T 'İnternet kontrolü'}" Style="{StaticResource Heading}" FontSize="18"/>
+                    <TextBlock Style="{StaticResource Hint}" Margin="0,4,0,12"
+                               Text="{local:T 'Modemine, iki bilinen internet adresine ve (dosyada yazdıysan) kendi ping hedefine birkaç saniye ping atar, bir de adres çözme süresine bakar; sorunun evde mi, internet sağlayıcında mı olduğunu söyler. Başka hiçbir şey gönderilmez ve kaydedilmez.'}"/>
+                    <StackPanel Orientation="Horizontal">
+                        <Button Style="{StaticResource PrimaryButton}" Content="{local:T 'Kontrol et'}" Command="{Binding RunNetCommand}" Padding="18,8" MinHeight="38"/>
+                        <Button Style="{StaticResource TextButton}" Content="{local:T 'Vazgeç'}" Command="{Binding CancelNetCommand}" Margin="6,0,0,0"
+                                Visibility="{Binding NetBusy, Converter={StaticResource B2V}}"/>
+                    </StackPanel>
+                    <TextBlock Text="{Binding NetProgress}" AutomationProperties.LiveSetting="Polite">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock" BasedOn="{StaticResource Hint}">
+                                <Setter Property="Margin" Value="0,10,0,0"/>
+                                <Style.Triggers>
+                                    <!-- boşken yer kaplamaz -->
+                                    <Trigger Property="Text" Value="">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+
+                    <StackPanel Visibility="{Binding HasNetResult, Converter={StaticResource B2V}}" Margin="0,12,0,0">
+                        <ItemsControl ItemsSource="{Binding NetRows}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel>
+                                        <Rectangle x:Name="Sep" Style="{StaticResource Hairline}"/>
+                                        <StackPanel Margin="0,8">
+                                            <TextBlock Text="{Binding Label}" FontWeight="Medium" TextWrapping="Wrap"/>
+                                            <TextBlock x:Name="Result" Text="{Binding Result}" Style="{StaticResource Hint}" Margin="0,1,0,0"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                    <DataTemplate.Triggers>
+                                        <DataTrigger Binding="{Binding Answered}" Value="False">
+                                            <Setter TargetName="Result" Property="Foreground" Value="{StaticResource WarnBrush}"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource PreviousData}}" Value="{x:Null}">
+                                            <Setter TargetName="Sep" Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </DataTemplate.Triggers>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <Rectangle Style="{StaticResource Hairline}"/>
+                        <TextBlock Text="{Binding NetDns}" Style="{StaticResource Hint}" Margin="0,8,0,0" Visibility="{Binding HasNetDns, Converter={StaticResource B2V}}"/>
+
+                        <!-- başlık: sağlıklıysa yeşil, bir sorun bulunduysa sarı (kesin değil, "büyük olasılıkla") -->
+                        <TextBlock Text="{Binding NetHeadline}" FontSize="17" TextWrapping="Wrap" Margin="0,14,0,0" AutomationProperties.LiveSetting="Polite">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock" BasedOn="{StaticResource Heading}">
+                                    <Setter Property="FontSize" Value="17"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding NetHealthy}" Value="True">
+                                            <Setter Property="Foreground" Value="{StaticResource GoodBrush}"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding NetProblem}" Value="True">
+                                            <Setter Property="Foreground" Value="{StaticResource WarnBrush}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                        <TextBlock Text="{Binding NetDetail}" Style="{StaticResource Body2}" Margin="0,6,0,0"/>
+                        <TextBlock Text="{Binding NetLimits}" Style="{StaticResource Hint}" Margin="0,10,0,0"/>
+                    </StackPanel>
+                </StackPanel>
+            </ContentControl>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

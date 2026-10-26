@@ -57,7 +57,6 @@ public static class EnViewModels
          "The settings from the previous run are being restored; it will start again right after."),
         ("Kapatılan programlar açılıyor, ayarlar ve hizmetler eski haline getiriliyor.",
          "Closed programs are being reopened, and settings and services are being put back as they were."),
-        ("Ayarlar ve hizmetler eski haline getiriliyor.", "Settings and services are being put back as they were."),
         ("Kapatılan uygulamaları geri aç", "Reopen closed apps"),
         ("Ayarları geri yükle", "Restore settings"),
         ("adım", "steps"),
@@ -67,8 +66,6 @@ public static class EnViewModels
          "There's nothing to restore yet. After you press Start, you can put your settings back from here."),
         ("Kapatılan programları yeniden açar, değiştirilen ayarları ve durdurulan hizmetleri eski haline getirir. Kendini güncelleyen programlar, arka plan yardımcıları, engel aşma programları ve Mağaza uygulamaları açılamaz; hangileri açılmadıysa sonunda söylenir.",
          "Reopens the programs that were closed and puts changed settings and stopped services back as they were. Self-updating programs, background helpers, block-bypass programs and Store apps can't be reopened; any that weren't reopened are mentioned at the end."),
-        ("Değiştirilen ayarları ve durdurulan hizmetleri eski haline getirir. Programları açmaz: Ayarlar'da 'Kapattığım programları geri açsın' kapalı.",
-         "Puts changed settings and stopped services back as they were. Doesn't reopen programs: 'Reopen the programs I closed' is off in Settings."),
 
         // ------------------------------------------------------------------ the lists of Ayarlar and the pickers
         ("Her seferinde kapanacak programları seç", "Choose the programs to always close"),
@@ -120,5 +117,25 @@ public static class EnViewModels
         ("Yapılamadı: Yazıcı hizmeti durdurulamadı (Windows izin vermedi).", "Not done: the printer service couldn't be stopped (Windows didn't allow it)."),
         ("Wi-Fi kullanıyorsun. Mümkünse internet kablosu (Ethernet) kullan; kablosuz bağlantıdaki dalgalanmayı hiçbir ayar düzeltemez.",
          "You're using Wi-Fi. If you can, use an internet cable (Ethernet); no setting can fix the fluctuation of a wireless connection."),
+
+        // ------------------------------------------------------------------ the Açılış page
+        ("CS2 çalışıyor: oyun açıkken Antilag hiçbir şeyi değiştirmez.", "CS2 is running: while the game is open, Antilag doesn't change anything."),
+        ("Windows bu değişikliği kabul etmedi; anahtar eski haline döndü.", "Windows didn't accept this change; the switch went back."),
+        ("Bir sonraki Windows açılışında yine kendiliğinden başlayacak.", "It will start by itself again the next time Windows starts."),
+        ("Bir sonraki Windows açılışında başlamayacak (şu an açıksa kapanmaz).", "It won't start the next time Windows starts (if it's open now, it stays open)."),
+        ("Değiştirilemedi; anahtar eski haline döndü.", "Couldn't be changed; the switch went back."),
+
+        // ------------------------------------------------------------------ the Kontrol page
+        ("sorun yok", "no problem"),
+        ("küçük not", "small note"),
+        ("dikkat", "attention"),
+        ("yanıt vermedi", "no answer"),
+        ("ortalama {0} ms · dalgalanma {1} ms · paket kaybı %{2}", "average {0} ms · fluctuation {1} ms · {2}% packet loss"),
+        ("Şu an dikkat edilecek bir şey görünmüyor.", "Nothing that needs your attention shows up right now."),
+        ("Dikkat etmeye değer {0} konu var.", "{0} {0?topic:topics} worth your attention."),
+        ("Kontrol başlıyor…", "Starting the check…"),
+        ("Kontrol durduruldu.", "The check was stopped."),
+        ("Kontrol yapılamadı.", "The check couldn't be done."),
+        ("Ad çözme (steampowered.com): {0} ms", "Name lookup (steampowered.com): {0} ms"),
     };
 }

@@ -133,6 +133,18 @@
                             <TextBlock Text="{local:T 'Profiller'}"/>
                         </StackPanel>
                     </RadioButton>
+                    <RadioButton Style="{StaticResource RailItem}" GroupName="page" IsChecked="{Binding PageStartup, Mode=TwoWay}" AutomationProperties.Name="{local:T 'Açılış'}" Margin="0,4,0,0">
+                        <StackPanel Orientation="Horizontal">
+                            <Path Style="{StaticResource Icon}" Data="{StaticResource IconStartup}" Margin="0,0,12,0"/>
+                            <TextBlock Text="{local:T 'Açılış'}"/>
+                        </StackPanel>
+                    </RadioButton>
+                    <RadioButton Style="{StaticResource RailItem}" GroupName="page" IsChecked="{Binding PageCheck, Mode=TwoWay}" AutomationProperties.Name="{local:T 'Kontrol'}" Margin="0,4,0,0">
+                        <StackPanel Orientation="Horizontal">
+                            <Path Style="{StaticResource Icon}" Data="{StaticResource IconPulse}" Margin="0,0,12,0"/>
+                            <TextBlock Text="{local:T 'Kontrol'}"/>
+                        </StackPanel>
+                    </RadioButton>
                 </StackPanel>
 
                 <StackPanel Grid.Row="2">
@@ -441,6 +453,16 @@
                 </ScrollViewer>
             </Grid>
 
+            <!-- açılış: bir çalıştırma sürerken satırlar değiştirilemez (sayfanın kendisi kaydırılabilir kalır; kilit StartupPage'in satır listesindedir) -->
+            <Grid x:Name="StartupPageHost" Visibility="{Binding PageStartup, Converter={StaticResource B2V}}">
+                <local:StartupPage DataContext="{Binding Startup}"/>
+            </Grid>
+
+            <!-- kontrol: kendi düğmeleri çalışma durumunu kendisi bilir (bir kontrol sürerken sayfa kapanmaz; Vazgeç basılabilir kalır) -->
+            <Grid x:Name="CheckPageHost" Visibility="{Binding PageCheck, Converter={StaticResource B2V}}">
+                <local:CheckPage DataContext="{Binding Check}"/>
+            </Grid>
+
             <!-- ayarlar -->
             <ScrollViewer x:Name="SettingsPage" VerticalScrollBarVisibility="Auto" Visibility="{Binding PageSettings, Converter={StaticResource B2V}}">
                 <StackPanel MaxWidth="720" HorizontalAlignment="Left" Margin="40,32,32,40" IsEnabled="{Binding IsIdle}">
@@ -480,15 +502,6 @@
                     <local:AppListCard DataContext="{Binding AlwaysCloseList}" Margin="0,28,0,0"/>
 
                     <Rectangle Style="{StaticResource Hairline}" Margin="0,28,0,0"/>
-                    <CheckBox Style="{StaticResource SwitchRow}" IsChecked="{Binding RestartClosedApps, Mode=TwoWay}" Padding="0,14"
-                              AutomationProperties.Name="{local:T 'Kapattığım programları geri açsın'}">
-                        <StackPanel>
-                            <TextBlock Text="{local:T 'Kapattığım programları geri açsın'}" FontSize="14.5" FontWeight="SemiBold" TextWrapping="Wrap"/>
-                            <TextBlock Style="{StaticResource Hint}" Margin="0,4,0,0"
-                                       Text="{local:T 'Kapalıyken geri yükleme yalnızca ayarları ve hizmetleri eski haline getirir. Kendini güncelleyen programlar, arka plan yardımcıları, engel aşma programları ve Mağaza uygulamaları açılamaz; hangileri açılmadıysa sonunda adlarıyla yazılır.'}"/>
-                        </StackPanel>
-                    </CheckBox>
-                    <Rectangle Style="{StaticResource Hairline}"/>
                     <CheckBox Style="{StaticResource SwitchRow}" IsChecked="{Binding Update.CheckForUpdates, Mode=TwoWay}" Padding="0,14"
                               AutomationProperties.Name="{local:T 'Yeni sürüm olunca haber ver'}">
                         <StackPanel>

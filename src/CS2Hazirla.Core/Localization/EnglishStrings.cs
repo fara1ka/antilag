@@ -27,6 +27,9 @@ public static class EnglishStrings
         ("Profiles", EnProfiles.Entries),
         ("Windows", EnWindows.Entries),
         ("Xaml", EnXaml.Entries),
+        ("Startup", EnStartup.Entries),
+        ("Health", EnHealth.Entries),
+        ("Net", EnNet.Entries),
     };
 
     private static (Dictionary<string, string>, List<string>) Build()

@@ -92,8 +92,19 @@ public class FakeSystem : ISystem
     public bool RegistryKeyExists(RegHive hive, string subKey) => Keys.Contains(KK(hive, subKey));
     public MemoryInfo GetMemory() => Memory;
     public double SampleCpuIdlePercent(int sampleMs) => 90;
-    public Task<PingStats> PingAsync(string host, int count, CancellationToken ct) =>
-        Task.FromResult(new PingStats(host, count, count, 12, 1, 0));
+    /// <summary>Per host (any letter case): the answer PingAsync gives. A host that is not listed gets the default answer (every ping answered, 12 ms, no loss).</summary>
+    public readonly Dictionary<string, PingStats> PingResults = new(StringComparer.OrdinalIgnoreCase);
+    /// <summary>Full control for a test (wait, throw, start the game...): used instead of PingResults and the default when set.</summary>
+    public Func<string, int, CancellationToken, Task<PingStats>>? PingHandler;
+    /// <summary>The hosts PingAsync was asked for, in order (a check pings in parallel: read it after the check).</summary>
+    public readonly List<string> PingedHosts = new();
+    public Task<PingStats> PingAsync(string host, int count, CancellationToken ct)
+    {
+        lock (PingedHosts) PingedHosts.Add(host);
+        if (PingHandler != null) return PingHandler(host, count, ct);
+        if (PingResults.TryGetValue(host, out var configured)) return Task.FromResult(configured);
+        return Task.FromResult(new PingStats(host, count, count, 12, 1, 0));
+    }
     public IReadOnlyList<NicInfo> GetNics() { Probe("GetNics"); return GetNicsCore(); }
     private IReadOnlyList<NicInfo> GetNicsCore() => Nics.Select(n => n.PowerInstanceName == null ? n : n with { PowerSaveEnabled = NicPower[n.PowerInstanceName] }).ToList();
     public IReadOnlyList<RamModule> GetRamModules() => new[] { new RamModule(16L << 30, 6000, 6000) };

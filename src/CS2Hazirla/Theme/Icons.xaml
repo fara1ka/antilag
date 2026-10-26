@@ -22,6 +22,9 @@
     <Geometry x:Key="IconAlert" po:Freeze="True">M12,4.2 L21,19.4 H3 Z M12,10 L12,14 M12,16.6 L12,16.7</Geometry>
     <Geometry x:Key="IconGlobe" po:Freeze="True">M12,3.5 A8.5,8.5 0 1 1 12,20.5 A8.5,8.5 0 1 1 12,3.5 M3.5,12 H20.5 M12,3.5 C8.8,6.6 8.8,17.4 12,20.5 M12,3.5 C15.2,6.6 15.2,17.4 12,20.5 M5,7.6 H19 M5,16.4 H19</Geometry>
 
+    <Geometry x:Key="IconStartup" po:Freeze="True">M12,3.5 A8.5,8.5 0 1 1 12,20.5 A8.5,8.5 0 1 1 12,3.5 M10.2,8.6 L15.6,12 L10.2,15.4 Z</Geometry>
+    <Geometry x:Key="IconPulse" po:Freeze="True">M3,12.5 H7.5 L9.8,6.5 L13.6,18 L15.8,12.5 H21</Geometry>
+
     <Style x:Key="Icon" TargetType="Path">
         <Setter Property="Stretch" Value="Uniform"/>
         <Setter Property="Width" Value="18"/>
